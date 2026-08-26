@@ -12,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.gutierrez.Lab01.ui.theme.Laboratorio01Theme
-
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.sp
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,16 +33,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Column(modifier = modifier) {
+        Text(text = "¡Hola, soy $name!", fontSize = 24.sp)
+        Text(text = "Curso: Programación en Móviles")
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     Laboratorio01Theme {
-        Greeting("Android")
+        Greeting("Juan Gutierrez")
     }
 }
