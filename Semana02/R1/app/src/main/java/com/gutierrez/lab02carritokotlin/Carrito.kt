@@ -86,4 +86,6 @@ fun main() {
 
     println(mensajeDescuento(total))
     println("TOTAL CON DESCUENTO   : S/${String.format("%8.2f",total - calcularDescuento(total))}")
+
+    println("Gracias por su compra, ${nombreCliente}")
 }
