@@ -83,3 +83,36 @@ Actualizar el método mostrarResumen() para imprimir en consola exactamente el f
 * Mensajes consistentes: El método mensajeDescuento() es privado y deriva su texto directamente de las constantes internas para garantizar coherencia con los cobros. 
 * Reporte integrado: mostrarResumen() estructura la salida completa solicitada (cliente, productos, detalle de la tabla vía mostrarDetalle(), subtotal, IGV, descuentos, total a pagar y producto más caro).
 * Lógica de cálculo: El descuento se evalúa sobre el total final con IGV y la búsqueda del producto de mayor valor utiliza maxByOrNull.
+
+### Prompt N°5
+* Aplica el principio de Abstraccion para la logica de descuentos del carrito de compras en Kotlin.
+1. Crea una interfaz llamada EstrategiaDescuento con un metodo calcularDescuento(monto: Double): Double.
+2. Implementa dos clases concretas que usen esta interfaz:
+  - SinDescuento: devuelve 0.0.
+  - DescuentoPorMonto: aplica un 5% si el monto supera S/ 3000 y un 10% si supera S/ 5000 usando la estructura when.
+3. Modificar la clase CarritoDeCompras para que acepte una EstrategiaDescuento (por defecto SinDescuento) y actualiza la lógica para aplicar esta estrtegia sobre el total final. No utilices interfaz gráfica, solo terminal.
+
+###### Resultado:
+
+```
+app/
+└── src/
+    └── main/
+        └── java/
+            └── com.gutierrez.Lab02IA/
+                ├── EstrategiaDescuento.kt
+                ├── CarritoDeCompras.kt
+                └── Producto.kt
+```
+
+| Archivo                |                             Contiene                             |
+|------------------------|:----------------------------------------------------------------:|
+| Producto.kt            | Abstraccion Producto + herencia ProductoFisico / ProductoDigital |
+| EstrategiaDescuento.kt |           Interfaz + SinDescuento + DescuentoPorMonto            |
+| CarritoDeCompras.kt    |   Encapsulamiento, calculos financieros, polimorfismo y main()   |
+
+* Interfaz EstrategiaDescuento: Define el contrato calcularDescuento(monto: Double) y la propiedad descripcion para desacoplar el texto informativo de la boleta.
+* Implementaciones concretas: SinDescuento (devuelve 0) y DescuentoPorMonto (calcula 5% o 10% con when), manteniendo sus reglas y constantes encapsuladas.
+* Desacoplamiento en CarritoDeCompras: Elimina constantes de descuento y condicionales locales; delega el cálculo a la estrategia inyectada (EstrategiaDescuento).
+* Flexibilidad y dinamismo: Utiliza var con private set y el método cambiarEstrategia() para intercambiar promociones en tiempo de ejecución.
+* Validación en main(): Demuestra la variabilidad ejecutando la misma compra con distintas estrategias y probando los tramos de descuento.
