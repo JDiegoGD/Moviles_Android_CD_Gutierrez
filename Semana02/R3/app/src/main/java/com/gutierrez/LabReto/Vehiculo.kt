@@ -1,5 +1,3 @@
-package com.gutierrez.LabReto
-
 import kotlin.system.exitProcess
 
 /**
@@ -11,7 +9,7 @@ import kotlin.system.exitProcess
 enum class TipoVehiculo(val tarifaHora: Double) {
     MOTO(2.0),
     AUTO(4.0),
-    CAMIONETA(6.0);
+    CAMIONETA(10.0);
 
     companion object {
         fun desdeTexto(texto: String): TipoVehiculo {
@@ -64,17 +62,64 @@ class Vehiculo(
     }
 
     /**
-     * Calcula el costo total del estacionamiento.
-     * Los clientes frecuentes reciben un 15% de descuento.
+     * Reglas de recargo por hora, sobre la tarifa base del tipo de vehículo:
+     *  - Horas 1-2   : 0%  de recargo
+     *  - Horas 3-5   : 20% de recargo
+     *  - Hora 6 en adelante: 50% de recargo
      */
-    fun calcularCosto(): Double {
-        val costoBase = horas * tipo.tarifaHora
-        return if (esClienteFrecuente) costoBase * 0.85 else costoBase
+    private fun recargoPorHora(hora: Int): Int = when {
+        hora <= 2 -> 0
+        hora in 3..5 -> 20
+        else -> 50
+    }
+
+    /**
+     * Desglosa el cobro hora por hora, aplicando el recargo correspondiente
+     * a la tarifa base según el tramo en el que cae cada hora.
+     */
+    fun detalleHoras(): List<DetalleHora> {
+        val detalle = mutableListOf<DetalleHora>()
+        for (hora in 1..horas) {
+            val recargo = recargoPorHora(hora)
+            val montoHora = tipo.tarifaHora * (1 + recargo / 100.0)
+            detalle.add(DetalleHora(hora, tipo.tarifaHora, recargo, montoHora))
+        }
+        return detalle
+    }
+
+    /** Suma de todas las horas antes de aplicar el descuento por cliente frecuente. */
+    fun calcularSubtotal(): Double = detalleHoras().sumOf { it.montoHora }
+
+    /**
+     * Calcula el monto total a pagar: suma el costo de cada hora (con su recargo)
+     * y, si es_cliente_frecuente es true, aplica un 10% de descuento sobre ese total.
+     */
+    fun calcularTotal(): Double {
+        val subtotal = calcularSubtotal()
+        return if (esClienteFrecuente) subtotal * 0.90 else subtotal
+    }
+
+    /** Imprime el desglose del cobro hora por hora, y el total final con descuento si aplica. */
+    fun imprimirDetalle() {
+        println("Desglose por hora (tarifa base ${tipo.etiqueta()}: S/ %.2f)".format(tipo.tarifaHora))
+        for (d in detalleHoras()) {
+            println(
+                "  Hora %2d -> recargo %3d%% -> S/ %.2f"
+                    .format(d.hora, d.recargoPorcentaje, d.montoHora)
+            )
+        }
+        val subtotal = calcularSubtotal()
+        println("  Subtotal            : S/ %.2f".format(subtotal))
+        if (esClienteFrecuente) {
+            val descuento = subtotal * 0.10
+            println("  Descuento frecuente (10%%): -S/ %.2f".format(descuento))
+        }
+        println("  TOTAL A PAGAR       : S/ %.2f".format(calcularTotal()))
     }
 
     override fun toString(): String {
         val frecuente = if (esClienteFrecuente) "Sí" else "No"
-        val costo = "%.2f".format(calcularCosto())
+        val total = "%.2f".format(calcularTotal())
         return """
             |-----------------------------------
             |Placa           : $placa
@@ -82,11 +127,19 @@ class Vehiculo(
             |Horas            : $horas
             |Cliente frecuente: $frecuente
             |Cliente          : $nombreCliente
-            |Costo total      : S/ $costo
+            |Costo total      : S/ $total
             |-----------------------------------
         """.trimMargin()
     }
 }
+
+/** Representa el cobro correspondiente a una hora individual de estacionamiento. */
+data class DetalleHora(
+    val hora: Int,
+    val tarifaBase: Double,
+    val recargoPorcentaje: Int,
+    val montoHora: Double
+)
 
 // ------------------- APLICACIÓN DE TERMINAL -------------------
 
@@ -145,7 +198,8 @@ fun main() {
             |=== SISTEMA DE ESTACIONAMIENTO ===
             |1. Registrar vehículo
             |2. Listar vehículos registrados
-            |3. Salir
+            |3. Ver desglose de un vehículo (por placa)
+            |4. Salir
             """.trimMargin()
         )
         print("Seleccione una opción: ")
@@ -155,7 +209,9 @@ fun main() {
                 val vehiculo = registrarVehiculo()
                 if (vehiculo != null) {
                     vehiculosRegistrados.add(vehiculo)
-                    println("\nVehículo registrado correctamente:")
+                    println("\nVehículo registrado correctamente:\n")
+                    vehiculo.imprimirDetalle()
+                    println()
                     println(vehiculo)
                 }
             }
@@ -168,6 +224,16 @@ fun main() {
                 }
             }
             "3" -> {
+                val placaBuscada = leerTexto("Ingrese la placa a consultar: ").trim().uppercase()
+                val encontrado = vehiculosRegistrados.find { it.placa == placaBuscada }
+                if (encontrado == null) {
+                    println("\nNo se encontró ningún vehículo con esa placa.")
+                } else {
+                    println()
+                    encontrado.imprimirDetalle()
+                }
+            }
+            "4" -> {
                 println("Saliendo del sistema...")
                 exitProcess(0)
             }
