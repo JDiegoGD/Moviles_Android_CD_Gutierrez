@@ -46,7 +46,7 @@ app/
 | precioFinal()                  | conIgv(precioBase) + costoEnvio | conIgv(precioBase * (1 - descuentoDigital))          |
 | imprimirDetalle()              |   agregar el envío por unidad   | agregar licencia, % y ahorro por unidad              |
 
-###### Resultados
+###### Resultado: 
 * Cálculo de impuestos diferenciado: ProductoFisico aplica IGV al precio base y luego suma el envío (no imponible); ProductoDigital aplica el descuento primero y calcula el IGV sobre el monto resultante.
 * Validación heredada y propia: Cada subclase valida sus atributos específicos (costo de envío o porcentaje de descuento) tanto en el bloque init como en los setters.
 * Demostración de Polimorfismo: En main(), se itera sobre una lista heterogénea List<Producto>, ejecutando el comportamiento específico de cada subclase al imprimir detalles y calcular el precio final.
@@ -60,3 +60,26 @@ app/
 * Polimorfismo puro: El método mostrarDetalle() itera sobre los productos ejecutando imprimirDetalle() y precioFinal() dinámicamente según la subclase, sin requerir condicionales (if/when).
 * Formato y alineación: Se estructura la salida en consola mediante String.format, integrando la columna P.UNIT y alineando los totales con los montos de la tabla.
 * Propiedades derivadas: Expone métricas de consulta (cantidadProductos, cantidadItems, calcularTotal()) sin dar acceso a la estructura interna.
+
+### Prompt N°4
+Completa la clase CarritoDeCompras encapsulando los calculos financieros:
+1. CalcularSubtotal()
+2. calcularIGV() (18% sobre el subtotal)
+3. calcularTotal()
+4. obtenerProductoMasCaro() (usando maxByNull)      
+
+Actualizar el método mostrarResumen() para imprimir en consola exactamente el formato requerido (Cliente, Productos agregados, Lista formateada con 2 decimales, IGV, Descuentos y Total final).
+
+###### Resultado:
+| Método                 |                     Fórmula                     |
+|------------------------|:-----------------------------------------------:|
+| calcularSubtotal()     |    sumOf { it.precioFianl() * it.cantidad }     |
+| calcularIGV()          |         calcularSubtotal() * IGV (18%)          |
+| calcularTotal()        |       5% sobre S/ 3000, 10% sobre S/ 5000       |
+| calcularDescuento()    |                total - descuento                |                                               
+| obtenerProductoMasCaro | listaProductos.maxByOrNull { it.precioFinal() } | 
+
+* Encapsulamiento de constantes: Las tasas de impuestos y límites de descuento se definen como constantes privadas dentro de un companion object, centralizando las reglas financieras.
+* Mensajes consistentes: El método mensajeDescuento() es privado y deriva su texto directamente de las constantes internas para garantizar coherencia con los cobros. 
+* Reporte integrado: mostrarResumen() estructura la salida completa solicitada (cliente, productos, detalle de la tabla vía mostrarDetalle(), subtotal, IGV, descuentos, total a pagar y producto más caro).
+* Lógica de cálculo: El descuento se evalúa sobre el total final con IGV y la búsqueda del producto de mayor valor utiliza maxByOrNull.

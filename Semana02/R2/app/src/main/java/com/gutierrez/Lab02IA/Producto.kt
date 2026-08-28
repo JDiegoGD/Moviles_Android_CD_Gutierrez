@@ -3,15 +3,19 @@ package com.gutierrez.Lab02IA
 import java.util.Locale
 
 /**
- * Abstraccion base del modelo de datos del carrito.
+ * ABSTRACCION - Modelo base del carrito.
+ *
+ * precioFinal() devuelve el precio unitario SIN IGV: cada subclase decide como se
+ * arma (recargos, descuentos). El impuesto es una regla del negocio, no del producto,
+ * y por eso lo calcula CarritoDeCompras sobre el subtotal.
  *
  * Encapsulamiento:
- *  - nombre        : publico de solo lectura (no se reasigna durante la vida del producto).
- *  - precioBase    : publico de lectura, con setter validado (no admite negativos).
- *  - cantidad      : publico de lectura, con setter validado (no admite negativos).
- *  - codigo        : publico de lectura, private set (solo la clase lo genera).
- *  - IGV / contador: private, detalle interno que nadie fuera de la clase necesita.
- *  - soles()       : protected, utilitario de formato reservado a las subclases.
+ *  - nombre     : publico de solo lectura (no se reasigna en la vida del producto).
+ *  - precioBase : publico de lectura, con setter validado (no admite negativos).
+ *  - cantidad   : publico de lectura, con setter validado (no admite negativos).
+ *  - codigo     : publico de lectura, private set (solo la clase lo genera).
+ *  - contador   : private, detalle interno que nadie fuera de la clase necesita.
+ *  - soles()    : protected, utilitario de formato reservado a las subclases.
  */
 abstract class Producto(
     val nombre: String,
@@ -61,13 +65,13 @@ abstract class Producto(
     // Contrato que cada tipo de producto debe resolver a su manera
     // ---------------------------------------------------------------
 
-    /** Precio unitario ya con impuestos, recargos o descuentos propios del tipo. */
+    /** Precio unitario sin IGV, ya con los recargos o descuentos propios del tipo. */
     abstract fun precioFinal(): Double
 
     /** Muestra en consola la linea de detalle del producto. */
     abstract fun imprimirDetalle()
 
-    /** Importe de la linea: precio final unitario por la cantidad pedida. */
+    /** Subtotal de la linea: precio final unitario por la cantidad pedida. */
     open fun importeTotal(): Double = precioFinal() * cantidad
 
     // ---------------------------------------------------------------
@@ -88,19 +92,15 @@ abstract class Producto(
     override fun toString(): String = "$codigo $nombre x$cantidad"
 
     private companion object {
-        const val IGV = 0.18
         var contador = 0
     }
-
-    /** Expuesto a las subclases sin filtrar la constante privada. */
-    protected fun conIgv(monto: Double): Double = monto * (1 + IGV)
 }
 
 /**
  * HERENCIA 1 - Producto fisico (se despacha a domicilio).
  *
- * Aporta el atributo propio costoEnvio y sobrescribe el contrato de la clase padre:
- *  - precioFinal()     : precio con IGV + el costo de envio de la unidad.
+ * Aporta el atributo costoEnvio y sobrescribe el contrato de la clase padre:
+ *  - precioFinal()     : precio de lista + el costo de envio de la unidad.
  *  - imprimirDetalle() : agrega el costo de envio a la linea de detalle.
  */
 class ProductoFisico(
@@ -125,8 +125,8 @@ class ProductoFisico(
         }
     }
 
-    /** El producto fisico paga IGV sobre el precio de lista y suma el envio. */
-    override fun precioFinal(): Double = conIgv(precioBase) + costoEnvio
+    /** El producto fisico suma el flete al precio de lista. */
+    override fun precioFinal(): Double = precioBase + costoEnvio
 
     override fun imprimirDetalle() {
         println(
@@ -140,7 +140,7 @@ class ProductoFisico(
  * HERENCIA 2 - Producto digital (se descarga, no se despacha).
  *
  * Aporta los atributos descuentoDigital y licencia, y sobrescribe:
- *  - precioFinal()     : aplica el descuento digital antes del IGV; nunca paga envio.
+ *  - precioFinal()     : aplica el descuento digital; nunca paga envio.
  *  - imprimirDetalle() : muestra el tipo de licencia y el descuento aplicado.
  */
 class ProductoDigital(
@@ -169,10 +169,10 @@ class ProductoDigital(
 
     /** Monto que el cliente se ahorra por unidad, util para el detalle. */
     val ahorroPorUnidad: Double
-        get() = conIgv(precioBase) - precioFinal()
+        get() = precioBase - precioFinal()
 
-    /** El producto digital descuenta primero y recien despues aplica el IGV. */
-    override fun precioFinal(): Double = conIgv(precioBase * (1 - descuentoDigital))
+    /** El producto digital rebaja el precio de lista segun su descuento. */
+    override fun precioFinal(): Double = precioBase * (1 - descuentoDigital)
 
     override fun imprimirDetalle() {
         println(
