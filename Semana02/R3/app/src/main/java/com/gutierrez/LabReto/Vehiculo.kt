@@ -117,6 +117,57 @@ class Vehiculo(
         println("  TOTAL A PAGAR       : S/ %.2f".format(calcularTotal()))
     }
 
+    /**
+     * Genera e imprime en consola la boleta (comprobante) del estacionamiento:
+     * datos del cliente/vehículo, tabla de tarifa por hora y resumen de pago.
+     */
+    fun generarBoleta() {
+        val ancho = 54
+        val linea = "=".repeat(ancho)
+        val separador = "-".repeat(ancho)
+
+        println(linea)
+        println(centrar("BOLETA DE ESTACIONAMIENTO", ancho))
+        println(linea)
+
+        // --- Datos del cliente y vehículo ---
+        println("Cliente        : $nombreCliente")
+        println("Placa          : $placa")
+        println("Tipo de vehículo: ${tipo.etiqueta()}")
+        println(separador)
+
+        // --- Tabla de tarifa por hora ---
+        println("%-6s %-14s %-11s %-12s".format("Hora", "Tarifa Base", "%Recargo", "Importe"))
+        println(separador)
+        for (d in detalleHoras()) {
+            println(
+                "%-6d %-14s %-11s %-12s".format(
+                    d.hora,
+                    "S/ %.2f".format(d.tarifaBase),
+                    "${d.recargoPorcentaje}%",
+                    "S/ %.2f".format(d.montoHora)
+                )
+            )
+        }
+        println(separador)
+
+        // --- Resumen de pago ---
+        val subtotal = calcularSubtotal()
+        val descuento = if (esClienteFrecuente) subtotal * 0.10 else 0.0
+        println("%-30s S/ %8.2f".format("Subtotal:", subtotal))
+        println("%-30s S/ %8.2f".format("Descuento cliente frecuente:", descuento))
+        println("%-30s S/ %8.2f".format("MONTO TOTAL A PAGAR:", calcularTotal()))
+        println(linea)
+    }
+
+    private fun centrar(texto: String, ancho: Int): String {
+        if (texto.length >= ancho) return texto
+        val espacios = ancho - texto.length
+        val izquierda = espacios / 2
+        val derecha = espacios - izquierda
+        return " ".repeat(izquierda) + texto + " ".repeat(derecha)
+    }
+
     override fun toString(): String {
         val frecuente = if (esClienteFrecuente) "Sí" else "No"
         val total = "%.2f".format(calcularTotal())
@@ -191,6 +242,16 @@ fun registrarVehiculo(): Vehiculo? {
 fun main() {
     val vehiculosRegistrados = mutableListOf<Vehiculo>()
 
+    val autoDemo = Vehiculo(
+        placa = "ABC123",
+        tipo = "Auto",
+        horas = 3,
+        esClienteFrecuente = true,
+        nombreCliente = "Gutierrez Juan"
+    )
+    vehiculosRegistrados.add(autoDemo)
+    autoDemo.generarBoleta()
+
     while (true) {
         println(
             """
@@ -198,7 +259,7 @@ fun main() {
             |=== SISTEMA DE ESTACIONAMIENTO ===
             |1. Registrar vehículo
             |2. Listar vehículos registrados
-            |3. Ver desglose de un vehículo (por placa)
+            |3. Ver boleta de un vehículo (por placa)
             |4. Salir
             """.trimMargin()
         )
@@ -210,9 +271,7 @@ fun main() {
                 if (vehiculo != null) {
                     vehiculosRegistrados.add(vehiculo)
                     println("\nVehículo registrado correctamente:\n")
-                    vehiculo.imprimirDetalle()
-                    println()
-                    println(vehiculo)
+                    vehiculo.generarBoleta()
                 }
             }
             "2" -> {
@@ -230,7 +289,7 @@ fun main() {
                     println("\nNo se encontró ningún vehículo con esa placa.")
                 } else {
                     println()
-                    encontrado.imprimirDetalle()
+                    encontrado.generarBoleta()
                 }
             }
             "4" -> {
