@@ -22,6 +22,15 @@ fun calcularTotal(subtotal: Double, igv: Double): Double{
     return subtotal + igv
 }
 
+fun agregarProducto(): Producto{
+    print("============== Agrega un Producto =============")
+    var nombre = readln().toString()
+    var precio = readln().toDouble()
+    var cantidad = readln().toInt()
+    val nuevoProducto = Producto(nombre, precio, cantidad)
+    return nuevoProducto
+}
+
 fun mostrarDetalle(productos: List<Producto>){
     println("---------DETALLE DEL CARRITO----------")
     var i = 1
@@ -60,10 +69,17 @@ fun main() {
     println("Cliente: $nombreCliente")
     println()
 
-    carrito.add(Producto("Laptop HP", 2500.0, 1))
-    carrito.add(Producto("Mouse Logitech", 45.5, 2))
-    carrito.add(Producto("Teclado Redragon", 120.0, 2))
-    carrito.add(Producto("Monitor Teros", 350.0, 2))
+    println("====DESEA AGREGAR UN PRODUCTO? (si/no) ===")
+        var respuesta = readln().toString()
+        if (respuesta == "si"){
+            while (true){
+                carrito.add(agregarProducto())
+            }
+        }else if (respuesta == "no"){
+            return
+        }else{
+            println("Dato no valido")
+        }
 
     for (producto in carrito) {
         println("Producto agregado: ${producto.nombre}")
