@@ -1,9 +1,7 @@
 # Desarrollo del Laboratorio N°2 usando POO y IA
 
 ### Prompt N°1
-* Actua como un desarrollador Senior en Kotlin. Diseña la abstracción delmodelo de datos para un carrito de compras ejecutable en la consola. Crea una
-clase abstracta Producto que encapsule las propiedades nombre (String), precioBase(Double), usa modificadores adecuadamente (protected/private). Agrega metodos abstractos para calcular el precioFinal() y imprimirDetalle().
-Asegurate de incluir validaciones en el setter o en un bloque init para que el precio y la cantidad no sean negativos. No uses interfaz grafica.
+* Actua como un desarrollador Senior en Kotlin. Diseña la abstracción delmodelo de datos para un carrito de compras ejecutable en la consola. Crea una clase abstracta Producto que encapsule las propiedades nombre (String), precioBase(Double), usa modificadores adecuadamente (protected/private). Agrega metodos abstractos para calcular el precioFinal() y imprimirDetalle(). Asegurate de incluir validaciones en el setter o en un bloque init para que el precio y la cantidad no sean negativos. No uses interfaz grafica.
 
 ###### Resultado:
 ```
@@ -40,9 +38,7 @@ app/
 * Usando la clase abstracta Producto, aplica Herencia para crear dos subclases en Kotlin:
   * ProductoFisico: añade un atributo costoEnvio (Double).
   * ProductoDigital: añade un atributo descuentoDigital (Double) o licencia.              
-* Sobrescribir los metodos necesarios para cada tipo de producto tenga su propia forma de  
-calcular su precio final e imprimir sus detalles en consola. Genera un método main()     
-básico para probar instanciar ambos tipos y ver la salida en terminal.
+* Sobrescribir los metodos necesarios para cada tipo de producto tenga su propia forma de calcular su precio final e imprimir sus detalles en consola. Genera un método main() básico para probar instanciar ambos tipos y ver la salida en terminal.
 
 |                                |         ProductoFisico          | ProductoDigital                                      |
 |--------------------------------|:-------------------------------:|------------------------------------------------------|
@@ -50,7 +46,17 @@ básico para probar instanciar ambos tipos y ver la salida en terminal.
 | precioFinal()                  | conIgv(precioBase) + costoEnvio | conIgv(precioBase * (1 - descuentoDigital))          |
 | imprimirDetalle()              |   agregar el envío por unidad   | agregar licencia, % y ahorro por unidad              |
 
+###### Resultados
 * Cálculo de impuestos diferenciado: ProductoFisico aplica IGV al precio base y luego suma el envío (no imponible); ProductoDigital aplica el descuento primero y calcula el IGV sobre el monto resultante.
 * Validación heredada y propia: Cada subclase valida sus atributos específicos (costo de envío o porcentaje de descuento) tanto en el bloque init como en los setters.
 * Demostración de Polimorfismo: En main(), se itera sobre una lista heterogénea List<Producto>, ejecutando el comportamiento específico de cada subclase al imprimir detalles y calcular el precio final.
 * Simplificación del modelo: Se eliminó la clase ProductoPerecible para mantener la estructura enfocada en solo dos subclases (ProductoFisico y ProductoDigital).
+
+### Prompt N°3
+* Crea una clase CarritoDeCompras que aplique Encapsulamiento encapsulando la lista de productos(private val listaProductos = mutableListOf<Producto>()). Implementa métodos para agregarProducto(producto: Producto) y mostraDetalle(). Aplica Polimorfismo al iterar sobre la lista de tipo Producto y llamar a imprimirDetalle() y precioFinal() sin importar si es un ProductoFisico o ProductoDigital. Imprime el detalle en la terminal aliniando las columnas con String.format.
+
+###### Resultados
+* Encapsulamiento estricto: La colección listaProductos es privada y solo se expone externamente como una copia inmutable (toList()). El ingreso de elementos queda restringido al método agregarProducto().
+* Polimorfismo puro: El método mostrarDetalle() itera sobre los productos ejecutando imprimirDetalle() y precioFinal() dinámicamente según la subclase, sin requerir condicionales (if/when).
+* Formato y alineación: Se estructura la salida en consola mediante String.format, integrando la columna P.UNIT y alineando los totales con los montos de la tabla.
+* Propiedades derivadas: Expone métricas de consulta (cantidadProductos, cantidadItems, calcularTotal()) sin dar acceso a la estructura interna.

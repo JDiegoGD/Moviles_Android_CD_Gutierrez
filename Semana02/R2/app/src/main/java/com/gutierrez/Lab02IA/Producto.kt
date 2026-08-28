@@ -77,12 +77,12 @@ abstract class Producto(
     /** Formato monetario unico para todo el sistema. Solo visible para las subclases. */
     protected fun soles(monto: Double): String = String.format(Locale.US, "S/ %8.2f", monto)
 
-    /** Linea comun de detalle; las subclases le agregan su informacion propia. */
+    /** Linea comun de detalle; sus anchos coinciden con la cabecera de CarritoDeCompras. */
     protected fun lineaBase(tipo: String): String =
         String.format(
             Locale.US,
-            "%-5s %-22s %-11s x%-3d %s",
-            codigo, nombre.take(22), tipo, cantidad, soles(importeTotal())
+            "%-5s %-22s %-11s x%-3d %s %s",
+            codigo, nombre.take(22), tipo, cantidad, soles(precioFinal()), soles(importeTotal())
         )
 
     override fun toString(): String = "$codigo $nombre x$cantidad"
