@@ -97,103 +97,91 @@ abstract class Producto(
 }
 
 /**
- * Producto fisico: paga IGV y suma un recargo de despacho segun su peso.
+ * HERENCIA 1 - Producto fisico (se despacha a domicilio).
+ *
+ * Aporta el atributo propio costoEnvio y sobrescribe el contrato de la clase padre:
+ *  - precioFinal()     : precio con IGV + el costo de envio de la unidad.
+ *  - imprimirDetalle() : agrega el costo de envio a la linea de detalle.
  */
 class ProductoFisico(
     nombre: String,
     precioBase: Double,
     cantidad: Int = 1,
-    pesoKg: Double
+    costoEnvio: Double
 ) : Producto(nombre, precioBase, cantidad) {
 
-    var pesoKg: Double = pesoKg
+    /** Atributo propio de la subclase, tambien protegido contra valores negativos. */
+    var costoEnvio: Double = costoEnvio
         set(value) {
-            require(value >= 0.0) { "El peso de '$nombre' no puede ser negativo" }
+            require(value >= 0.0) {
+                "El costo de envio de '$nombre' no puede ser negativo (recibido: $value)"
+            }
             field = value
         }
 
     init {
-        require(pesoKg >= 0.0) { "El peso de '$nombre' no puede ser negativo" }
+        require(costoEnvio >= 0.0) {
+            "El costo de envio de '$nombre' no puede ser negativo (recibido: $costoEnvio)"
+        }
     }
 
-    private val recargoDespacho: Double
-        get() = pesoKg * COSTO_POR_KG
-
-    override fun precioFinal(): Double = conIgv(precioBase) + recargoDespacho
+    /** El producto fisico paga IGV sobre el precio de lista y suma el envio. */
+    override fun precioFinal(): Double = conIgv(precioBase) + costoEnvio
 
     override fun imprimirDetalle() {
-        println(lineaBase("[Fisico]") + String.format(Locale.US, "  (%.1f kg, despacho S/ %.2f)", pesoKg, recargoDespacho))
-    }
-
-    private companion object {
-        const val COSTO_POR_KG = 3.5
+        println(
+            lineaBase("[Fisico]") +
+                String.format(Locale.US, "  (envio S/ %.2f c/u)", costoEnvio)
+        )
     }
 }
 
 /**
- * Producto digital: paga IGV pero no genera despacho y tiene descuento por licencia.
+ * HERENCIA 2 - Producto digital (se descarga, no se despacha).
+ *
+ * Aporta los atributos descuentoDigital y licencia, y sobrescribe:
+ *  - precioFinal()     : aplica el descuento digital antes del IGV; nunca paga envio.
+ *  - imprimirDetalle() : muestra el tipo de licencia y el descuento aplicado.
  */
 class ProductoDigital(
     nombre: String,
     precioBase: Double,
     cantidad: Int = 1,
-    val tamanioMb: Int,
-    descuento: Double = 0.10
+    descuentoDigital: Double = 0.10,
+    val licencia: String = "Personal"
 ) : Producto(nombre, precioBase, cantidad) {
 
-    var descuento: Double = descuento
+    /** Descuento expresado en fraccion: 0.10 = 10%. Solo acepta valores entre 0.0 y 1.0. */
+    var descuentoDigital: Double = descuentoDigital
         set(value) {
-            require(value in 0.0..1.0) { "El descuento de '$nombre' debe estar entre 0.0 y 1.0" }
+            require(value in 0.0..1.0) {
+                "El descuento de '$nombre' debe estar entre 0.0 y 1.0 (recibido: $value)"
+            }
             field = value
         }
 
     init {
-        require(tamanioMb >= 0) { "El tamanio de '$nombre' no puede ser negativo" }
-        require(descuento in 0.0..1.0) { "El descuento de '$nombre' debe estar entre 0.0 y 1.0" }
+        require(descuentoDigital in 0.0..1.0) {
+            "El descuento de '$nombre' debe estar entre 0.0 y 1.0 (recibido: $descuentoDigital)"
+        }
+        require(licencia.isNotBlank()) { "La licencia de '$nombre' no puede estar vacia" }
     }
 
-    override fun precioFinal(): Double = conIgv(precioBase * (1 - descuento))
+    /** Monto que el cliente se ahorra por unidad, util para el detalle. */
+    val ahorroPorUnidad: Double
+        get() = conIgv(precioBase) - precioFinal()
+
+    /** El producto digital descuenta primero y recien despues aplica el IGV. */
+    override fun precioFinal(): Double = conIgv(precioBase * (1 - descuentoDigital))
 
     override fun imprimirDetalle() {
-        println(lineaBase("[Digital]") + String.format(Locale.US, "  (%d MB, -%.0f%% descarga)", tamanioMb, descuento * 100))
-    }
-}
-
-/**
- * Producto perecible: mientras mas cerca del vencimiento, mayor el descuento.
- */
-class ProductoPerecible(
-    nombre: String,
-    precioBase: Double,
-    cantidad: Int = 1,
-    diasParaVencer: Int
-) : Producto(nombre, precioBase, cantidad) {
-
-    var diasParaVencer: Int = diasParaVencer
-        set(value) {
-            require(value >= 0) { "Los dias para vencer de '$nombre' no pueden ser negativos" }
-            field = value
-        }
-
-    init {
-        require(diasParaVencer >= 0) { "Los dias para vencer de '$nombre' no pueden ser negativos" }
-    }
-
-    private val porcentajeRebaja: Double
-        get() = when {
-            diasParaVencer <= 1 -> 0.50
-            diasParaVencer <= 3 -> 0.30
-            diasParaVencer <= 7 -> 0.15
-            else -> 0.0
-        }
-
-    override fun precioFinal(): Double = conIgv(precioBase * (1 - porcentajeRebaja))
-
-    override fun imprimirDetalle() {
-        val nota = if (porcentajeRebaja > 0)
-            String.format(Locale.US, "vence en %d dia(s), -%.0f%%", diasParaVencer, porcentajeRebaja * 100)
-        else
-            String.format(Locale.US, "vence en %d dia(s)", diasParaVencer)
-        println(lineaBase("[Perecible]") + "  ($nota)")
+        println(
+            lineaBase("[Digital]") +
+                String.format(
+                    Locale.US,
+                    "  (licencia %s, -%.0f%% = ahorro S/ %.2f c/u)",
+                    licencia, descuentoDigital * 100, ahorroPorUnidad
+                )
+        )
     }
 }

@@ -82,39 +82,66 @@ class Carrito(val cliente: String) {
 }
 
 fun main() {
+    println("======= PRUEBA DE HERENCIA: Producto -> Fisico / Digital =======\n")
+
+    // 1) Instanciamos una subclase de cada tipo
+    val laptop = ProductoFisico(
+        nombre = "Laptop HP Victus",
+        precioBase = 2500.0,
+        cantidad = 1,
+        costoEnvio = 35.0
+    )
+    val office = ProductoDigital(
+        nombre = "Licencia Office 365",
+        precioBase = 180.0,
+        cantidad = 2,
+        descuentoDigital = 0.20,
+        licencia = "Anual"
+    )
+
+    // 2) Cada uno resuelve precioFinal() e imprimirDetalle() a su manera
+    laptop.imprimirDetalle()
+    office.imprimirDetalle()
+
+    println()
+    println(String.format("Precio final unitario laptop : S/ %.2f", laptop.precioFinal()))
+    println(String.format("Precio final unitario office : S/ %.2f", office.precioFinal()))
+
+    // 3) Polimorfismo: la lista es de tipo Producto, no de los tipos concretos
+    println("\n--- Recorrido polimorfico sobre List<Producto> ---")
+    val catalogo: List<Producto> = listOf(
+        laptop,
+        office,
+        ProductoFisico("Monitor Teros 24", 350.0, cantidad = 2, costoEnvio = 20.0),
+        ProductoDigital("Antivirus Kaspersky", 95.0, cantidad = 3, descuentoDigital = 0.25, licencia = "Familiar")
+    )
+    catalogo.forEach { it.imprimirDetalle() }
+
+    // 4) La boleta del carrito con los mismos objetos
+    println()
     val carrito = Carrito(cliente = "Juan Diego Gutierrez")
-
-    carrito.agregar(ProductoFisico("Laptop HP", 2500.0, cantidad = 1, pesoKg = 2.4))
-    carrito.agregar(ProductoFisico("Monitor Teros", 350.0, cantidad = 2, pesoKg = 4.0))
-    carrito.agregar(ProductoDigital("Licencia Office 365", 180.0, cantidad = 1, tamanioMb = 4096))
-    carrito.agregar(ProductoDigital("Antivirus Kaspersky", 95.0, cantidad = 2, tamanioMb = 512, descuento = 0.25))
-    carrito.agregar(ProductoPerecible("Cafe molido 500g", 42.0, cantidad = 3, diasParaVencer = 2))
-    carrito.agregar(ProductoPerecible("Galletas integrales", 8.5, cantidad = 4, diasParaVencer = 30))
-
+    catalogo.forEach { carrito.agregar(it) }
     carrito.imprimirBoleta()
 
-    println()
-    println("--- Prueba de las validaciones ---")
-    probar("Precio negativo en el constructor") {
-        ProductoFisico("Teclado Redragon", -120.0, cantidad = 1, pesoKg = 0.9)
+    // 5) Las validaciones heredadas y las propias de cada subclase siguen activas
+    println("\n--- Prueba de las validaciones ---")
+    probar("Precio negativo (heredado de Producto)") {
+        ProductoFisico("Teclado Redragon", -120.0, cantidad = 1, costoEnvio = 10.0)
     }
-    probar("Cantidad negativa en el constructor") {
-        ProductoDigital("Ebook Kotlin", 55.0, cantidad = -2, tamanioMb = 12)
+    probar("Cantidad negativa (heredado de Producto)") {
+        ProductoDigital("Ebook Kotlin", 55.0, cantidad = -2)
     }
-    probar("Precio negativo asignado por el setter") {
-        val p = ProductoFisico("Mouse Logitech", 45.5, cantidad = 1, pesoKg = 0.2)
-        p.precioBase = -10.0
+    probar("Costo de envio negativo (ProductoFisico)") {
+        ProductoFisico("Mouse Logitech", 45.5, cantidad = 1, costoEnvio = -5.0)
     }
-    probar("Cantidad negativa asignada por el setter") {
-        val p = ProductoPerecible("Leche Gloria", 4.5, cantidad = 6, diasParaVencer = 10)
-        p.cantidad = -1
+    probar("Descuento fuera de rango (ProductoDigital)") {
+        ProductoDigital("Curso Android", 300.0, cantidad = 1, descuentoDigital = 1.5)
     }
-    probar("Descuento fuera de rango") {
-        ProductoDigital("Curso Android", 300.0, cantidad = 1, tamanioMb = 2048, descuento = 1.5)
+    probar("Envio negativo asignado por el setter") {
+        laptop.costoEnvio = -1.0
     }
 
-    println()
-    println("Gracias por su compra, ${carrito.cliente}.")
+    println("\nGracias por su compra, ${carrito.cliente}.")
 }
 
 /** Ejecuta un bloque y reporta si la validacion lo rechazo. */
