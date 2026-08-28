@@ -148,5 +148,5 @@ app/
 
 ##### Resultado Final (terminal)
 
-![resultado](/imagenes/resultado1.png)
-![resultado](/imagenes/resultado2.png)
+![resultado](./Imagenes/Resultado1.png)
+![resultado](./Imagenes/Resultado2.png)
