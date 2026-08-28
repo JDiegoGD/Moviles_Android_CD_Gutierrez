@@ -116,3 +116,37 @@ app/
 * Desacoplamiento en CarritoDeCompras: Elimina constantes de descuento y condicionales locales; delega el cálculo a la estrategia inyectada (EstrategiaDescuento).
 * Flexibilidad y dinamismo: Utiliza var con private set y el método cambiarEstrategia() para intercambiar promociones en tiempo de ejecución.
 * Validación en main(): Demuestra la variabilidad ejecutando la misma compra con distintas estrategias y probando los tramos de descuento.
+
+### Prompt N°6
+* Escribe la funcion main() en un archivo ejecutable de Kotlin que integre todas las clases desarrolladas hasta el momento.
+  1. Intancia un cliente (Gutierrez Duran Juan Diego) y crea objetos de tipo ProductoFisico y ProductoDigital.
+  2. Crea un CarritoDeCompras para le cliente y agrega los productos utilizando agregarProducto().
+  3. Asigna la estrategia DescuentoPorMonto al carrito para aplicar la promoción adecuada según el total de la compra.
+  4. Ejecuta mostrarResumen() para imprimir la boleta final formateada en consola con 2 decimales, columnas aliniadas, subtotal, IGV, descuento aplicado y el producto más caro.
+  5. Agrega un bloque final que demuestre el manejo de exepciones probando instanciar productos con valores no validos (precios, cantidades o envios negativos) para verificar que el sistema responda de forma segura lanzando IllegalAtgumentException. No uses interfaz grafica.
+
+###### Resultado:
+```
+app/
+└── src/
+    └── main/
+        └── java/
+            └── com.gutierrez.Lab02IA/
+                ├── EstrategiaDescuento.kt
+                ├── CarritoDeCompras.kt
+                ├── Main.kt
+                └── Producto.kt
+```
+
+| Archivo                |                           Rol                            |
+|------------------------|:--------------------------------------------------------:|
+| Producto.kt            |    Clase abstracta + ProductoFisico / ProductoDigital    |
+| EstrategiaDescuento.kt |       Interfaz + SinDescuento + DescuentoPorMonto        |
+| CarritoDeCompras.kt    | Encapsulamiento, calculos financieros, salida formateada |
+| Main.kt                |            Punto de entrada que integra todo             |
+
+
+##### Resultado Final (terminal)
+
+![resultado](/imagenes/resultado1.png)
+![resultado](/imagenes/resultado2.png)
