@@ -29,3 +29,7 @@
   * Tabla de Tarifa por hora: Muestra la columna Hora, Tarifa Base, %Recargo e Importe por hora.
   * Resumen de pago: Subtotal, descuento aplicado y Monto Total a pagar.
 * Todo esto es una aplicación de terminal, no uses interfaces gráficas.
+
+![resultado](./Resultado1.png)
+![resultado](./Resultado2.png)
+![resultado](./Resultado3.png)
