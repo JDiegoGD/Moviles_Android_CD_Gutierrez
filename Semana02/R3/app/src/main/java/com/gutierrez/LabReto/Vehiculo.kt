@@ -101,7 +101,12 @@ class Vehiculo(
      */
     fun calcularTotal(): Double {
         val subtotal = calcularSubtotal()
-        return if (esClienteFrecuente) subtotal * 0.90 else subtotal
+        val IGV = 1.18
+        if (esClienteFrecuente){
+            return (subtotal * 0.90) * IGV;
+        }else{
+            return subtotal * IGV;
+        }
     }
 
     /** Imprime el desglose del cobro hora por hora, y el total final con descuento si aplica. */
@@ -161,7 +166,7 @@ class Vehiculo(
         val descuento = if (esClienteFrecuente) subtotal * 0.10 else 0.0
         println("%-30s S/ %8.2f".format("Subtotal:", subtotal))
         println("%-30s S/ %8.2f".format("Descuento cliente frecuente:", descuento))
-        println("%-30s S/ %8.2f".format("MONTO TOTAL A PAGAR:", calcularTotal()))
+        println("%-30s S/ %8.2f".format("MONTO TOTAL A PAGAR + IGV:", calcularTotal()))
         println(linea)
     }
 
