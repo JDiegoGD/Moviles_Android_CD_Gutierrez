@@ -115,6 +115,12 @@ class Vehiculo(
             return total
     }
 
+    fun calcularIGV(): Double {
+        val IGV = 0.18
+        var totalIgv: Double = calcularSubtotal() * IGV
+        return totalIgv
+    }
+
     /** Imprime el desglose del cobro hora por hora, y el total final con descuento si aplica. */
     fun imprimirDetalle() {
         println("Desglose por hora (tarifa base ${tipo.etiqueta()}: S/ %.2f)".format(tipo.tarifaHora))
@@ -172,6 +178,7 @@ class Vehiculo(
         val descuento = if (esClienteFrecuente) subtotal * 0.10 else 0.0
         println("%-30s S/ %8.2f".format("Subtotal:", subtotal))
         println("%-30s S/ %8.2f".format("Descuento cliente frecuente:", descuento))
+        println("%-30s S/ %8.2f".format("IGV:", calcularIGV()))
         println("%-30s S/ %8.2f".format("MONTO TOTAL A PAGAR + IGV:", calcularTotal()))
         println(linea)
     }
@@ -240,6 +247,10 @@ fun leerBooleano(mensaje: String): Boolean {
     }
 }
 
+fun quitarVehiculo(){
+
+}
+
 fun registrarVehiculo(): Vehiculo? {
     val placa = leerTexto("Placa: ")
     val tipo = leerTexto("Tipo (Moto/Auto/Camioneta/Trailer): ")
@@ -256,53 +267,81 @@ fun registrarVehiculo(): Vehiculo? {
 }
 
 fun main() {
+    println("======CONFIGURACION DE SISTEMA DE ESTACIONAMIENTOS=======")
+    print("Aforo maximo del estacionamiento:")
+    val aforo: Int = readln().toInt()
+    print("Defina las horas maxima del vehiculo:")
+    val horaMax: Int = readln().toInt()
+
+    var aforoActual: Int = 0
     val vehiculosRegistrados = mutableListOf<Vehiculo>()
 
     while (true) {
-        println(
-            """
-            |
-            |=== SISTEMA DE ESTACIONAMIENTO ===
-            |1. Registrar vehículo
-            |2. Listar vehículos registrados
-            |3. Ver boleta de un vehículo (por placa)
-            |4. Salir
-            """.trimMargin()
-        )
-        print("Seleccione una opción: ")
+        if (vehiculosRegistrados.size < aforo){
+            println(
+                """
+                |
+                |=== SISTEMA DE ESTACIONAMIENTO ===
+                |AFORO: ${aforo}  
+                |1. Registrar vehículo
+                |2. Listar vehículos registrados
+                |3. Ver boleta de un vehículo (por placa)
+                |4. Salir
+                |5. Quitar vehiculo
+                """.trimMargin()
+            )
+            print("Seleccione una opción: ")
 
-        when (readLine()?.trim()) {
-            "1" -> {
-                val vehiculo = registrarVehiculo()
-                if (vehiculo != null) {
-                    vehiculosRegistrados.add(vehiculo)
-                    println("\nVehículo registrado correctamente:\n")
-                    vehiculo.generarBoleta()
+            when (readLine()?.trim()) {
+                "1" -> {
+                    val vehiculo = registrarVehiculo()
+                    if (vehiculo != null && vehiculo.horas < horaMax) {
+                        vehiculosRegistrados.add(vehiculo)
+                        println("\nVehículo registrado correctamente:\n")
+                        vehiculo.generarBoleta()
+
+                    }else{
+                        println("No cumple el reglamento de horas maximas")
+                    }
                 }
-            }
-            "2" -> {
-                if (vehiculosRegistrados.isEmpty()) {
-                    println("\nNo hay vehículos registrados todavía.")
-                } else {
-                    println("\n--- Vehículos registrados (${vehiculosRegistrados.size}) ---")
-                    vehiculosRegistrados.forEach { println(it) }
+
+                "2" -> {
+                    if (vehiculosRegistrados.isEmpty()) {
+                        println("\nNo hay vehículos registrados todavía.")
+                    } else {
+                        println("\n--- Vehículos registrados (${vehiculosRegistrados.size}) ---")
+                        vehiculosRegistrados.forEach { println(it) }
+                    }
                 }
-            }
-            "3" -> {
-                val placaBuscada = leerTexto("Ingrese la placa a consultar: ").trim().uppercase()
-                val encontrado = vehiculosRegistrados.find { it.placa == placaBuscada }
-                if (encontrado == null) {
-                    println("\nNo se encontró ningún vehículo con esa placa.")
-                } else {
-                    println()
-                    encontrado.generarBoleta()
+
+                "3" -> {
+                    val placaBuscada =
+                        leerTexto("Ingrese la placa a consultar: ").trim().uppercase()
+                    val encontrado = vehiculosRegistrados.find { it.placa == placaBuscada }
+                    if (encontrado == null) {
+                        println("\nNo se encontró ningún vehículo con esa placa.")
+                    } else {
+                        println()
+                        encontrado.generarBoleta()
+                    }
                 }
+
+                "4" -> {
+                    println("Saliendo del sistema...")
+                    exitProcess(0)
+                }
+
+                "5" -> {
+                    var placaBuscada: String = readln()
+                    for (v in vehiculosRegistrados) {
+                        if (v.placa == placaBuscada) {
+                            vehiculosRegistrados.remove(v)
+                        }
+                    }
+                }
+
+                else -> println("Opción no válida. Intente de nuevo.")
             }
-            "4" -> {
-                println("Saliendo del sistema...")
-                exitProcess(0)
-            }
-            else -> println("Opción no válida. Intente de nuevo.")
         }
     }
 }
