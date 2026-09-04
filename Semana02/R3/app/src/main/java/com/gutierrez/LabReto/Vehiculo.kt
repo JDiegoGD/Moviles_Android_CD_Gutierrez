@@ -2,14 +2,16 @@ import kotlin.system.exitProcess
 
 /**
  * Sistema de Estacionamiento de Vehículos
- * Tipos permitidos: Moto, Auto, Camioneta
+ * Tipos permitidos: Moto, Auto, Camioneta, Trailer
  */
 
 // Tarifas por hora según tipo de vehículo
 enum class TipoVehiculo(val tarifaHora: Double) {
     MOTO(2.0),
     AUTO(4.0),
-    CAMIONETA(10.0);
+    CAMIONETA(10.0),
+
+    TRAILER(20.0);
 
     companion object {
         fun desdeTexto(texto: String): TipoVehiculo {
@@ -17,8 +19,9 @@ enum class TipoVehiculo(val tarifaHora: Double) {
                 "moto" -> MOTO
                 "auto" -> AUTO
                 "camioneta" -> CAMIONETA
+                "trailer" -> TRAILER
                 else -> throw IllegalArgumentException(
-                    "Tipo de vehículo no válido: '$texto'. Use Moto, Auto o Camioneta."
+                    "Tipo de vehículo no válido: '$texto'. Use Moto, Auto, Trailer o Camioneta."
                 )
             }
         }
@@ -28,6 +31,7 @@ enum class TipoVehiculo(val tarifaHora: Double) {
         MOTO -> "Moto"
         AUTO -> "Auto"
         CAMIONETA -> "Camioneta"
+        TRAILER -> "Trailer"
     }
 }
 
@@ -241,16 +245,6 @@ fun registrarVehiculo(): Vehiculo? {
 
 fun main() {
     val vehiculosRegistrados = mutableListOf<Vehiculo>()
-
-    val autoDemo = Vehiculo(
-        placa = "ABC123",
-        tipo = "Auto",
-        horas = 3,
-        esClienteFrecuente = true,
-        nombreCliente = "Gutierrez Juan"
-    )
-    vehiculosRegistrados.add(autoDemo)
-    autoDemo.generarBoleta()
 
     while (true) {
         println(
