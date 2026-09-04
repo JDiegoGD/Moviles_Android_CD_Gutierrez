@@ -74,6 +74,7 @@ class Vehiculo(
     private fun recargoPorHora(hora: Int): Int = when {
         hora <= 2 -> 0
         hora in 3..5 -> 20
+        hora in 6..10 -> 40
         else -> 50
     }
 
