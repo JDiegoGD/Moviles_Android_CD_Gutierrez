@@ -102,11 +102,17 @@ class Vehiculo(
     fun calcularTotal(): Double {
         val subtotal = calcularSubtotal()
         val IGV = 1.18
+        var total: Double;
         if (esClienteFrecuente){
-            return (subtotal * 0.90) * IGV;
+            total = (subtotal * 0.90) * IGV;
         }else{
-            return subtotal * IGV;
+            total = subtotal * IGV;
         }
+
+        if (total > 500){
+            return (total * 0.80)
+        }else
+            return total
     }
 
     /** Imprime el desglose del cobro hora por hora, y el total final con descuento si aplica. */
@@ -236,7 +242,7 @@ fun leerBooleano(mensaje: String): Boolean {
 
 fun registrarVehiculo(): Vehiculo? {
     val placa = leerTexto("Placa: ")
-    val tipo = leerTexto("Tipo (Moto/Auto/Camioneta): ")
+    val tipo = leerTexto("Tipo (Moto/Auto/Camioneta/Trailer): ")
     val horas = leerEntero("Horas estacionado: ")
     val frecuente = leerBooleano("¿Es cliente frecuente?")
     val nombre = leerTexto("Nombre del cliente: ")
