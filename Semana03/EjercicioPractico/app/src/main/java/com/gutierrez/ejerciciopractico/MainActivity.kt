@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gutierrez.ejerciciopractico.ui.theme.EjercicioPracticoTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +28,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EjercicioPracticoTheme {
-                TitleApp()
+                Column() {
+                    TitleApp()
+                    SubTitleApp()
+                }
             }
         }
     }
@@ -43,9 +47,31 @@ fun TitleApp(){
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(16.dp)
             ,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White
+        )
+    }
+}
+
+@Composable
+fun SubTitleApp(){
+    Column() {
+        Text(
+            text = "Notas de ciclo",
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 5.dp, start = 16.dp )
+            ,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Desliza para asignar cada nota (0 a 20)",
+            Modifier
+                .padding(start = 16.dp),
+            color = Color.Gray,
+            fontSize = 15.sp,
         )
     }
 }
