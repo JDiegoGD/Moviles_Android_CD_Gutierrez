@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -110,11 +111,36 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            onClick = { mostrarResumen = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("AGREGAR PRODUCTO")
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                        var mensajeError = "Por favor completa todos los campos."
+                        mostrarResumen = false
+                    } else {
+                        var mensajeError = ""
+                        mostrarResumen = true
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("AGREGAR PRODUCTO")
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            OutlinedButton(
+                onClick = {
+                    nombre = ""
+                    precio = ""
+                    cantidad = ""
+                    mostrarResumen = false
+                    var mensajeError = ""
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("LIMPIAR")
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
