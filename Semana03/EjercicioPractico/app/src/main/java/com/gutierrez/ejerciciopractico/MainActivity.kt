@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -84,6 +85,7 @@ fun SubTitleApp(){
     var nota3 by remember { mutableFloatStateOf(0f) }
     var nota4 by remember { mutableFloatStateOf(0f) }
     var redondear by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
 
     Column() {
         Text(
@@ -151,6 +153,19 @@ fun SubTitleApp(){
                 }
             )
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = confirmado,
+                onCheckedChange = { confirmado = it }
+            )
+            Text(text = "Confirmo que las notas son correctas")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
