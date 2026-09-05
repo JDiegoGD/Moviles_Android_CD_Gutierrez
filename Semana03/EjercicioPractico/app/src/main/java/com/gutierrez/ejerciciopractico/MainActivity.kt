@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,20 +52,23 @@ import com.gutierrez.ejerciciopractico.ui.theme.EjercicioPracticoTheme
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-val fondo = Color(0xFFEAE1E9)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Surface(
-                color = fondo
-            )  {
-                EjercicioPracticoTheme {
-                    Column() {
-                        TitleApp()
-                        SubTitleApp()
-                    }
+            val fondoGradient = Brush.verticalGradient(
+                colors = listOf(Color(0xFFB989BE), Color(0xFFFFFFFF))
+            )
+            EjercicioPracticoTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(fondoGradient)
+                ) {
+                    TitleApp()
+                    SubTitleApp()
                 }
             }
         }
@@ -174,8 +179,6 @@ fun SubTitleApp(){
             Text(text = "Confirmo que las notas son correctas")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
 
 
         Button(
@@ -188,7 +191,23 @@ fun SubTitleApp(){
             Text("CALCULAR PROMEDIO")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                nota1 = 0f
+                nota2 = 0f
+                nota3 = 0f
+                nota4 = 0f
+                redondear = false
+                confirmado = false
+                calculado = false
+            },
+            modifier = Modifier
+                .width(370.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Text("LIMPIAR")
+        }
+        Spacer(modifier = Modifier.height(5.dp))
 
         if (!calculado) {
             Text(
@@ -222,6 +241,8 @@ fun SubTitleApp(){
 
 @Composable
 fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Float) -> Unit){
+    val colorBadge = if (value < 13f) Color(0xFFE53935) else Color(0xFF4CAF50)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,7 +251,7 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -255,7 +276,7 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
                         modifier = Modifier
                             .width(40.dp)
                             .background(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = colorBadge,
                                 shape = RoundedCornerShape(14.dp)
                             )
                             .padding(vertical = 1.dp),
@@ -273,7 +294,7 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
 
                 Slider(
                     value = value,
-                    onValueChange = onValueChange,
+                    onValueChange = { onValueChange(it.roundToInt().toFloat()) },
                     valueRange = 0f..20f,
                     modifier = Modifier.width(300.dp),
                     colors = SliderDefaults.colors(
@@ -288,6 +309,10 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
 
 @Composable
 fun TarjetaResultados(n1: Float, n2: Float, n3: Float, n4: Float, redondear: Boolean) {
+    val aporte1 = n1 * 0.20f
+    val aporte2 = n2 * 0.25f
+    val aporte3 = n3 * 0.30f
+    val aporte4 = n4 * 0.25f
 
     val ponderado = (n1 * 0.20f) + (n2 * 0.25f) + (n3 * 0.30f) + (n4 * 0.25f)
 
@@ -307,11 +332,17 @@ fun TarjetaResultados(n1: Float, n2: Float, n3: Float, n4: Float, redondear: Boo
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(horizontal = 20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
+            Text(text = "Desglose por curso:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+
+            Text(text = "• Fundamentos: ${n1.toInt()} × 20% = ${"%.2f".format(aporte1)}", fontSize = 12.sp, color = Color.DarkGray)
+            Text(text = "• POO: ${n2.toInt()} × 25% = ${"%.2f".format(aporte2)}", fontSize = 12.sp, color = Color.DarkGray)
+            Text(text = "• Móviles: ${n3.toInt()} × 30% = ${"%.2f".format(aporte3)}", fontSize = 12.sp, color = Color.DarkGray)
+            Text(text = "• Base de Datos: ${n4.toInt()} × 25% = ${"%.2f".format(aporte4)}", fontSize = 12.sp, color = Color.DarkGray)
 
             Text(
                 text = "Promedio ponderado: %.2f".format(ponderado)
@@ -332,7 +363,7 @@ fun TarjetaResultados(n1: Float, n2: Float, n3: Float, n4: Float, redondear: Boo
             }
 
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(5.dp)
             )
 
             Surface(
@@ -353,8 +384,8 @@ fun TarjetaResultados(n1: Float, n2: Float, n3: Float, n4: Float, redondear: Boo
         text = "✓ Promedio calculado correctamente",
         color = Color.Green,
         fontSize = 15.sp,
-        modifier = Modifier
-            .padding(start = 70.dp)
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
