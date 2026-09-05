@@ -1,5 +1,6 @@
 package com.gutierrez.ejerciciopractico
 
+import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,9 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,14 +39,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gutierrez.ejerciciopractico.ui.theme.EjercicioPracticoTheme
+import kotlin.math.max
+import kotlin.math.roundToInt
 
-val fondo = Color(0xFFDABED8)
+val fondo = Color(0xFFEAE1E9)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -181,6 +189,34 @@ fun SubTitleApp(){
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (!calculado) {
+            Text(
+                text = "Asigna las notas y confirma para calcular",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            TarjetaResultados(
+                n1 = nota1,
+                n2 = nota2,
+                n3 = nota3,
+                n4 = nota4,
+                redondear = redondear
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text(
+            text = "Desarrollado por Juan Diego Gutierrez",
+            color = Color.Gray,
+            fontSize = 13.sp,
+
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 16.dp)
+        )
     }
 }
 
@@ -250,6 +286,77 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
     }
 }
 
+@Composable
+fun TarjetaResultados(n1: Float, n2: Float, n3: Float, n4: Float, redondear: Boolean) {
+
+    val ponderado = (n1 * 0.20f) + (n2 * 0.25f) + (n3 * 0.30f) + (n4 * 0.25f)
+
+    val promFinal = if (redondear){
+        ponderado.roundToInt().toFloat()
+    }  else{
+        ponderado
+    }
+
+    val (observacion, colorChip, colorLetra) = when {
+        promFinal >= 17f -> Triple("EXCELENTE", Color(0xFF639165), Color(0x4A0D5B03))       // Verde Oscuro
+        promFinal >= 13f -> Triple("APROBADO", Color(0xFF5C915D), Color(0xFF00FF46))        // Verde
+        promFinal >= 10f -> Triple("EN RECUPERACIÓN", Color(0xFFE8D4A3), Color(0xFFFFCD00)) // Ámbar
+        else -> Triple("DESAPROBADO", Color(0xFFEFB1B1), Color(0xFFFF0000))                 // Rojo
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+
+            Text(
+                text = "Promedio ponderado: %.2f".format(ponderado)
+            )
+            Text(
+                text = "Promedio final: " + (if (redondear) {"${promFinal.toInt()} (redondeado)"} else "%.2f".format(promFinal)),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            if (redondear){
+                Text(
+                    text = "(redondeado)",
+                    fontSize = 10.sp,
+                    color = Color.Gray
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Surface(
+                color = colorChip,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = observacion,
+                    color = colorLetra,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    fontSize = 18.sp
+                )
+            }
+        }
+    }
+    Text(
+        text = "✓ Promedio calculado correctamente",
+        color = Color.Green,
+        fontSize = 15.sp,
+        modifier = Modifier
+            .padding(start = 70.dp)
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
