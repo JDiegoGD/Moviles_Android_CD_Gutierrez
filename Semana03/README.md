@@ -3,7 +3,6 @@
 **Estudiante:** Gutierrez Duran, Juan Diego Gilmer  
 **Descripcion:** Esta aplicación es una interfaz desarrollada con Jetpack Compose que simula el formulario de registro de un producto.
 
-**Resultados:**
 ![Resultados](Figuras.png)
 
 **Pregunta:** ¿qué pasaría si declaras las variables de los campos SIN remember?
