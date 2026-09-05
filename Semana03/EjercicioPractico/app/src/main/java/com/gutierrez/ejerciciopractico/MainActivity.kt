@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -86,6 +87,7 @@ fun SubTitleApp(){
     var nota4 by remember { mutableFloatStateOf(0f) }
     var redondear by remember { mutableStateOf(false) }
     var confirmado by remember { mutableStateOf(false) }
+    var calculado by remember { mutableStateOf(false) }
 
     Column() {
         Text(
@@ -135,7 +137,6 @@ fun SubTitleApp(){
 
 
         //SwitchPromedio
-        var checked by remember { mutableStateOf(true) }
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,7 +150,7 @@ fun SubTitleApp(){
             Switch(
                 checked = redondear,
                 onCheckedChange = {
-                    checked = it
+                    redondear = it
                 }
             )
         }
@@ -166,6 +167,20 @@ fun SubTitleApp(){
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+
+
+        Button(
+            onClick = { calculado = true },
+            enabled = confirmado,
+            modifier = Modifier
+                .width(370.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Text("CALCULAR PROMEDIO")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
