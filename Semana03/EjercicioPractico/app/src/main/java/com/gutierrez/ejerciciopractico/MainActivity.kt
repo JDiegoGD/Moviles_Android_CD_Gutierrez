@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -82,6 +83,7 @@ fun SubTitleApp(){
     var nota2 by remember { mutableFloatStateOf(0f) }
     var nota3 by remember { mutableFloatStateOf(0f) }
     var nota4 by remember { mutableFloatStateOf(0f) }
+    var redondear by remember { mutableStateOf(false) }
 
     Column() {
         Text(
@@ -129,6 +131,26 @@ fun SubTitleApp(){
             onValueChange = { nota4 = it }
         )
 
+
+        //SwitchPromedio
+        var checked by remember { mutableStateOf(true) }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Redondear promedio final",
+                modifier = Modifier.weight(1f),
+            )
+            Switch(
+                checked = redondear,
+                onCheckedChange = {
+                    checked = it
+                }
+            )
+        }
     }
 }
 
@@ -141,8 +163,8 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
     ) {
         Row (
             modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -197,8 +219,6 @@ fun ItemCurso(name: String, Porcentaje: String, value: Float, onValueChange: (Fl
         }
     }
 }
-
-
 
 
 @Preview(showBackground = true)
