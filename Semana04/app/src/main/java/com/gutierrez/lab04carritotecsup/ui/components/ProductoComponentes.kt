@@ -2,6 +2,7 @@ package com.gutierrez.lab04carritotecsup.ui.components
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -105,7 +109,6 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                     val cantidadNum = cantidad.toIntOrNull() ?: 0
                     if (nombre.isNotBlank() && precioNum > 0 && cantidadNum > 0) {
                         productos.add(Producto(nombre, precioNum, cantidadNum))
-                        // TODO: limpia los 3 campos asignándoles ""
                         nombre = ""
                         precio = ""
                         cantidad = ""
@@ -136,7 +139,49 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {}
+fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
+    val total = producto.precio * producto.cantidad
+
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(16.dp))
+        .padding(8.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = producto.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "S/ ${producto.precio} x ${producto.cantidad}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            Text(
+                text = "S/ ${"%.2f".format(total)}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            IconButton(onClick = onEliminar) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
 
 
 
