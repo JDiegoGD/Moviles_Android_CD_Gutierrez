@@ -1,6 +1,11 @@
 # LABORATORIO 04
 ###### Estudiante: Gutierrez Duran Juan Diego Gilmer
 ---
+## Descripción
+Aplicación móvil en Android construida con Kotlin y Jetpack Compose para gestionar un carrito de compras. La aplicación permite agregar productos 
+dinámicamente mediante formularios reactivos, visualizarlos en una lista scrollable, eliminarlos mediante diálogos de confirmación y calcular en 
+tiempo real el subtotal, descuentos por volumen, IGV (18%) y total general.
+
 **¿Por qué la lista se declara con val y aún así podemos agregarle elementos?**
 
 La lista se declara con val para asegurarse que la referencia de la variable sea inmutable, pero esto no afecta la mutabilidad del objeto en sí. 
@@ -20,3 +25,10 @@ El modificador weight(1f) indica al contenedor Column, que la LazyColumn debe ex
 ### Resultados
 ![Resultado](./Captura01.png)
 ![Resultado](./Captura02.png)
+
+### Retos
+* Confirmación de borrado: al presionar el tacho, muestra un AlertDialog con opciones Cancelar/Eliminar.
+* Aplicar el descuento con when (5% si total > 3000, 10% si > 5000) y muéstralo en el panel solo cuando corresponda.
+
+![Resultado](./Captura03.png)
+![Resultado](./Captura04.png)

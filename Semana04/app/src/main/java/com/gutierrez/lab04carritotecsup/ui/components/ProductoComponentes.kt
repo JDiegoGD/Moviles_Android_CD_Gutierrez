@@ -24,8 +24,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -46,7 +48,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
-    var mostrarResumen by remember { mutableStateOf(false) }
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
     val productos = remember { mutableStateListOf<Producto>() }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -142,7 +144,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                     items(productos) { producto ->
                         TarjetaProducto(
                             producto = producto,
-                            onEliminar = { productos.remove(producto) }
+                            onEliminar = { productoAEliminar = producto }
                         )
                     }
                 }
@@ -152,8 +154,15 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
 
 
             val subtotal = productos.sumOf { it.precio * it.cantidad }
-            val igv = subtotal * 0.18
-            val total = subtotal + igv
+            val porcentajeDescuento = when {
+                subtotal > 5000 -> 0.10
+                subtotal > 3000 -> 0.05
+                else -> 0.0
+            }
+            val descuento = subtotal * porcentajeDescuento
+            val subtotalConDescuento = subtotal - descuento
+            val igv = subtotalConDescuento * 0.18
+            val total = subtotalConDescuento + igv
 
             Card(
                 modifier = Modifier
@@ -162,7 +171,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                     containerColor = Color.White
                 ),
 
-            ) {
+                ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Productos: ${productos.size}",
@@ -170,6 +179,25 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    if (descuento > 0) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Descuento (${(porcentajeDescuento * 100).toInt()}%)",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "- S/ ${"%.2f".format(descuento)}",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -205,6 +233,28 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+    productoAEliminar?.let { producto ->
+        AlertDialog(
+            onDismissRequest = { productoAEliminar = null },
+            title = { Text("¿Eliminar este producto?") },
+            text = { Text("Se quitará ${producto.nombre} del carrito de compras.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        productos.remove(producto)
+                        productoAEliminar = null
+                    }
+                ) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productoAEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
@@ -252,6 +302,3 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
         }
     }
 }
-
-
-
