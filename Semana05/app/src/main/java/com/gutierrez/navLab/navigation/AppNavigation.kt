@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.gutierrez.navLab.screens.HomeScreen
+import com.gutierrez.navLab.screens.ListScreen
+
 
 
 
@@ -25,11 +27,12 @@ fun AppNavigation(){
             HomeScreen(navController = navController)
         }
 
-        /*
         //Ruta List
         composable(route = Screen.List.route){
             ListScreen(navController = navController)
         }
+
+        /*
 
         //Ruta Profile
         composable(route = Screen.Profile.route){
