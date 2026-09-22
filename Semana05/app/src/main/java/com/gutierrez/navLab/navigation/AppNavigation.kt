@@ -10,6 +10,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.gutierrez.navLab.screens.HomeScreen
 import com.gutierrez.navLab.screens.ListScreen
+import com.gutierrez.navLab.screens.ProfileScreen
+import com.gutierrez.navLab.screens.DetailScreen
+
 
 
 
@@ -32,8 +35,6 @@ fun AppNavigation(){
             ListScreen(navController = navController)
         }
 
-        /*
-
         //Ruta Profile
         composable(route = Screen.Profile.route){
             ProfileScreen(navController = navController)
@@ -52,6 +53,6 @@ fun AppNavigation(){
             backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("itemId")?:0
             DetailScreen(navController, itemId)
-        }*/
+        }
     }
 }
