@@ -11,3 +11,6 @@
 ### Resultados
 ![Captura de pantalla](img/Vista1.png) ![Captura de pantalla](img/Vista2.png) ![Captura de pantalla](img/Vista3.png)
 ![Captura de pantalla](img/Vista4.png) ![Captura de pantalla](img/Vista5.png) ![Captura de pantalla](img/Vista6.png) ![Captura de pantalla](img/Vista1.png)
+
+### Mejoras IA
+![Captura de pantalla](img/IA1.png) ![Captura de pantalla](img/IA2.png)
