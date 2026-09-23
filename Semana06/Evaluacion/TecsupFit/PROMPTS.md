@@ -84,3 +84,106 @@ Modifica directamente DatosGym.kt y, dentro del object DatosGym:
 ###### FORMATO DE SALIDA
 Aplica los cambios directamente en DatosGym.kt y, al final, dame un resumen breve
 en español de qué agregaste y dónde.
+
+---
+
+## Prompt 2 — Cupos en vivo y clase llena en el Detalle de clase
+
+**Qué le pedí:**
+> Un prompt estructurado para que Gemini en modo Agente modificara
+> DetalleClaseScreen.kt y usara la lógica de cupos del paso anterior: mostrar los
+> cupos restantes en tiempo real, bloquear la reserva cuando la clase está llena y
+> no permitir elegir un horario que ya fue reservado.
+
+**Qué respondió:**
+- Reemplazó el texto fijo de cupos por DatosGym.cuposRestantes(clase.id) y agregó una
+  barra de progreso (LinearProgressIndicator) con la ocupación de la clase.
+- Cuando la clase está llena muestra el mensaje "Clase llena" en rojo y el botón
+  cambia a "Clase llena" deshabilitado.
+- Los horarios que ya fueron reservados aparecen deshabilitados con el texto
+  "Reservado" y no se pueden seleccionar.
+- Si reservar() devuelve false, muestra un Snackbar con el mensaje
+  "No se pudo reservar este horario" en lugar de navegar a la confirmación.
+
+**Qué tuve que corregir**:
+- Nada, funcionó a la primera.
+
+#### ESTRUCTURA DEL PROMPT
+###### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y
+Material 3, con buen criterio de experiencia de usuario (UX).
+
+###### CONTEXTO
+Estoy desarrollando la app "TECSUP Fit" (reserva de clases de gimnasio) en Kotlin con
+Jetpack Compose. El paquete base es com.gutierrez.tecsupfit. Estoy en la rama de la
+mejora con IA agregando un CONTROL DE CUPOS.
+
+En el paso anterior agregué en datos/DatosGym.kt:
+- val cupos = mutableStateMapOf<Int, Int>() con los cupos restantes de cada clase
+- cuposRestantes(claseId: Int): Int
+- estaLlena(claseId: Int): Boolean
+- yaReservada(clase: Clase, hora: String): Boolean
+- reservar(clase: Clase, hora: String): Boolean, que devuelve false si la clase está
+  llena o si ya se reservó esa clase en esa hora
+
+El archivo app/src/main/java/com/gutierrez/tecsupfit/screens/DetalleClaseScreen.kt tiene:
+- DetalleClaseScreen(navController: NavController, claseId: Int)
+- Un Scaffold con TopAppBar ("Detalle de clase" y flecha para volver)
+- Un bottomBar con el botón "Reservar cupo", habilitado cuando hay un horario elegido,
+  que llama a DatosGym.reservar(...) y navega a
+  Screen.Confirmacion.createRoute(clase.id, horarioSeleccionado)
+- Un estado horarioSeleccionado (-1 = nada elegido)
+- Un texto fijo "${clase.cuposDisponibles} de ${clase.cuposTotales} cupos disponibles"
+- Un LazyRow con la función OpcionHorario(texto, seleccionada, onClick) para elegir
+  un solo horario
+
+###### TAREA
+Modifica directamente DetalleClaseScreen.kt para:
+
+1. Cupos en vivo:
+    - Reemplaza el texto fijo por
+      "${DatosGym.cuposRestantes(clase.id)} de ${clase.cuposTotales} cupos disponibles".
+    - Debajo agrega un LinearProgressIndicator con la ocupación de la clase
+      (cupos ocupados / cuposTotales), de ancho completo y esquinas redondeadas.
+    - Si DatosGym.estaLlena(clase.id) es true, en lugar del texto de cupos muestra
+      "Clase llena" en negrita y color MaterialTheme.colorScheme.error.
+
+2. Horarios ya reservados:
+    - Agrega a OpcionHorario un parámetro habilitada: Boolean = true.
+    - Si DatosGym.yaReservada(clase, hora) es true, la opción se muestra deshabilitada
+      (fondo gris claro, texto gris, sin onClick) con el texto "$hora · Reservado".
+
+3. Botón del bottomBar:
+    - Si la clase está llena, el texto del botón es "Clase llena" y está deshabilitado.
+    - Si no, se mantiene "Reservar cupo", habilitado solo cuando hay un horario
+      seleccionado que no esté reservado.
+
+4. Resultado de la reserva:
+    - Usa el Boolean que devuelve DatosGym.reservar(...). Si es true, navega a la
+      confirmación como ahora. Si es false, muestra un Snackbar con el mensaje
+      "No se pudo reservar este horario" (usa SnackbarHostState, rememberCoroutineScope
+      y el parámetro snackbarHost del Scaffold).
+
+###### REQUISITOS
+- Agrega los imports necesarios (LinearProgressIndicator, SnackbarHost,
+  SnackbarHostState, rememberCoroutineScope, kotlinx.coroutines.launch).
+- Mantén el TopAppBar, el cuadro con la pesa, la descripción y los colores tal como están.
+- Agrega comentarios cortos en español en las partes nuevas.
+
+###### RESTRICCIONES
+- No modifiques ningún otro archivo del proyecto.
+- No cambies la lógica de DatosGym ni la navegación a la confirmación.
+- No agregues dependencias nuevas.
+
+###### CRITERIOS DE ACEPTACIÓN
+- Al abrir Cross Training se ve "8 de 12 cupos disponibles" y la barra de progreso.
+- Después de reservar Cross Training a las 6:00 pm y volver al detalle, se ve
+  "7 de 12 cupos disponibles" y la opción "6:00 pm · Reservado" deshabilitada.
+- Boxeo (1 cupo): después de reservarlo una vez, al volver al detalle se ve
+  "Clase llena" en rojo y el botón "Clase llena" deshabilitado.
+- La selección de horario sigue siendo única.
+- El proyecto compila sin errores.
+
+###### FORMATO DE SALIDA
+Aplica los cambios directamente en DetalleClaseScreen.kt y, al final, dame un resumen
+breve en español de qué agregaste y dónde.

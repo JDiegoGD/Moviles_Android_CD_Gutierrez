@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.gutierrez.tecsupfit.datos.DatosGym
 import com.gutierrez.tecsupfit.navigation.Screen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +29,25 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
     // Busca la clase con el id que llegó por navegación
     val clase = DatosGym.buscarClase(claseId)
 
+    // Estado para el Host de Snackbar y scope de corrutina para mostrar mensajes
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     // Selección única de horario: guardamos la POSICIÓN elegida (-1 = nada elegido)
     var horarioSeleccionado by remember { mutableStateOf(-1) }
 
+    // Estado de cupos de la clase en vivo
+    val cuposRestantes = if (clase != null) DatosGym.cuposRestantes(clase.id) else 0
+    val estaLlena = clase != null && DatosGym.estaLlena(clase.id)
+
+    // Valida si el horario seleccionado es válido y no ha sido reservado previamente
+    val horarioValido = clase != null &&
+            horarioSeleccionado >= 0 &&
+            horarioSeleccionado < clase.horarios.size &&
+            !DatosGym.yaReservada(clase, clase.horarios[horarioSeleccionado])
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Detalle de clase", fontWeight = FontWeight.Bold) },
@@ -46,17 +62,23 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
             )
         },
         bottomBar = {
-            // Botón principal: solo se habilita si eligió un horario
+            // Botón principal: cambia texto si la clase está llena y se habilita solo con horario válido
             Button(
                 onClick = {
-                    if (clase != null) {
-                        DatosGym.reservar(clase, clase.horarios[horarioSeleccionado])
-                        navController.navigate(
-                            Screen.Confirmacion.createRoute(clase.id, horarioSeleccionado)
-                        )
+                    if (clase != null && horarioSeleccionado >= 0) {
+                        val exito = DatosGym.reservar(clase, clase.horarios[horarioSeleccionado])
+                        if (exito) {
+                            navController.navigate(
+                                Screen.Confirmacion.createRoute(clase.id, horarioSeleccionado)
+                            )
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("No se pudo reservar este horario")
+                            }
+                        }
                     }
                 },
-                enabled = clase != null && horarioSeleccionado >= 0,
+                enabled = clase != null && !estaLlena && horarioValido,
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -64,7 +86,10 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
                     .padding(16.dp)
                     .height(54.dp)
             ) {
-                Text("Reservar cupo", fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (estaLlena) "Clase llena" else "Reservar cupo",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     ) { padding ->
@@ -77,6 +102,14 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
         val horaMostrada =
             if (horarioSeleccionado >= 0) clase.horarios[horarioSeleccionado]
             else clase.horarios.first()
+
+        // Cálculo del porcentaje de ocupación para la barra de progreso
+        val cuposOcupados = clase.cuposTotales - cuposRestantes
+        val progresoOcupacion = if (clase.cuposTotales > 0) {
+            cuposOcupados.toFloat() / clase.cuposTotales
+        } else {
+            0f
+        }
 
         Column(
             modifier = Modifier
@@ -110,10 +143,32 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
             Text(clase.descripcion, style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "${clase.cuposDisponibles} de ${clase.cuposTotales} cupos disponibles",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
+
+            // Muestra cupos disponibles en vivo o "Clase llena" en rojo si está agotada
+            if (estaLlena) {
+                Text(
+                    text = "Clase llena",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            } else {
+                Text(
+                    text = "$cuposRestantes de ${clase.cuposTotales} cupos disponibles",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Barra de progreso con la ocupación de la clase (cupos ocupados / cuposTotales)
+            LinearProgressIndicator(
+                progress = { progresoOcupacion },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -123,9 +178,11 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
             Spacer(modifier = Modifier.height(10.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 itemsIndexed(clase.horarios) { index, hora ->
+                    val yaReservada = DatosGym.yaReservada(clase, hora)
                     OpcionHorario(
                         texto = hora,
                         seleccionada = index == horarioSeleccionado,
+                        habilitada = !yaReservada,
                         onClick = { horarioSeleccionado = index }
                     )
                 }
@@ -134,22 +191,36 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
     }
 }
 
-// Opción de selección única: color principal si está elegida, gris si no
+// Opción de selección única: habilita o deshabilita la opción si la clase ya fue reservada en ese horario
 @Composable
-fun OpcionHorario(texto: String, seleccionada: Boolean, onClick: () -> Unit) {
+fun OpcionHorario(
+    texto: String,
+    seleccionada: Boolean,
+    habilitada: Boolean = true,
+    onClick: () -> Unit
+) {
+    val textoMostrar = if (!habilitada) "$texto · Reservado" else texto
+
     Surface(
-        selected = seleccionada,
-        onClick = onClick,
+        selected = seleccionada && habilitada,
+        onClick = { if (habilitada) onClick() },
+        enabled = habilitada,
         shape = RoundedCornerShape(12.dp),
-        color = if (seleccionada) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = if (seleccionada) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurfaceVariant,
-        border = if (seleccionada) null
+        color = when {
+            !habilitada -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            seleccionada -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        contentColor = when {
+            !habilitada -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            seleccionada -> MaterialTheme.colorScheme.onPrimary
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        border = if (seleccionada && habilitada) null
         else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Text(
-            text = texto,
+            text = textoMostrar,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
         )
