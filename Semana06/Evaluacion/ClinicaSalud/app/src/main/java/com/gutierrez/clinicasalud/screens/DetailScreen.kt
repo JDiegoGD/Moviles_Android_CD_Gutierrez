@@ -25,6 +25,8 @@ import com.gutierrez.clinicasalud.navigation.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(navController: NavController, medicoId: Int) {
+
+    // Busca el médico con el id que llegó por navegación
     val medico = DatosClinica.buscarMedico(medicoId)
 
     Scaffold(
@@ -59,11 +61,6 @@ fun DetailScreen(navController: NavController, medicoId: Int) {
             }
         }
     ) { padding ->
-        if (medico == null) {
-            Text("Médico no encontrado", modifier = Modifier.padding(padding).padding(24.dp))
-            return@Scaffold
-        }
-
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -72,47 +69,51 @@ fun DetailScreen(navController: NavController, medicoId: Int) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Avatar grande
-            Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(56.dp)
+            if (medico == null) {
+                Text("Médico no encontrado")
+            } else {
+                // Avatar grande
+                Box(
+                    modifier = Modifier
+                        .size(96.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(medico.nombre, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "${medico.especialidad} · ${medico.experiencia} años exp.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF5B301), modifier = Modifier.size(18.dp))
+                    Text(" ${medico.calificacion} (${medico.resenas} reseñas)", style = MaterialTheme.typography.bodyMedium)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Sobre el médico",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = medico.descripcion, modifier = Modifier.fillMaxWidth())
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(medico.nombre, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text(
-                text = "${medico.especialidad} · ${medico.experiencia} años exp.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF5B301), modifier = Modifier.size(18.dp))
-                Text(" ${medico.calificacion} (${medico.resenas} reseñas)", style = MaterialTheme.typography.bodyMedium)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Sobre el médico",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = medico.descripcion, modifier = Modifier.fillMaxWidth())
         }
     }
 }
