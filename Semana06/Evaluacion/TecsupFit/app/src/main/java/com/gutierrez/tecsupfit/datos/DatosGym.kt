@@ -2,13 +2,15 @@ package com.gutierrez.tecsupfit.datos
 
 import androidx.compose.runtime.mutableStateListOf
 
+// ───── Modelos ─────
+
 data class Clase(
     val id: Int,
     val nombre: String,
-    val dia: String,
-    val horarios: List<String>,
+    val dia: String,              // "Hoy" o el día de la semana
+    val horarios: List<String>,   // horarios disponibles (el primero es el principal)
     val sala: String,
-    val duracion: Int,
+    val duracion: Int,            // en minutos
     val cuposDisponibles: Int,
     val cuposTotales: Int,
     val descripcion: String
@@ -38,10 +40,10 @@ object DatosGym {
             "Movilidad, fuerza y respiración para empezar el día con energía."),
         Clase(2, "Cross Training", "Hoy", listOf("6:00 pm", "7:30 pm", "8:30 pm"),
             "Sala 1", 45, 8, 12,
-            "Entrenamiento funcional de alta intensidad."),
+            "Entrenamiento funcional de alta intensidad. Cupos limitados."),
         Clase(3, "Spinning", "Hoy", listOf("7:30 pm", "8:30 pm"),
             "Sala 3", 50, 5, 20,
-            "Ciclismo con música para mejorar tu resistencia."),
+            "Ciclismo indoor con música para mejorar tu resistencia cardiovascular."),
         Clase(4, "Pilates", "Miércoles", listOf("8:00 am", "5:00 pm"),
             "Sala 2", 50, 12, 15,
             "Fortalecimiento del core, postura y flexibilidad."),
