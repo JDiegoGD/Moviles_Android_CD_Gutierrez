@@ -160,3 +160,94 @@ Modifica directamente HomeScreen.kt para agregar una barra de búsqueda:
 ###### FORMATO DE SALIDA
 Aplica los cambios directamente en HomeScreen.kt y, al final, dame un resumen breve
 en español de qué agregaste y dónde.
+
+---
+
+## Prompt 3 — Mensaje sin resultados, contador y manejo del teclado
+
+**Qué le pedí:**
+> Un prompt estructurado para que Gemini en modo Agente terminara el buscador en
+> HomeScreen.kt: mostrar un mensaje cuando no haya resultados, un contador de médicos
+> encontrados y cerrar el teclado al presionar el botón de búsqueda.
+
+**Qué respondió:**
+- Agregó al lado de "Médicos disponibles" un contador con la cantidad de médicos
+  encontrados (por ejemplo, "3 encontrados").
+- Cuando la búsqueda no tiene resultados, en lugar de la lista vacía muestra un ícono
+  de lupa, el mensaje "No se encontraron médicos", el texto "Intenta con otro nombre o
+  especialidad" y un botón "Limpiar filtros" que reinicia el texto y el chip a "Todos".
+- Configuró el OutlinedTextField con ImeAction.Search para que el teclado muestre el
+  botón de búsqueda y, al presionarlo, se cierre con LocalFocusManager.clearFocus().
+
+**Qué tuve que corregir**:
+- Nada, funcionó a la primera.
+
+#### ESTRUCTURA DEL PROMPT
+###### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y Material 3,
+con buen criterio de experiencia de usuario (UX).
+
+###### CONTEXTO
+Estoy desarrollando la app "Clínica Salud+" (reserva de citas médicas) en Kotlin con
+Jetpack Compose. El paquete base es com.gutierrez.clinicasalud. Estoy en la rama
+"mejora-ia" terminando un BUSCADOR DE MÉDICOS.
+
+En los pasos anteriores ya hice lo siguiente:
+- En datos/DatosClinica.kt: la función buscarMedicos(texto, especialidad), que filtra
+  por texto (sin tildes ni mayúsculas) y por especialidad.
+- En screens/HomeScreen.kt:
+    - los estados textoBusqueda y especialidadSeleccionada
+    - un OutlinedTextField con ícono de lupa y botón X para limpiar
+    - un LazyRow con FilterChip de especialidades
+    - un Text "Médicos disponibles"
+    - un LazyColumn que muestra
+      medicosFiltrados = DatosClinica.buscarMedicos(textoBusqueda, especialidadSeleccionada)
+
+Problema actual: si la búsqueda no encuentra nada, la pantalla queda vacía sin
+explicación, no se sabe cuántos resultados hay y el teclado no se cierra al buscar.
+
+###### TAREA
+Modifica directamente HomeScreen.kt para:
+
+1. Contador de resultados: convierte el Text "Médicos disponibles" en un Row que tenga
+   a la izquierda "Médicos disponibles" (igual que ahora) y a la derecha el texto
+   "${medicosFiltrados.size} encontrados" con estilo bodySmall y color onSurfaceVariant.
+
+2. Estado sin resultados: si medicosFiltrados está vacío, en lugar del LazyColumn
+   muestra un Column centrado (fillMaxSize, padding 32.dp) con:
+    - Icons.Filled.Search de 64.dp en color onSurfaceVariant
+    - el texto "No se encontraron médicos" en titleMedium y negrita
+    - el texto "Intenta con otro nombre o especialidad" en bodyMedium y onSurfaceVariant
+    - un TextButton "Limpiar filtros" que ponga textoBusqueda = "" y
+      especialidadSeleccionada = "Todos"
+
+3. Manejo del teclado en el OutlinedTextField:
+    - keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
+    - keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() })
+    - obtén focusManager con LocalFocusManager.current
+
+###### REQUISITOS
+- Agrega los imports necesarios (KeyboardOptions, KeyboardActions, ImeAction,
+  LocalFocusManager, TextButton).
+- Mantén la barra de búsqueda, los chips, las tarjetas, los colores y la navegación
+  tal como están.
+- Agrega comentarios cortos en español en las partes nuevas.
+
+###### RESTRICCIONES
+- No modifiques ningún otro archivo del proyecto.
+- No cambies la lógica de buscarMedicos ni el diseño de MedicoCard.
+- No agregues dependencias nuevas.
+
+###### CRITERIOS DE ACEPTACIÓN
+- Sin filtros, el contador muestra "5 encontrados".
+- Con el chip "Pediatría", el contador muestra "2 encontrados".
+- Al escribir "xyz" aparece el mensaje "No se encontraron médicos" en lugar de la lista.
+- El botón "Limpiar filtros" borra el texto, vuelve el chip a "Todos" y se muestran los
+  5 médicos.
+- El teclado muestra el botón de búsqueda (lupa) y, al tocarlo, el teclado se cierra.
+- Tocar un médico sigue navegando a su perfil.
+- El proyecto compila sin errores.
+
+###### FORMATO DE SALIDA
+Aplica los cambios directamente en HomeScreen.kt y, al final, dame un resumen breve
+en español de qué agregaste y dónde.
