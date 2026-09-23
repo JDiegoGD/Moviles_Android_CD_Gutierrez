@@ -1,6 +1,8 @@
 package com.gutierrez.navLab.navigation
 
 sealed class Screen(val route: String) {
+    // Pantalla de Login
+    object Login : Screen("login")
 
     //Pantalla de inicio - punto de entrada de la app
     object Home : Screen("home")
