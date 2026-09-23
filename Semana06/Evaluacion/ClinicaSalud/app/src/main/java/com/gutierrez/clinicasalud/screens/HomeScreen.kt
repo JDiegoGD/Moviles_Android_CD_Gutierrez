@@ -6,9 +6,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,11 +30,12 @@ import com.gutierrez.clinicasalud.navigation.Screen
 @Composable
 fun HomeScreen(navController: NavController, onMenuClick: () -> Unit) {
 
+    // Estado para la especialidad seleccionada y el texto de búsqueda
     var especialidadSeleccionada by remember { mutableStateOf("Todos") }
+    var textoBusqueda by remember { mutableStateOf("") }
 
-    val medicosFiltrados = DatosClinica.medicos.filter {
-        especialidadSeleccionada == "Todos" || it.especialidad == especialidadSeleccionada
-    }
+    // Obtener los médicos filtrados combinando texto y especialidad
+    val medicosFiltrados = DatosClinica.buscarMedicos(textoBusqueda, especialidadSeleccionada)
 
     Scaffold(
         topBar = {
@@ -61,6 +65,35 @@ fun HomeScreen(navController: NavController, onMenuClick: () -> Unit) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            // Campo de texto para la búsqueda de médicos o especialidad
+            OutlinedTextField(
+                value = textoBusqueda,
+                onValueChange = { textoBusqueda = it },
+                placeholder = { Text("Buscar médico o especialidad") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Buscar"
+                    )
+                },
+                trailingIcon = {
+                    // Botón para limpiar el texto de búsqueda, visible solo si hay contenido
+                    if (textoBusqueda.isNotEmpty()) {
+                        IconButton(onClick = { textoBusqueda = "" }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Limpiar búsqueda"
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp)
+            )
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
