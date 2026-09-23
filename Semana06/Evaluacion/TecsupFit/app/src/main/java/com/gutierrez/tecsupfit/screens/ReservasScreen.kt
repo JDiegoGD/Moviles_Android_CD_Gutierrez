@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.gutierrez.tecsupfit.datos.DatosGym
 import com.gutierrez.tecsupfit.datos.EstadoReserva
 import com.gutierrez.tecsupfit.datos.Reserva
+import com.gutierrez.tecsupfit.navigation.BarraInferior
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +30,8 @@ fun ReservasScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Mis reservas", fontWeight = FontWeight.Bold) }
             )
-        }
+        },
+        bottomBar = { BarraInferior(navController) }
     ) { padding ->
         if (reservas.isEmpty()) {
             // Mensaje cuando todavía no hay reservas

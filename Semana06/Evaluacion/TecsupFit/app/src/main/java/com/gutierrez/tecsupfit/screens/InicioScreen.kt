@@ -19,6 +19,8 @@ import androidx.navigation.NavController
 import com.gutierrez.tecsupfit.datos.*
 import com.gutierrez.tecsupfit.datos.DatosGym
 import com.gutierrez.tecsupfit.navigation.Screen
+import com.gutierrez.tecsupfit.navigation.BarraInferior
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +46,8 @@ fun InicioScreen(navController: NavController) {
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+                bottomBar = { BarraInferior(navController) }
     ) { padding ->
         Column(
             modifier = Modifier
