@@ -30,7 +30,6 @@ data class Rutina(
 
 
 object DatosGym {
-
     val filtros = listOf("Hoy", "Esta semana")
 
     val clases = listOf(
@@ -66,7 +65,6 @@ object DatosGym {
 
     fun buscarClase(id: Int): Clase? = clases.find { it.id == id }
 
-    // "Hoy" muestra solo las clases de hoy; "Esta semana" muestra todas
     fun filtrarClases(filtro: String): List<Clase> =
         if (filtro == "Hoy") clases.filter { it.dia == "Hoy" } else clases
 
