@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +48,7 @@ fun InicioScreen(navController: NavController) {
                 )
             )
         },
-                bottomBar = { BarraInferior(navController) }
+        bottomBar = { BarraInferior(navController) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -104,9 +105,34 @@ fun ClaseCard(clase: Clase, onClick: () -> Unit) {
         "${clase.dia} · ${clase.horarios.first()} · ${clase.sala}"
     }
 
+    // Consulta de cupos en vivo desde el objeto observable DatosGym
+    val cuposRestantes = DatosGym.cuposRestantes(clase.id)
+    val estaLlena = DatosGym.estaLlena(clase.id)
+
+    // Configuración visual de la etiqueta de cupos a la derecha de la tarjeta
+    val (textoEtiqueta, fondoEtiqueta, colorTextoEtiqueta) = when {
+        estaLlena -> Triple(
+            "Llena",
+            MaterialTheme.colorScheme.errorContainer,
+            MaterialTheme.colorScheme.error
+        )
+        cuposRestantes in 1..3 -> Triple(
+            "Últimos $cuposRestantes",
+            Color(0xFFFFF3E0),
+            Color(0xFFE65100)
+        )
+        else -> Triple(
+            "$cuposRestantes cupos",
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primary
+        )
+    }
+
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (estaLlena) 0.6f else 1.0f),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -128,13 +154,29 @@ fun ClaseCard(clase: Clase, onClick: () -> Unit) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Nombre y horario
-            Column {
+            // Nombre y horario con weight(1f) para empujar la etiqueta a la derecha
+            Column(modifier = Modifier.weight(1f)) {
                 Text(clase.nombre, fontWeight = FontWeight.Bold)
                 Text(
                     text = horarioTexto,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Etiqueta de cupos (derecha de la tarjeta)
+            Surface(
+                shape = RoundedCornerShape(50),
+                color = fondoEtiqueta
+            ) {
+                Text(
+                    text = textoEtiqueta,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorTextoEtiqueta,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                 )
             }
         }

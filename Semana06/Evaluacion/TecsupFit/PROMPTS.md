@@ -187,3 +187,95 @@ Modifica directamente DetalleClaseScreen.kt para:
 ###### FORMATO DE SALIDA
 Aplica los cambios directamente en DetalleClaseScreen.kt y, al final, dame un resumen
 breve en español de qué agregaste y dónde.
+
+---
+
+## Prompt 3 — Etiqueta de cupos en las tarjetas del Inicio
+
+**Qué le pedí:**
+> Un prompt estructurado para que Gemini en modo Agente modificara la función
+> ClaseCard de InicioScreen.kt y mostrara en cada tarjeta los cupos restantes de la
+> clase, destacando cuando quedan pocos o cuando la clase está llena.
+
+**Qué respondió:**
+- Agregó a la derecha de cada tarjeta una etiqueta con DatosGym.cuposRestantes():
+  "N cupos" en verde, "Últimos N" en naranja cuando quedan 3 o menos, y "Llena" en
+  rojo cuando no quedan cupos.
+- Las tarjetas de clases llenas se ven atenuadas con Modifier.alpha(0.6f), pero se
+  pueden tocar para ver el detalle.
+- Los cupos se actualizan solos al volver al Inicio después de reservar, porque se
+  leen del mapa observable de DatosGym.
+
+**Qué tuve que corregir**:
+- Nada, funcionó a la primera.
+
+#### ESTRUCTURA DEL PROMPT
+# ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y
+Material 3, con buen criterio de experiencia de usuario (UX).
+
+# CONTEXTO
+Estoy desarrollando la app "TECSUP Fit" (reserva de clases de gimnasio) en Kotlin con
+Jetpack Compose. El paquete base es com.gutierrez.tecsupfit. Estoy en la rama de la
+mejora con IA terminando un CONTROL DE CUPOS.
+
+En los pasos anteriores ya hice lo siguiente:
+- En datos/DatosGym.kt: el mapa observable cupos (mutableStateMapOf) y las funciones
+  cuposRestantes(claseId), estaLlena(claseId), yaReservada(clase, hora) y
+  reservar(clase, hora): Boolean, que descuenta un cupo al reservar.
+- En screens/DetalleClaseScreen.kt: cupos en vivo con barra de progreso, mensaje
+  "Clase llena", horarios reservados deshabilitados y Snackbar si la reserva falla.
+
+El archivo app/src/main/java/com/gutierrez/tecsupfit/screens/InicioScreen.kt tiene:
+- InicioScreen(navController: NavController) con Scaffold, TopAppBar verde, bottomBar,
+  un LazyRow con los chips "Hoy" / "Esta semana" y un LazyColumn de clases
+- La función ClaseCard(clase: Clase, onClick: () -> Unit), que muestra en un Row:
+  el ícono de pesa (IconoPesa), el nombre de la clase y el horario con la sala
+
+Problema actual: desde el Inicio no se sabe cuántos cupos quedan ni qué clases están
+llenas; el usuario tiene que entrar al detalle para enterarse.
+
+# TAREA
+Modifica directamente la función ClaseCard en InicioScreen.kt para:
+
+1. Etiqueta de cupos a la derecha de la tarjeta:
+    - Dentro del Row, dale a la Column del nombre y horario Modifier.weight(1f) y
+      agrega al final una etiqueta (Surface con RoundedCornerShape(50) y padding
+      horizontal 10.dp, vertical 4.dp) usando DatosGym.cuposRestantes(clase.id):
+        - Si quedan más de 3 cupos: texto "N cupos", fondo
+          MaterialTheme.colorScheme.primaryContainer y texto color primary.
+        - Si quedan entre 1 y 3 cupos: texto "Últimos N", fondo Color(0xFFFFF3E0) y
+          texto Color(0xFFE65100).
+        - Si está llena (DatosGym.estaLlena(clase.id)): texto "Llena", fondo
+          MaterialTheme.colorScheme.errorContainer y texto color error.
+    - La etiqueta usa estilo labelSmall y FontWeight.SemiBold.
+
+2. Tarjeta de clase llena:
+    - Si la clase está llena, aplica Modifier.alpha(0.6f) a la tarjeta para que se vea
+      atenuada, pero se mantiene tocable para poder ver el detalle.
+
+# REQUISITOS
+- Agrega los imports necesarios (androidx.compose.ui.draw.alpha).
+- Los cupos deben actualizarse solos al volver al Inicio después de reservar
+  (usa las funciones de DatosGym, que leen el mapa observable).
+- Mantén el ícono de pesa, el nombre, el horario, los chips, el bottomBar y la
+  navegación tal como están.
+- Agrega comentarios cortos en español en las partes nuevas.
+
+# RESTRICCIONES
+- No modifiques ningún otro archivo del proyecto.
+- No cambies la lógica de DatosGym ni la función filtrarClases.
+- No agregues dependencias nuevas.
+
+# CRITERIOS DE ACEPTACIÓN
+- Al iniciar, Cross Training muestra la etiqueta "8 cupos" en verde.
+- Spinning (5 cupos) muestra "5 cupos"; después de reservarlo 2 veces en horarios
+  distintos muestra "Últimos 3" en naranja.
+- Con el chip "Esta semana", Boxeo muestra "Últimos 1"; después de reservarlo muestra
+  "Llena" en rojo y la tarjeta se ve atenuada.
+- Tocar una tarjeta (incluso llena) sigue navegando a su detalle.
+- El proyecto compila sin errores.
+
+# FORMATO DE SALIDA
+Aplica los cambios directamente en InicioScreen.kt y, al final, dame un resumen breve
+en español de qué agregaste y dónde.
