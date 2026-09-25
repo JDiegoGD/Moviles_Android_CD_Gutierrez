@@ -188,11 +188,3 @@ fun InfoRow(icon: ImageVector, label: String, value: String) {
         }
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun DetailScreenPreview() {
-    NavLabTheme {
-        DetailScreen(navController = rememberNavController(), itemId = 1)
-    }
-}

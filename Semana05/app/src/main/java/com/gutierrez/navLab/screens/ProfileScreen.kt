@@ -198,11 +198,3 @@ fun ProfileInfoItem(icon: ImageVector, label: String, value: String) {
         }
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ProfileScreenPreview() {
-    NavLabTheme {
-        ProfileScreen(navController = rememberNavController())
-    }
-}
