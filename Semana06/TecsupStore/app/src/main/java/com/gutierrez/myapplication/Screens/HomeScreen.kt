@@ -3,6 +3,7 @@ package com.gutierrez.myapplication.Screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -40,26 +42,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.gutierrez.myapplication.navigation.Screen
+import androidx.compose.foundation.lazy.items
 
+data class Product(
+    val id: Int,
+    val name: String,
+    val precio: Double
+)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    var expandedTopBar by remember { mutableStateOf(false) }
-
+    val listaProductos = remember {
+        listOf(
+            Product(1, "Audifonos Gamer", 89.00),
+            Product(2, "SmartWatch", 199.00),
+            Product(3, "Funda Celular", 25.00),
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "TECSUP STORE") }
             )
         }
-    ) { innerPadding -> // Aplicamos los márgenes requeridos por el Scaffold
-        Box(modifier = Modifier.padding(innerPadding)) {
-            CardProduct(
-                name = "Audifonos",
-                precio = 68.00,
-                navController = navController
-            )
-        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            items(listaProductos) { producto ->
+                CardProduct(
+                    name = producto.name,
+                    precio = producto.precio,
+                    navController = navController
+                )
+            }}
     }
 }
 
@@ -89,7 +108,6 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. Contenedor cuadrado del ícono izquierdo
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -106,7 +124,6 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 2. Textos centrales (Título y Precio)
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -125,7 +142,7 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
                 )
             }
 
-            // 3. Botón para abrir el menú de la tarjeta
+            // Botón para abrir el menú
             Box {
                 IconButton(onClick = { expandedCard = true }) {
                     Icon(
@@ -177,50 +194,5 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun DropdownDefault(expanded: Boolean, onDismiss: () -> Unit, navController: NavController) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismiss
-    ) {
-        DropdownMenuItem(
-            onClick = onDismiss,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = "Favoritos"
-                )
-            },
-            text = { Text("Favoritos") }
-        )
-        DropdownMenuItem(
-            onClick = {
-                onDismiss()
-                navController.navigate(Screen.Home.route)
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Share,
-                    contentDescription = "Compartir"
-                )
-            },
-            text = { Text("Compartir") }
-        )
-        DropdownMenuItem(
-            onClick = {
-                onDismiss()
-                navController.navigate(Screen.Home.route)
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.ReportProblem,
-                    contentDescription = "Reportar"
-                )
-            },
-            text = { Text("Home") }
-        )
     }
 }
