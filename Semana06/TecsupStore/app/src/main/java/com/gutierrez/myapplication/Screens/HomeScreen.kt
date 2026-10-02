@@ -78,7 +78,7 @@ fun HomeScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
     var selectedDrawerItem by remember { mutableStateOf(1) }
 
-    val purplePrimary = Color(0xFF6A1B9A)
+    val purplePrimary = Color(0xFF9549C4)
     val purpleBackground = Color(0xFFF3E5F5)
     val dividerColor = Color(0xFFE0E0E0)
 
@@ -207,15 +207,15 @@ fun HomeScreen(navController: NavController) {
                     title = {
                         Column {
                             Text(
-                                text = "TECSUP STORE",
+                                text = "Tecsup Store",
                                 color = Color.White,
-                                fontSize = 20.sp,
+                                fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "Mas vendidos",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 12.sp,
+                                color = Color.White,
+                                fontSize = 15.sp,
                             )
                         }
                     },
@@ -320,6 +320,12 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
                         },
                         text = { Text("Favoritos") }
                     )
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        color = Color.Black,
+                        thickness = 1.dp
+                    )
                     DropdownMenuItem(
                         onClick = {
                             expandedCard = false
@@ -332,6 +338,11 @@ fun CardProduct(name: String, precio: Double, navController: NavController) {
                             )
                         },
                         text = { Text("Compartir") }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        color = Color.Black,
+                        thickness = 1.dp
                     )
                     DropdownMenuItem(
                         onClick = {
