@@ -2,11 +2,14 @@ package com.gutierrez.myapplication.navigation
 
 sealed class Screen(val route: String) {
 
-    // Pantalla de inicio - punto de entrada de la app tras autenticación
+    // Pantalla de inicio
     object Home : Screen("home")
 
-    // Pantalla que muestra la lista de elementos (Directorio de Alumnos)
-    object List : Screen("list")
+    object Pedidos : Screen("pedidos")
 
-    object Detail : Screen("Detail")
+    object Favoritos : Screen("favoritos")
+
+    object Perfil : Screen("profile")
+
+    object Close : Screen("Close")
 }

@@ -65,6 +65,12 @@ data class Product(
     val precio: Double
 )
 
+data class Enlace(
+    val id: Int,
+    val name: String,
+    val ruta : Screen
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -137,23 +143,34 @@ fun HomeScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val menuItems = listOf("Inicio", "Mis pedidos", "Favoritos", "Perfil", "Cerrar sesion")
-                menuItems.forEachIndexed { index, title ->
+                val menuItems = listOf(
+                    Enlace(1, "Inicio", Screen.Home),
+                    Enlace(2, "Mis pedidos", Screen.Pedidos),
+                    Enlace(3, "Favoritos", Screen.Favoritos),
+                    Enlace(4, "Perfil", Screen.Perfil),
+                    Enlace(5, "Cerrar sesion", Screen.Close),
+                )
+
+
+                menuItems.forEach { enlace ->
                     NavigationDrawerItem(
                         label = {
                             Text(
-                                text = title,
-                                fontWeight = if (selectedDrawerItem == index) FontWeight.Bold else FontWeight.Normal,
+                                text = enlace.name,
+                                fontWeight = if (selectedDrawerItem == enlace.id) FontWeight.Bold else FontWeight.Normal, // 3. Editado aquí: antes tenías 'id'
                                 fontSize = 16.sp
                             )
                         },
-                        selected = selectedDrawerItem == index,
+                        selected = selectedDrawerItem == enlace.id,
                         onClick = {
-                            selectedDrawerItem = index
+                            selectedDrawerItem = enlace.id
                             scope.launch { drawerState.close() }
+
+                            navController.navigate(enlace.ruta.route)
                         },
                         icon = {
-                            Icon(Icons.Default.Adjust,
+                            Icon(
+                                imageVector = Icons.Default.Adjust,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
