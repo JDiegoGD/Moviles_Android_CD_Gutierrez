@@ -1,20 +1,10 @@
 package com.gutierrez.citas.data.repository
 
-
 import com.gutierrez.citas.data.model.Cita
 import com.gutierrez.citas.data.model.Especialidad
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Usuario
 
-/**
- * Almacén de datos de toda la app. Es un `object` (un único objeto en memoria)
- * para que todas las pantallas lean y modifiquen LAS MISMAS listas. No hay base
- * de datos: al cerrar la app todo se pierde, y es lo esperado.
- *
- * Las colecciones ya vienen armadas; lo que falta son las funciones (cada una
- * trae su TODO). Por ahora devuelven un valor vacío para que el proyecto compile.
- * No se deben cambiar sus nombres ni parámetros.
- */
 object Repositorio {
 
     // ------------------------------------------------------------------
@@ -25,20 +15,27 @@ object Repositorio {
     /** Paciente que inició sesión; null cuando no hay sesión abierta. */
     var usuarioActual: Usuario? = null
 
-    // TODO: Repo-1 -> agregar el usuario a la lista solo si su correo no existe aún
-    //  (usar any, sin distinguir mayúsculas). Devolver true si se registró, false si ya existía.
+    // Registra al paciente si su correo aún no existe. Devuelve false si ya estaba registrado.
     fun registrarUsuario(usuario: Usuario): Boolean {
-        return false
+        val correoLimpio = usuario.correo.trim()
+        val yaExiste = usuarios.any { it.correo.equals(correoLimpio, ignoreCase = true) }
+        if (yaExiste) return false
+        usuarios.add(usuario.copy(correo = correoLimpio))
+        return true
     }
 
-    // TODO: Repo-2 -> buscar con find el usuario cuyo correo y contraseña coinciden,
-    //  guardarlo en usuarioActual (o null si no hay coincidencia) y devolver si hubo éxito.
+    // Abre sesión si hay un usuario con ese correo y esa contraseña.
+    // Si no coincide ninguno, usuarioActual queda en null y se devuelve false.
     fun iniciarSesion(correo: String, contrasena: String): Boolean {
-        return false
+        val encontrado = usuarios.find {
+            it.correo.equals(correo.trim(), ignoreCase = true) && it.contrasena == contrasena
+        }
+        usuarioActual = encontrado
+        return encontrado != null
     }
 
-    // TODO: Repo-3 -> dejar usuarioActual en null.
     fun cerrarSesion() {
+        usuarioActual = null
     }
 
     // ------------------------------------------------------------------
