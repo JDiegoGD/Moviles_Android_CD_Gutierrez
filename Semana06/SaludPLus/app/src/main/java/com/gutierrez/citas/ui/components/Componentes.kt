@@ -1,4 +1,4 @@
-package com.gutierrez.citas.navigation
+package com.gutierrez.citas.ui.components
 
 object Rutas {
     // Autenticación

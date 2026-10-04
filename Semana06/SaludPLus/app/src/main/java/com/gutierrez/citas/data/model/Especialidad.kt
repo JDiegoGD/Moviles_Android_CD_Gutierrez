@@ -1,4 +1,7 @@
 package com.gutierrez.citas.data.model
 
-class Especialidad {
-}
+data class Especialidad(
+    val id: Int,
+    val nombre: String,
+    val descripcion: String
+)

@@ -1,4 +1,10 @@
 package com.gutierrez.citas.data.model
 
-class Cita {
-}
+data class Cita(
+    val id: Int,
+    val correoUsuario: String,
+    val medicoId: Int,
+    val especialidadId: Int,
+    val fecha: String,
+    val hora: String
+)
