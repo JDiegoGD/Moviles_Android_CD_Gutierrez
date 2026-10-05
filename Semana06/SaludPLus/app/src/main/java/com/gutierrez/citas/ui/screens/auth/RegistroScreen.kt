@@ -1,30 +1,190 @@
 package com.gutierrez.citas.ui.screens.auth
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.gutierrez.citas.ui.components.PantallaEnConstruccion
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.gutierrez.citas.data.model.Usuario
+import com.gutierrez.citas.data.repository.Repositorio
+import com.gutierrez.citas.ui.components.BotonPrimario
+import com.gutierrez.citas.ui.components.CampoConIcono
+import com.gutierrez.citas.ui.components.EnlaceTexto
+import com.gutierrez.citas.ui.theme.AzulNoche
+import com.gutierrez.citas.ui.theme.GrisMedio
 
-// Pantalla 2 · Registro
-// TODO: P2-1  Guardar nombre, teléfono, correo y contraseña en estados (remember + mutableStateOf).
-// TODO: P2-2  Un OutlinedTextField por dato, con su mensaje de error debajo cuando no cumpla.
-// TODO: P2-3  Validar al pulsar "Registrarme": nombre no vacío, teléfono de 9 dígitos,
-//             correo con formato válido y contraseña de al menos 6 caracteres.
-// TODO: P2-4  Si todo es válido, armar el Usuario y llamar a Repositorio.registrarUsuario().
-//             Si devuelve false, mostrar "Este correo ya está registrado".
-// TODO: P2-5  Registro correcto -> onRegistroExitoso()   |   "Ya tengo cuenta" -> onIrLogin()
-// TODO: P2-6  El enlace de términos y condiciones llama a onTerminos().
-// TODO: P2-7  Borrar la llamada a PantallaEnConstruccion.
+// Cada validación devuelve el mensaje de error, o null cuando el dato está bien
+private fun errorNombre(nombre: String): String? =
+    if (nombre.isBlank()) "Escribe tu nombre completo" else null
+
+private fun errorTelefono(telefono: String): String? =
+    if (telefono.length != 9) "El teléfono debe tener 9 dígitos" else null
+
+private fun errorCorreo(correo: String): String? =
+    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo.trim()).matches()) {
+        "Escribe un correo válido"
+    } else null
+
+private fun errorContrasena(contrasena: String): String? =
+    if (contrasena.length < 6) "Mínimo 6 caracteres" else null
+
+// Pantalla 2 · Registro de un paciente nuevo
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
     onIrLogin: () -> Unit,
     onTerminos: () -> Unit
 ) {
-    PantallaEnConstruccion(
-        titulo = "Registro",
-        acciones = listOf(
-            "Simular registro exitoso" to onRegistroExitoso,
-            "Ya tengo cuenta" to onIrLogin,
-            "Ver términos y condiciones" to onTerminos
+    // rememberSaveable: si el paciente abre los términos y vuelve, no pierde lo escrito
+    var nombre by rememberSaveable { mutableStateOf("") }
+    var telefono by rememberSaveable { mutableStateOf("") }
+    var correo by rememberSaveable { mutableStateOf("") }
+    var contrasena by rememberSaveable { mutableStateOf("") }
+    var intentoEnviar by rememberSaveable { mutableStateOf(false) }
+    var correoRepetido by rememberSaveable { mutableStateOf(false) }
+
+    // Los errores solo se muestran después de pulsar "Registrarme" por primera vez
+    val mensajeNombre = if (intentoEnviar) errorNombre(nombre) else null
+    val mensajeTelefono = if (intentoEnviar) errorTelefono(telefono) else null
+    val mensajeCorreo = (if (intentoEnviar) errorCorreo(correo) else null)
+        ?: if (correoRepetido) "Este correo ya está registrado" else null
+    val mensajeContrasena = if (intentoEnviar) errorContrasena(contrasena) else null
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .systemBarsPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Crea tu cuenta",
+            style = MaterialTheme.typography.titleLarge,
+            color = AzulNoche
         )
-    )
+        Text(
+            text = "Regístrate para agendar tus citas médicas",
+            style = MaterialTheme.typography.bodyMedium,
+            color = GrisMedio
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        CampoConIcono(
+            valor = nombre,
+            alCambiar = { nombre = it },
+            etiqueta = "Nombre completo",
+            icono = Icons.Filled.Person,
+            error = mensajeNombre
+        )
+        CampoConIcono(
+            valor = telefono,
+            // Solo deja pasar dígitos y nunca más de 9
+            alCambiar = { if (it.length <= 9 && it.all { c -> c.isDigit() }) telefono = it },
+            etiqueta = "Teléfono",
+            icono = Icons.Filled.Phone,
+            error = mensajeTelefono,
+            tipoTeclado = KeyboardType.Phone
+        )
+        CampoConIcono(
+            valor = correo,
+            alCambiar = {
+                correo = it
+                correoRepetido = false
+            },
+            etiqueta = "Correo electrónico",
+            icono = Icons.Filled.Email,
+            error = mensajeCorreo,
+            tipoTeclado = KeyboardType.Email
+        )
+        CampoConIcono(
+            valor = contrasena,
+            alCambiar = { contrasena = it },
+            etiqueta = "Contraseña",
+            icono = Icons.Filled.Lock,
+            error = mensajeContrasena,
+            esClave = true
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Column(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Al registrarte aceptas nuestros",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrisMedio,
+                textAlign = TextAlign.Center
+            )
+            EnlaceTexto(texto = "términos y condiciones", onClick = onTerminos)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+
+        BotonPrimario(
+            texto = "Registrarme",
+            onClick = {
+                intentoEnviar = true
+                val hayErrores = listOf(
+                    errorNombre(nombre),
+                    errorTelefono(telefono),
+                    errorCorreo(correo),
+                    errorContrasena(contrasena)
+                ).any { it != null }
+
+                if (!hayErrores) {
+                    val nuevo = Usuario(
+                        nombre = nombre.trim(),
+                        telefono = telefono,
+                        correo = correo.trim(),
+                        contrasena = contrasena
+                    )
+                    if (Repositorio.registrarUsuario(nuevo)) {
+                        onRegistroExitoso()
+                    } else {
+                        correoRepetido = true
+                    }
+                }
+            }
+        )
+
+        Row(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "¿Ya tienes cuenta?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrisMedio
+            )
+            EnlaceTexto(texto = "Inicia sesión", onClick = onIrLogin)
+        }
+    }
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <!-- Círculo de fondo -->
+    <path
+        android:fillColor="#E8F0FE"
+        android:pathData="M10,120a110,110 0 1,0 220,0a110,110 0 1,0 -220,0z" />
+    <group>
+        <clip-path android:pathData="M10,120a110,110 0 1,0 220,0a110,110 0 1,0 -220,0z" />
+        <!-- Bata blanca -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M36,240C36,172 76,150 120,150C164,150 204,172 204,240z" />
+        <!-- Camisa azul en V -->
+        <path
+            android:fillColor="#2563EB"
+            android:pathData="M102,152L120,190L138,152z" />
+        <!-- Estetoscopio -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M96,154C96,186 120,194 120,194"
+            android:strokeColor="#0F2A5C"
+            android:strokeWidth="4"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M144,154C144,186 120,194 120,194"
+            android:strokeColor="#0F2A5C"
+            android:strokeWidth="4"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="#0F2A5C"
+            android:pathData="M112,204a8,8 0 1,0 16,0a8,8 0 1,0 -16,0z" />
+        <!-- Cruz en el bolsillo -->
+        <path
+            android:fillColor="#2563EB"
+            android:pathData="M164,190h8v8h8v8h-8v8h-8v-8h-8v-8h8z" />
+    </group>
+    <!-- Cuello -->
+    <path
+        android:fillColor="#F2C29B"
+        android:pathData="M108,128h24v26h-24z" />
+    <!-- Cabeza -->
+    <path
+        android:fillColor="#F7D2AE"
+        android:pathData="M86,100a34,34 0 1,0 68,0a34,34 0 1,0 -68,0z" />
+    <!-- Cabello -->
+    <path
+        android:fillColor="#3B2F2F"
+        android:pathData="M85,98C85,62 155,62 155,98C148,82 92,82 85,98z" />
+    <!-- Ojos -->
+    <path
+        android:fillColor="#1F2937"
+        android:pathData="M105,102a3.5,3.5 0 1,0 7,0a3.5,3.5 0 1,0 -7,0z" />
+    <path
+        android:fillColor="#1F2937"
+        android:pathData="M128,102a3.5,3.5 0 1,0 7,0a3.5,3.5 0 1,0 -7,0z" />
+    <!-- Sonrisa -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M110,115Q120,124 130,115"
+        android:strokeColor="#1F2937"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round" />
+</vector>
