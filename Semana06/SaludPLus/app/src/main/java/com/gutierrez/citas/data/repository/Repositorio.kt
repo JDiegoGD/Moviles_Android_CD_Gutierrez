@@ -5,6 +5,7 @@ import com.gutierrez.citas.data.model.Especialidad
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Usuario
 
+
 object Repositorio {
 
     // ------------------------------------------------------------------
@@ -52,20 +53,20 @@ object Repositorio {
         Especialidad(8, "Traumatología", "Huesos, músculos y articulaciones")
     )
 
-    // TODO: Repo-4 -> filtrar por nombre con filter + contains (ignorando mayúsculas y
-    //  espacios sobrantes). Con el texto vacío deben salir todas.
+    // Especialidades cuyo nombre contiene el texto, sin importar mayúsculas.
+    // Con el texto vacío salen todas.
     fun buscarEspecialidades(texto: String): List<Especialidad> {
-        return emptyList()
+        val buscado = texto.trim()
+        return especialidades.filter { it.nombre.contains(buscado, ignoreCase = true) }
     }
 
-    // TODO: Repo-5 -> devolver solo las primeras 5 (take) para el LazyRow de Inicio.
+    // Las primeras 5 especialidades, para el carrusel de Inicio.
     fun especialidadesDestacadas(): List<Especialidad> {
-        return emptyList()
+        return especialidades.take(5)
     }
 
-    // TODO: Repo-6 -> buscar una especialidad por id con find (null si no existe).
     fun obtenerEspecialidad(id: Int): Especialidad? {
-        return null
+        return especialidades.find { it.id == id }
     }
 
     // ------------------------------------------------------------------
@@ -95,21 +96,22 @@ object Repositorio {
         Medico(16, "Dra. Daniela Zegarra", 8, 4.5, 7, 76, "Disponible hoy", retrato("women", 46))
     )
 
-    // TODO: Repo-7 -> buscar un médico por id con find (null si no existe).
     fun obtenerMedico(id: Int): Medico? {
-        return null
+        return medicos.find { it.id == id }
     }
 
-    // TODO: Repo-8 -> médicos de una especialidad (filter), del mejor al peor
-    //  calificado (sortedByDescending).
+    // Médicos de una especialidad, del mejor calificado al peor.
     fun medicosPorEspecialidad(especialidadId: Int): List<Medico> {
-        return emptyList()
+        return medicos
+            .filter { it.especialidadId == especialidadId }
+            .sortedByDescending { it.calificacion }
     }
 
-    // TODO: Repo-9 -> lo mismo que medicosPorEspecialidad, pero además filtrando por
-    //  nombre (contains, ignorando mayúsculas) con el texto recibido.
+    // Igual que la anterior, pero filtrando además por el nombre del médico.
     fun buscarMedicos(especialidadId: Int, texto: String): List<Medico> {
-        return emptyList()
+        val buscado = texto.trim()
+        return medicosPorEspecialidad(especialidadId)
+            .filter { it.nombre.contains(buscado, ignoreCase = true) }
     }
 
     // ------------------------------------------------------------------
