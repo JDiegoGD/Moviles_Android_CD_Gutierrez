@@ -5,7 +5,15 @@ import com.gutierrez.citas.data.model.Especialidad
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Usuario
 
-
+/**
+ * Almacén de datos de toda la app. Es un `object` (un único objeto en memoria)
+ * para que todas las pantallas lean y modifiquen LAS MISMAS listas. No hay base
+ * de datos: al cerrar la app todo se pierde, y es lo esperado.
+ *
+ * Las colecciones ya vienen armadas; lo que falta son las funciones (cada una
+ * trae su TODO). Por ahora devuelven un valor vacío para que el proyecto compile.
+ * No se deben cambiar sus nombres ni parámetros.
+ */
 object Repositorio {
 
     // ------------------------------------------------------------------
@@ -129,11 +137,13 @@ object Repositorio {
         "12:00", "12:30", "13:00"
     )
 
-    // TODO: Repo-10 -> de las citas de ese médico en esa fecha (filter + map) sacar las horas
-    //  ocupadas, y devolver las de horariosBase que no estén entre ellas (filter).
-    //  La fecha llega como "2026-10-12".
+    // Horas libres de un médico en una fecha (formato "2026-10-12"): a los horarios base
+    // se les quitan las horas de las citas que ese médico ya tiene ese día.
     fun horariosDisponibles(medicoId: Int, fecha: String): List<String> {
-        return emptyList()
+        val ocupadas = citas
+            .filter { it.medicoId == medicoId && it.fecha == fecha }
+            .map { it.hora }
+        return horariosBase.filter { it !in ocupadas }
     }
 
     // TODO: Repo-11 -> si no hay usuarioActual devolver false. Con any comprobar que ese
