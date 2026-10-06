@@ -29,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.font.FontWeight
 import com.gutierrez.citas.data.model.Usuario
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BotonPrimario
@@ -82,17 +85,22 @@ fun RegistroScreen(
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
-            text = "Crea tu cuenta",
-            style = MaterialTheme.typography.titleLarge,
-            color = AzulNoche
+            text = "Crear cuenta",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = AzulNoche,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = "Regístrate para agendar tus citas médicas",
-            style = MaterialTheme.typography.bodyMedium,
-            color = GrisMedio
+            text = "Regístrate para agendar tus citas",
+            fontSize = 15.sp,
+            color = GrisMedio,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -100,6 +108,7 @@ fun RegistroScreen(
             valor = nombre,
             alCambiar = { nombre = it },
             etiqueta = "Nombre completo",
+            ayuda = "Ej. Juan Pérez",
             icono = Icons.Filled.Person,
             error = mensajeNombre
         )
@@ -108,6 +117,7 @@ fun RegistroScreen(
             // Solo deja pasar dígitos y nunca más de 9
             alCambiar = { if (it.length <= 9 && it.all { c -> c.isDigit() }) telefono = it },
             etiqueta = "Teléfono",
+            ayuda = "Ej. 987654321",
             icono = Icons.Filled.Phone,
             error = mensajeTelefono,
             tipoTeclado = KeyboardType.Phone
@@ -119,6 +129,7 @@ fun RegistroScreen(
                 correoRepetido = false
             },
             etiqueta = "Correo electrónico",
+            ayuda = "Ej. juan@correo.com",
             icono = Icons.Filled.Email,
             error = mensajeCorreo,
             tipoTeclado = KeyboardType.Email
@@ -127,6 +138,7 @@ fun RegistroScreen(
             valor = contrasena,
             alCambiar = { contrasena = it },
             etiqueta = "Contraseña",
+            ayuda = "Mínimo 6 caracteres",
             icono = Icons.Filled.Lock,
             error = mensajeContrasena,
             esClave = true
@@ -184,7 +196,7 @@ fun RegistroScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrisMedio
             )
-            EnlaceTexto(texto = "Inicia sesión", onClick = onIrLogin)
+            EnlaceTexto(texto = "Iniciar sesión", onClick = onIrLogin)
         }
     }
 }

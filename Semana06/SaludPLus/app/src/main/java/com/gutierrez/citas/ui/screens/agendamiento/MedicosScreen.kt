@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -16,9 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -34,18 +37,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gutierrez.citas.ui.theme.AzulClinica
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.unit.sp
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BarraSuperior
 import com.gutierrez.citas.ui.components.FotoMedico
 import com.gutierrez.citas.ui.components.TarjetaBase
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
-import com.gutierrez.citas.ui.theme.VerdeExito
 
 // Estrella dorada de la calificación
-private val Dorado = Color(0xFFF59E0B)
+private val Dorado = Color(0xFFF5B301)
 
-// Pantalla 5 · Médicos de la especialidad elegida, del mejor calificado al menos calificado
+// Fondo claro de la etiqueta de disponibilidad
+private val FondoDisponible = Color(0xFFDDF7E8)
+private val VerdeDisponible = Color(0xFF1E9E5A)
+
+// Pantalla 5 · Médicos de la especialidad elegida (del mejor al menos calificado) con buscador en la lupa
 @Composable
 fun MedicosScreen(
     especialidadId: Int,
@@ -53,6 +63,7 @@ fun MedicosScreen(
     onMedico: (Int) -> Unit
 ) {
     var busqueda by rememberSaveable { mutableStateOf("") }
+    var buscando by rememberSaveable { mutableStateOf(false) }
     val especialidad = Repositorio.obtenerEspecialidad(especialidadId)
     val medicos = Repositorio.buscarMedicos(especialidadId, busqueda)
 
@@ -63,24 +74,39 @@ fun MedicosScreen(
             .systemBarsPadding()
     ) {
         BarraSuperior(
-            titulo = especialidad?.nombre ?: "Médicos",
-            onAtras = onAtras
+            titulo = "Médicos de ${especialidad?.nombre ?: "la clínica"}",
+            onAtras = onAtras,
+            acciones = {
+                IconButton(onClick = {
+                    buscando = !buscando
+                    if (!buscando) busqueda = "" // al cerrar el buscador se vuelve a ver la lista completa
+                }) {
+                    Icon(
+                        imageVector = if (buscando) Icons.Filled.Close else Icons.Filled.Search,
+                        contentDescription = if (buscando) "Cerrar búsqueda" else "Buscar médico",
+                        tint = AzulNoche
+                    )
+                }
+            }
         )
 
-        OutlinedTextField(
+        if (buscando) OutlinedTextField(
             value = busqueda,
             onValueChange = { busqueda = it },
-            placeholder = { Text("Buscar médico por nombre") },
+            placeholder = { Text("Buscar médico...", color = Color(0xFF9CA3AF)) },
             leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedContainerColor = Color(0xFFF1F5FB),
+                unfocusedContainerColor = Color(0xFFF1F5FB),
+                focusedBorderColor = AzulClinica,
+                unfocusedBorderColor = Color.Transparent,
+                cursorColor = AzulClinica
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         )
 
         if (medicos.isEmpty()) {
@@ -103,42 +129,53 @@ fun MedicosScreen(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onMedico(medico.id) }
                     ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            FotoMedico(nombre = medico.nombre, foto = medico.foto, tamano = 68.dp)
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = medico.nombre,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = AzulNoche
-                                )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Star,
-                                        contentDescription = null,
-                                        tint = Dorado,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                FotoMedico(nombre = medico.nombre, foto = medico.foto, tamano = 56.dp)
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "${medico.calificacion} (${medico.resenas} reseñas)",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        text = medico.nombre,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = AzulNoche
+                                    )
+                                    Text(
+                                        text = especialidad?.nombre.orEmpty(),
+                                        fontSize = 13.sp,
                                         color = GrisMedio
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Star,
+                                            contentDescription = null,
+                                            tint = Dorado,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${medico.calificacion} (${medico.resenas})",
+                                            fontSize = 13.sp,
+                                            color = GrisMedio
+                                        )
+                                    }
                                 }
-                                Text(
-                                    text = "${medico.aniosExperiencia} años de experiencia",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = GrisMedio
-                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            // Etiqueta verde de disponibilidad, abajo a la derecha
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(FondoDisponible)
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
                                 Text(
                                     text = medico.disponibilidad,
-                                    style = MaterialTheme.typography.labelLarge,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = VerdeExito
+                                    color = VerdeDisponible
                                 )
                             }
                         }

@@ -5,15 +5,6 @@ import com.gutierrez.citas.data.model.Especialidad
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Usuario
 
-/**
- * Almacén de datos de toda la app. Es un `object` (un único objeto en memoria)
- * para que todas las pantallas lean y modifiquen LAS MISMAS listas. No hay base
- * de datos: al cerrar la app todo se pierde, y es lo esperado.
- *
- * Las colecciones ya vienen armadas; lo que falta son las funciones (cada una
- * trae su TODO). Por ahora devuelven un valor vacío para que el proyecto compile.
- * No se deben cambiar sus nombres ni parámetros.
- */
 object Repositorio {
 
     // ------------------------------------------------------------------
@@ -146,11 +137,16 @@ object Repositorio {
         return horariosBase.filter { it !in ocupadas }
     }
 
-    // TODO: Repo-11 -> si no hay usuarioActual devolver false. Con any comprobar que ese
-    //  médico no tenga ya una cita en esa fecha y hora (si la tiene, false). Si está libre,
-    //  crear la Cita con siguienteIdCita++ y el correo del usuario, hacer add y devolver true.
+    // Crea la cita para el usuario en sesión. Devuelve false si no hay sesión o si el
+    // médico ya tiene una cita en esa fecha y hora (alguien se le adelantó).
     fun agendarCita(medicoId: Int, especialidadId: Int, fecha: String, hora: String): Boolean {
-        return false
+        val paciente = usuarioActual ?: return false
+        val horaTomada = citas.any {
+            it.medicoId == medicoId && it.fecha == fecha && it.hora == hora
+        }
+        if (horaTomada) return false
+        citas.add(Cita(siguienteIdCita++, paciente.correo, medicoId, especialidadId, fecha, hora))
+        return true
     }
 
     // TODO: Repo-12 -> buscar una cita por id con find (null si no existe).
@@ -158,10 +154,12 @@ object Repositorio {
         return null
     }
 
-    // TODO: Repo-13 -> citas del usuario en sesión (filter por correo), ordenadas de la más
-    //  próxima a la más lejana con sortedWith + compareBy(fecha, hora). Sin sesión: lista vacía.
+    // Citas del usuario en sesión, de la más próxima a la más lejana. Sin sesión: lista vacía.
     fun citasDelUsuario(): List<Cita> {
-        return emptyList()
+        val paciente = usuarioActual ?: return emptyList()
+        return citas
+            .filter { it.correoUsuario.equals(paciente.correo, ignoreCase = true) }
+            .sortedWith(compareBy<Cita>({ it.fecha }, { it.hora }))
     }
 
     // TODO: Repo-14 -> eliminar la cita con removeIf. Devolver true si existía.

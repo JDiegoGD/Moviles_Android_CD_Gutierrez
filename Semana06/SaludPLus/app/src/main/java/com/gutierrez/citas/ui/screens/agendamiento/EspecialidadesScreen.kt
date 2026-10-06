@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gutierrez.citas.ui.theme.AzulClinica
+import androidx.compose.ui.unit.sp
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BarraSuperior
 import com.gutierrez.citas.ui.components.IconoEspecialidad
@@ -61,17 +63,20 @@ fun EspecialidadesScreen(
         OutlinedTextField(
             value = busqueda,
             onValueChange = { busqueda = it },
-            placeholder = { Text("Buscar especialidad") },
+            placeholder = { Text("Buscar especialidades...", color = Color(0xFF9CA3AF)) },
             leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedContainerColor = Color(0xFFF1F5FB),
+                unfocusedContainerColor = Color(0xFFF1F5FB),
+                focusedBorderColor = AzulClinica,
+                unfocusedBorderColor = Color.Transparent,
+                cursorColor = AzulClinica
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         )
 
         if (resultados.isEmpty()) {
@@ -103,12 +108,13 @@ fun EspecialidadesScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = especialidad.nombre,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
                                     color = AzulNoche
                                 )
                                 Text(
                                     text = especialidad.descripcion,
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontSize = 13.sp,
                                     color = GrisMedio
                                 )
                             }

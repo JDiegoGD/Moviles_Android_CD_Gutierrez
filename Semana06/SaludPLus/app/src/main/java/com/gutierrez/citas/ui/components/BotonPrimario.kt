@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.citas.ui.theme.AzulClinica
 
@@ -31,10 +31,10 @@ fun BotonPrimario(
         colors = ButtonDefaults.buttonColors(
             containerColor = AzulClinica,
             contentColor = Color.White,
-            disabledContainerColor = Color(0xFFBFD0F5),
+            disabledContainerColor = AzulClinica.copy(alpha = 0.35f),
             disabledContentColor = Color.White
         )
     ) {
-        Text(text = texto, style = MaterialTheme.typography.titleMedium)
+        Text(text = texto, fontWeight = FontWeight.SemiBold)
     }
 }

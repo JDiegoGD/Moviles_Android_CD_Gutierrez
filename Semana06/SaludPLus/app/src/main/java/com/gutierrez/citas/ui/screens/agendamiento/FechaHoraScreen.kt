@@ -1,7 +1,6 @@
 package com.gutierrez.citas.ui.screens.agendamiento
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -36,11 +34,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.unit.sp
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BarraSuperior
 import com.gutierrez.citas.ui.components.BotonPrimario
-import com.gutierrez.citas.ui.components.FotoMedico
-import com.gutierrez.citas.ui.components.TarjetaBase
+import com.gutierrez.citas.ui.components.TarjetaMedico
 import com.gutierrez.citas.ui.theme.AzulClinica
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
@@ -80,7 +79,7 @@ fun FechaHoraScreen(
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
-        BarraSuperior(titulo = "Fecha y hora", onAtras = onAtras)
+        BarraSuperior(titulo = "Seleccionar fecha y hora", onAtras = onAtras)
 
         Column(
             modifier = Modifier
@@ -88,27 +87,7 @@ fun FechaHoraScreen(
                 .padding(horizontal = 20.dp)
         ) {
             if (medico != null) {
-                TarjetaBase(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        FotoMedico(nombre = medico.nombre, foto = medico.foto, tamano = 56.dp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = medico.nombre,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = AzulNoche
-                            )
-                            Text(
-                                text = especialidad?.nombre.orEmpty(),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = GrisMedio
-                            )
-                        }
-                    }
-                }
+                TarjetaMedico(medico = medico, especialidad = especialidad?.nombre.orEmpty())
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
@@ -122,7 +101,8 @@ fun FechaHoraScreen(
                 }
                 Text(
                     text = "Octubre 2026",
-                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     color = AzulNoche,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f)
@@ -207,22 +187,26 @@ private fun ChipDia(
     modifier: Modifier = Modifier
 ) {
     val forma = RoundedCornerShape(14.dp)
-    val colorTexto = if (seleccionado) Color.White else AzulNoche
     Column(
         modifier = modifier
+            .height(72.dp)
             .clip(forma)
-            .background(if (seleccionado) AzulClinica else Color.White)
-            .border(1.dp, if (seleccionado) AzulClinica else Color(0xFFD5DEEE), forma)
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(if (seleccionado) AzulClinica else Color(0xFFF1F5FB))
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(text = dia.diaSemana, style = MaterialTheme.typography.bodyMedium, color = colorTexto)
+        Text(
+            text = dia.diaSemana,
+            fontSize = 12.sp,
+            color = if (seleccionado) Color.White else GrisMedio
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = dia.numero,
-            style = MaterialTheme.typography.titleMedium,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = colorTexto
+            color = if (seleccionado) Color.White else AzulNoche
         )
     }
 }
@@ -233,18 +217,20 @@ private fun ChipHora(
     seleccionada: Boolean,
     onClick: () -> Unit
 ) {
-    val forma = RoundedCornerShape(12.dp)
-    Text(
-        text = hora,
-        style = MaterialTheme.typography.labelLarge,
-        color = if (seleccionada) Color.White else AzulNoche,
-        textAlign = TextAlign.Center,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(forma)
-            .background(if (seleccionada) AzulClinica else Color.White)
-            .border(1.dp, if (seleccionada) AzulClinica else Color(0xFFD5DEEE), forma)
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp)
-    )
+            .height(52.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(if (seleccionada) AzulClinica else Color(0xFFF1F5FB))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = hora,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (seleccionada) Color.White else AzulNoche
+        )
+    }
 }

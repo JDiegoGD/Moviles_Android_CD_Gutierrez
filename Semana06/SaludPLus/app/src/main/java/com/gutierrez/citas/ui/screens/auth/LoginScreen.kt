@@ -13,11 +13,8 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.gutierrez.citas.ui.components.BarraSuperior
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BotonPrimario
 import com.gutierrez.citas.ui.components.CampoConIcono
@@ -38,7 +40,7 @@ import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
 import com.gutierrez.citas.ui.theme.RojoAlerta
 
-// Pantalla 8 · Inicio de sesión
+// Pantalla 8 · Inicio de sesión (vista que no venía en el diseño, hecha con el mismo estilo)
 @Composable
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
@@ -55,26 +57,30 @@ fun LoginScreen(
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        IconButton(onClick = onAtras) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Volver",
-                tint = AzulNoche
-            )
-        }
+        BarraSuperior(titulo = "Iniciar sesión", onAtras = onAtras)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Bienvenido de nuevo",
-            style = MaterialTheme.typography.titleLarge,
-            color = AzulNoche
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = AzulNoche,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = "Ingresa con tu correo y contraseña",
-            style = MaterialTheme.typography.bodyMedium,
-            color = GrisMedio
+            text = "Ingresa para gestionar tus citas",
+            fontSize = 15.sp,
+            color = GrisMedio,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -85,6 +91,7 @@ fun LoginScreen(
                 mensajeError = null
             },
             etiqueta = "Correo electrónico",
+            ayuda = "Ej. juan@correo.com",
             icono = Icons.Filled.Email,
             tipoTeclado = KeyboardType.Email
         )
@@ -95,6 +102,7 @@ fun LoginScreen(
                 mensajeError = null
             },
             etiqueta = "Contraseña",
+            ayuda = "Tu contraseña",
             icono = Icons.Filled.Lock,
             esClave = true
         )
@@ -128,10 +136,12 @@ fun LoginScreen(
         ) {
             Text(
                 text = "¿No tienes cuenta?",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrisMedio
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = AzulNoche
             )
             EnlaceTexto(texto = "Regístrate", onClick = onIrRegistro)
+        }
         }
     }
 }

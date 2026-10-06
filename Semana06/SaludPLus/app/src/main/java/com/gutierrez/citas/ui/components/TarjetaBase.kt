@@ -9,13 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Tarjeta blanca de esquinas redondeadas con sombra suave.
+ * Si recibe [onClick] se puede tocar; si no, es solo un contenedor.
+ */
 @Composable
 fun TarjetaBase(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     contenido: @Composable ColumnScope.() -> Unit
 ) {
-    val forma = RoundedCornerShape(18.dp)
+    val forma = RoundedCornerShape(16.dp)
     val colores = CardDefaults.cardColors(containerColor = Color.White)
     val elevacion = CardDefaults.cardElevation(defaultElevation = 2.dp)
 
