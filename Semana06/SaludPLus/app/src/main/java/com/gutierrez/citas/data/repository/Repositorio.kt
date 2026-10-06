@@ -1,5 +1,6 @@
 package com.gutierrez.citas.data.repository
 
+import androidx.compose.runtime.mutableStateListOf
 import com.gutierrez.citas.data.model.Cita
 import com.gutierrez.citas.data.model.Especialidad
 import com.gutierrez.citas.data.model.Medico
@@ -116,7 +117,8 @@ object Repositorio {
     // ------------------------------------------------------------------
     // CITAS Y HORARIOS
     // ------------------------------------------------------------------
-    val citas = mutableListOf<Cita>()
+    // Lista observable: las pantallas que la leen se redibujan solas cuando se agrega o se cancela una cita
+    val citas = mutableStateListOf<Cita>()
 
     /** Número que recibirá la próxima cita creada; se incrementa con cada una. */
     private var siguienteIdCita = 1
@@ -149,9 +151,8 @@ object Repositorio {
         return true
     }
 
-    // TODO: Repo-12 -> buscar una cita por id con find (null si no existe).
     fun obtenerCita(id: Int): Cita? {
-        return null
+        return citas.find { it.id == id }
     }
 
     // Citas del usuario en sesión, de la más próxima a la más lejana. Sin sesión: lista vacía.
@@ -162,8 +163,8 @@ object Repositorio {
             .sortedWith(compareBy<Cita>({ it.fecha }, { it.hora }))
     }
 
-    // TODO: Repo-14 -> eliminar la cita con removeIf. Devolver true si existía.
+    // Elimina la cita y, con ello, vuelve a liberar su horario. Devuelve true si existía.
     fun cancelarCita(id: Int): Boolean {
-        return false
+        return citas.removeAll { it.id == id }
     }
 }
