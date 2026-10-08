@@ -144,19 +144,7 @@ fun RegistroScreen(
             esClave = true
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
-        Column(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Al registrarte aceptas nuestros",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrisMedio,
-                textAlign = TextAlign.Center
-            )
-            EnlaceTexto(texto = "términos y condiciones", onClick = onTerminos)
-        }
+
         Spacer(modifier = Modifier.height(4.dp))
 
         BotonPrimario(
@@ -185,6 +173,21 @@ fun RegistroScreen(
                 }
             }
         )
+
+        Column(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Al registrarte aceptas nuestros",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrisMedio,
+                textAlign = TextAlign.Center
+            )
+            EnlaceTexto(texto = "términos y condiciones", onClick = onTerminos)
+        }
+
+        Spacer(modifier = Modifier.height(200.dp))
 
         Row(
             modifier = Modifier.align(Alignment.CenterHorizontally),

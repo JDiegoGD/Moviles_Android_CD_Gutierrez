@@ -20,7 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -52,7 +52,7 @@ private val MesesCortos = listOf(
     "JUL", "AGO", "SET", "OCT", "NOV", "DIC"
 )
 
-// Pantalla 10 · Mis citas: banner con el contador y una tarjeta por cita con su mosaico de fecha
+// Pantalla 10 · Mis citas: título a la izquierda con su contador y una tarjeta por cada cita
 @Composable
 fun MisCitasScreen(
     onNavegar: (String) -> Unit,
@@ -72,7 +72,31 @@ fun MisCitasScreen(
                 .padding(relleno)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 20.dp, end = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Mis citas",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = AzulNoche,
+                    modifier = Modifier.weight(1f)
+                )
+                if (citas.isNotEmpty()) {
+                    Text(
+                        text = if (citas.size == 1) "1 reservada" else "${citas.size} reservadas",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AzulClinica,
+                        modifier = Modifier
+                            .background(AzulNiebla, RoundedCornerShape(50))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                    )
+                }
+            }
 
             if (citas.isEmpty()) {
                 EstadoVacio(onAgendar = onAgendar)
@@ -90,7 +114,7 @@ fun MisCitasScreen(
     }
 }
 
-// Lista vacía: mensaje centrado y atajo para agendar
+// Lista vacía: ícono en un círculo, un mensaje corto y el atajo para reservar
 @Composable
 private fun EstadoVacio(onAgendar: () -> Unit) {
     Column(
@@ -107,7 +131,7 @@ private fun EstadoVacio(onAgendar: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Filled.CalendarMonth,
+                imageVector = Icons.Filled.EventAvailable,
                 contentDescription = null,
                 tint = AzulClinica,
                 modifier = Modifier.size(40.dp)
@@ -115,7 +139,7 @@ private fun EstadoVacio(onAgendar: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(18.dp))
         Text(
-            text = "Aún no tienes citas",
+            text = "Tu agenda está vacía",
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
             color = AzulNoche,
@@ -123,13 +147,13 @@ private fun EstadoVacio(onAgendar: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Agenda tu primera cita médica en pocos pasos",
+            text = "Cuando reserves una consulta la verás aquí.",
             fontSize = 14.sp,
             color = GrisMedio,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
-        BotonPrimario(texto = "Agendar cita", onClick = onAgendar)
+        BotonPrimario(texto = "Reservar consulta", onClick = onAgendar)
     }
 }
 

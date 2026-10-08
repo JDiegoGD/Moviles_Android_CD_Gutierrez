@@ -57,9 +57,8 @@ fun NotificacionesScreen(
         val especialidad = Repositorio.obtenerEspecialidad(cita.especialidadId)
         Aviso(
             id = cita.id,
-            titulo = "Cita confirmada",
-            detalle = "Tu cita de ${especialidad?.nombre ?: "consulta"} con " +
-                "${medico?.nombre ?: "tu médico"} es el ${fechaLegible(cita.fecha)}, " +
+            titulo = "Recordatorio de ${especialidad?.nombre ?: "consulta"}",
+            detalle = "${medico?.nombre ?: "Tu médico"} te espera el ${fechaLegible(cita.fecha)}, " +
                 "de ${rangoDeHora(cita.hora)}."
         )
     }
@@ -112,7 +111,7 @@ private fun SinAvisos() {
         }
         Spacer(modifier = Modifier.height(18.dp))
         Text(
-            text = "No tienes notificaciones",
+            text = "Todo al día",
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
             color = AzulNoche,
@@ -120,7 +119,7 @@ private fun SinAvisos() {
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Cuando agendes una cita, aparecerá aquí",
+            text = "Aquí verás los recordatorios de tus citas",
             fontSize = 14.sp,
             color = GrisMedio,
             textAlign = TextAlign.Center

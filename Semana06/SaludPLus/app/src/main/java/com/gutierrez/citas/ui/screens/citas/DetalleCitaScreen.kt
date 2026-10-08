@@ -2,6 +2,7 @@ package com.gutierrez.citas.ui.screens.citas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,27 +38,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BarraSuperior
-import com.gutierrez.citas.ui.components.FilaDato
 import com.gutierrez.citas.ui.components.FotoMedico
 import com.gutierrez.citas.ui.components.TarjetaBase
+import com.gutierrez.citas.ui.theme.AzulClinica
+import com.gutierrez.citas.ui.theme.AzulNiebla
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
 import com.gutierrez.citas.ui.theme.RojoAlerta
+import com.gutierrez.citas.util.codigoDeCita
 import com.gutierrez.citas.util.fechaLegible
 import com.gutierrez.citas.util.rangoDeHora
 
-// Etiqueta verde de "Confirmada" (mismos tonos de la etiqueta de disponibilidad de Médicos)
-private val FondoConfirmada = Color(0xFFDDF7E8)
-private val VerdeConfirmada = Color(0xFF1E9E5A)
+private val FondoReservada = Color(0xFFDDF7E8)
+private val VerdeReservada = Color(0xFF1E9E5A)
 private val FondoCancelar = Color(0xFFFDECEC)
+private val LineaPaso = Color(0xFFD5DEEC)
 
-// Pantalla 12 · Detalle de una cita, con opción de cancelarla (reto extra)
+// Pantalla 12 · Detalle de una cita: médico al centro y los datos como una línea de pasos (reto extra)
 @Composable
 fun DetalleCitaScreen(
     citaId: Int,
@@ -64,7 +69,7 @@ fun DetalleCitaScreen(
     onCancelada: () -> Unit
 ) {
     // Se guarda al abrir la pantalla: al cancelar, la cita desaparece del Repositorio pero la
-    // pantalla no debe mostrar "ya no existe" mientras se cierra
+    // pantalla no debe mostrar el aviso de "no encontrada" mientras se cierra
     val cita = remember(citaId) { Repositorio.obtenerCita(citaId) }
     val medico = cita?.let { Repositorio.obtenerMedico(it.medicoId) }
     val especialidad = cita?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
@@ -76,12 +81,11 @@ fun DetalleCitaScreen(
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
-        BarraSuperior(titulo = "Detalle de la cita", onAtras = onAtras)
+        BarraSuperior(titulo = "Tu cita", onAtras = onAtras)
 
         if (cita == null || medico == null || especialidad == null) {
-            // Si el id ya no existe (por ejemplo, ya se canceló) se avisa en vez de cerrar la app
             Text(
-                text = "Esta cita ya no existe",
+                text = "No encontramos esta cita",
                 style = MaterialTheme.typography.bodyLarge,
                 color = GrisMedio,
                 textAlign = TextAlign.Center,
@@ -95,74 +99,60 @@ fun DetalleCitaScreen(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Médico con su etiqueta de estado
-                TarjetaBase(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            FotoMedico(nombre = medico.nombre, foto = medico.foto, tamano = 64.dp)
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = medico.nombre,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = AzulNoche
-                                )
-                                Text(
-                                    text = especialidad.nombre,
-                                    fontSize = 14.sp,
-                                    color = GrisMedio
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "Confirmada",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = VerdeConfirmada,
-                            modifier = Modifier
-                                .background(FondoConfirmada, RoundedCornerShape(8.dp))
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
+                // Médico centrado, con su estado y el código de la cita
+                FotoMedico(nombre = medico.nombre, foto = medico.foto, tamano = 84.dp)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = medico.nombre,
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = AzulNoche,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = especialidad.nombre,
+                    fontSize = 14.sp,
+                    color = GrisMedio
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Reservada",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = VerdeReservada,
+                        modifier = Modifier
+                            .background(FondoReservada, RoundedCornerShape(50))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                    )
+                    Text(
+                        text = codigoDeCita(cita.id),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AzulClinica,
+                        modifier = Modifier
+                            .background(AzulNiebla, RoundedCornerShape(50))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                    )
                 }
 
-                Text(
-                    text = "Datos de la cita",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AzulNoche
-                )
+                Spacer(modifier = Modifier.height(24.dp))
                 TarjetaBase(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        FilaDato(
-                            etiqueta = "Fecha",
-                            valor = fechaLegible(cita.fecha),
-                            icono = Icons.Filled.Event,
-                            conLinea = true
-                        )
-                        FilaDato(
-                            etiqueta = "Hora",
-                            valor = rangoDeHora(cita.hora),
-                            icono = Icons.Filled.AccessTime,
-                            conLinea = true
-                        )
-                        FilaDato(
-                            etiqueta = "Tipo de atención",
-                            valor = "Consulta presencial",
-                            icono = Icons.Filled.MedicalServices,
-                            conLinea = true
-                        )
-                        FilaDato(
-                            etiqueta = "Dirección",
-                            valor = "Av. Los Olivos 123, Lima",
-                            icono = Icons.Filled.LocationOn
+                    Column(modifier = Modifier.padding(18.dp)) {
+                        Paso(Icons.Filled.Event, "Día", fechaLegible(cita.fecha), mostrarLinea = true)
+                        Paso(Icons.Filled.AccessTime, "Horario", rangoDeHora(cita.hora), mostrarLinea = true)
+                        Paso(Icons.Filled.MedicalServices, "Modalidad", "Presencial", mostrarLinea = true)
+                        Paso(
+                            Icons.Filled.LocationOn,
+                            "Sede",
+                            "Clínica SaludPlus, Av. Los Olivos 123, Lima",
+                            mostrarLinea = false
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             // El botón queda fijo abajo; cancelar siempre pasa primero por el diálogo
@@ -198,9 +188,9 @@ fun DetalleCitaScreen(
         AlertDialog(
             onDismissRequest = { mostrarDialogo = false },
             containerColor = Color.White,
-            title = { Text("¿Cancelar esta cita?", color = AzulNoche, fontWeight = FontWeight.Bold) },
+            title = { Text("¿Seguro que quieres cancelarla?", color = AzulNoche, fontWeight = FontWeight.Bold) },
             text = {
-                Text("El horario quedará libre otra vez y tendrás que agendar de nuevo si cambias de opinión.")
+                Text("Perderás este horario, pero podrás reservar otro cuando quieras.")
             },
             confirmButton = {
                 TextButton(
@@ -210,14 +200,59 @@ fun DetalleCitaScreen(
                         onCancelada()
                     }
                 ) {
-                    Text("Sí, cancelar", color = RojoAlerta, fontWeight = FontWeight.SemiBold)
+                    Text("Cancelar cita", color = RojoAlerta, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { mostrarDialogo = false }) {
-                    Text("No, mantener")
+                    Text("Volver")
                 }
             }
         )
+    }
+}
+
+// Un dato de la cita: círculo con ícono y, si no es el último, una línea que lo une con el siguiente
+@Composable
+private fun Paso(
+    icono: ImageVector,
+    titulo: String,
+    valor: String,
+    mostrarLinea: Boolean
+) {
+    Row {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .background(AzulNiebla, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = null,
+                    tint = AzulClinica,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            if (mostrarLinea) {
+                Box(
+                    modifier = Modifier
+                        .width(2.dp)
+                        .height(22.dp)
+                        .background(LineaPaso)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.padding(top = 2.dp)) {
+            Text(text = titulo, fontSize = 12.sp, color = GrisMedio)
+            Text(
+                text = valor,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AzulNoche
+            )
+        }
     }
 }

@@ -49,7 +49,7 @@ import com.gutierrez.citas.ui.theme.RojoAlerta
 // Fondo rosado suave del botón de cerrar sesión
 private val FondoCerrar = Color(0xFFFDECEC)
 
-// Pantalla 11 · Mis datos: banner con el avatar, contador de citas, datos y cierre de sesión
+// Pantalla 11 · Mi perfil: banner con el avatar, contador de citas, datos y cierre de sesión
 @Composable
 fun PerfilScreen(
     onNavegar: (String) -> Unit,
@@ -89,7 +89,7 @@ fun PerfilScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Mis datos",
+                            text = "Mi perfil",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White.copy(alpha = 0.75f)
@@ -130,7 +130,7 @@ fun PerfilScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Citas agendadas",
+                        text = "Citas reservadas",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = AzulNoche,
@@ -146,7 +146,7 @@ fun PerfilScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
                 Text(
-                    text = "Información personal",
+                    text = "Mis datos personales",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = AzulNoche
@@ -161,19 +161,19 @@ fun PerfilScreen(
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         FilaDato(
-                            etiqueta = "Nombre completo",
+                            etiqueta = "Nombre",
                             valor = usuario?.nombre.orEmpty(),
                             icono = Icons.Filled.Person,
                             conLinea = true
                         )
                         FilaDato(
-                            etiqueta = "Teléfono",
+                            etiqueta = "Celular",
                             valor = usuario?.telefono.orEmpty(),
                             icono = Icons.Filled.Phone,
                             conLinea = true
                         )
                         FilaDato(
-                            etiqueta = "Correo electrónico",
+                            etiqueta = "Correo",
                             valor = usuario?.correo.orEmpty(),
                             icono = Icons.Filled.Email
                         )

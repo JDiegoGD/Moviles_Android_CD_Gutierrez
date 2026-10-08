@@ -27,3 +27,19 @@ fun rangoDeHora(inicio: String): String {
     val fin = "%02d:%02d".format((total / 60) % 24, total % 60)
     return "$inicio a $fin"
 }
+
+private val mesesCortos = listOf(
+    "ene", "feb", "mar", "abr", "may", "jun",
+    "jul", "ago", "set", "oct", "nov", "dic"
+)
+
+/** "2026-09-18" -> "18 set 2026". Si el texto no tiene ese formato lo devuelvo tal cual. */
+fun fechaCorta(fechaIso: String): String {
+    val partes = fechaIso.split("-")
+    val dia = partes.getOrNull(2)?.toIntOrNull() ?: return fechaIso
+    val mes = partes.getOrNull(1)?.toIntOrNull()?.let { mesesCortos.getOrNull(it - 1) } ?: return fechaIso
+    return "$dia $mes ${partes[0]}"
+}
+
+/** El número interno de la cita escrito como código de comprobante: 3 -> "SP-0003". */
+fun codigoDeCita(id: Int): String = "SP-%04d".format(id)
