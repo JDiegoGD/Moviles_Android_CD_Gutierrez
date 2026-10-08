@@ -8,7 +8,7 @@ import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
-import java.io.IOException
+import com.gutierrez.biblioteca.ui.mensajeDeError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,17 +49,10 @@ class ListaViewModel(
         trabajo = viewModelScope.launch {
             _estado.value = repository.listarPorCarrera(_carreraSeleccionada.value).fold(
                 onSuccess = { UiState.Exito(it) },
-                onFailure = { UiState.Error(mensajeDe(it)) }
+                onFailure = { UiState.Error(mensajeDeError(it)) }
             )
         }
     }
-
-    private fun mensajeDe(error: Throwable): String =
-        if (error is IOException) {
-            "No se pudo conectar. Revisa tu conexión a internet."
-        } else {
-            "Ocurrió un error al cargar los libros."
-        }
 
     companion object {
         fun factory(repository: ItemRepository) = viewModelFactory {

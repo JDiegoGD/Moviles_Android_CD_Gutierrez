@@ -10,4 +10,7 @@ import com.gutierrez.biblioteca.domain.model.Item
 interface ItemRepository {
     /** Libros de una carrera. Devuelve Result.failure si falla la red o la API. */
     suspend fun listarPorCarrera(carrera: Carrera): Result<List<Item>>
+
+    /** Detalle de un libro por su id (segundo endpoint). */
+    suspend fun obtenerDetalle(id: Int): Result<Item>
 }

@@ -1,6 +1,7 @@
 package com.gutierrez.biblioteca.ui.lista
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
 @Composable
 fun ListaScreen(
     viewModel: ListaViewModel,
+    onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -52,6 +54,7 @@ fun ListaScreen(
         carreraSeleccionada = carrera,
         onCarreraSeleccionada = viewModel::seleccionar,
         onReintentar = viewModel::reintentar,
+        onItemClick = onItemClick,
         modifier = modifier
     )
 }
@@ -64,6 +67,7 @@ fun ListaContenido(
     carreraSeleccionada: Carrera,
     onCarreraSeleccionada: (Carrera) -> Unit,
     onReintentar: () -> Unit,
+    onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -79,7 +83,7 @@ fun ListaContenido(
                 when (estado) {
                     is UiState.Cargando -> Cargando()
                     is UiState.Error -> ErrorView(mensaje = estado.mensaje, onReintentar = onReintentar)
-                    is UiState.Exito -> ListaDeItems(estado.datos)
+                    is UiState.Exito -> ListaDeItems(estado.datos, onItemClick)
                 }
             }
         }
@@ -107,7 +111,7 @@ private fun FiltroCarreras(
 }
 
 @Composable
-private fun ListaDeItems(items: List<Item>) {
+private fun ListaDeItems(items: List<Item>, onItemClick: (Int) -> Unit) {
     if (items.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No hay libros en esta carrera.")
@@ -120,14 +124,14 @@ private fun ListaDeItems(items: List<Item>) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items, key = { it.id }) { item ->
-            ItemCard(item)
+            ItemCard(item, onClick = { onItemClick(item.id) })
         }
     }
 }
 
 @Composable
-private fun ItemCard(item: Item) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun ItemCard(item: Item, onClick: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -182,7 +186,8 @@ private fun ListaContenidoPreview() {
             ),
             carreraSeleccionada = Carrera.DISENO_DESARROLLO_SOFTWARE,
             onCarreraSeleccionada = {},
-            onReintentar = {}
+            onReintentar = {},
+            onItemClick = {}
         )
     }
 }

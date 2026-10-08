@@ -8,5 +8,8 @@ fun ItemDto.toItem(): Item = Item(
     id = id,
     titulo = title,
     subtitulo = brand ?: category.orEmpty(),
-    imagenUrl = thumbnail
+    imagenUrl = thumbnail,
+    descripcion = description.orEmpty(),
+    precio = price,
+    valoracion = rating
 )
