@@ -19,6 +19,12 @@ interface ItemRepository {
     /** Descarga los libros de la carrera y los guarda en Room (conserva los favoritos). */
     suspend fun refrescar(carrera: Carrera): Result<Unit>
 
+    /** Libros marcados como favoritos (de todas las carreras); se vuelve a emitir al cambiar. */
+    fun observarFavoritos(): Flow<List<Item>>
+
+    /** Marca o desmarca un libro como favorito en Room. */
+    suspend fun alternarFavorito(id: Int)
+
     /** Detalle de un libro (segundo endpoint); si no hay red usa la copia guardada. */
     suspend fun obtenerDetalle(id: Int): Result<Item>
 }

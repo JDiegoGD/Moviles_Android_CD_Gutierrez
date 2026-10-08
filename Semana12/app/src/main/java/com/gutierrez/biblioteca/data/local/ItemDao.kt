@@ -32,8 +32,9 @@ interface ItemDao {
     @Upsert
     suspend fun guardarTodos(items: List<ItemEntity>)
 
-    @Query("UPDATE items SET esFavorito = :favorito WHERE id = :id")
-    suspend fun marcarFavorito(id: Int, favorito: Boolean)
+    /** Marca o desmarca como favorito (invierte el valor actual). */
+    @Query("UPDATE items SET esFavorito = NOT esFavorito WHERE id = :id")
+    suspend fun alternarFavorito(id: Int)
 
     @Query("DELETE FROM items")
     suspend fun borrarTodos()

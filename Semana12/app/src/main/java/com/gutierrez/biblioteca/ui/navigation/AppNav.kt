@@ -11,13 +11,16 @@ import androidx.navigation.navArgument
 import com.gutierrez.biblioteca.AppContainer
 import com.gutierrez.biblioteca.ui.detalle.DetalleScreen
 import com.gutierrez.biblioteca.ui.detalle.DetalleViewModel
+import com.gutierrez.biblioteca.ui.favoritos.FavoritosScreen
+import com.gutierrez.biblioteca.ui.favoritos.FavoritosViewModel
 import com.gutierrez.biblioteca.ui.lista.ListaScreen
 import com.gutierrez.biblioteca.ui.lista.ListaViewModel
 
-/** Rutas de la app. Las siguientes pantallas (favoritos, login, admin) se agregan aqui. */
+/** Rutas de la app. Las siguientes pantallas (login, admin) se agregan aqui. */
 object Rutas {
     const val LISTA = "lista"
     const val DETALLE = "detalle/{id}"
+    const val FAVORITOS = "favoritos"
 
     fun detalle(id: Int) = "detalle/$id"
 }
@@ -35,7 +38,8 @@ fun AppNav(
             )
             ListaScreen(
                 viewModel = viewModel,
-                onItemClick = { id -> navController.navigate(Rutas.detalle(id)) }
+                onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
+                onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) }
             )
         }
         composable(
@@ -48,6 +52,16 @@ fun AppNav(
             )
             DetalleScreen(
                 viewModel = viewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable(Rutas.FAVORITOS) {
+            val viewModel: FavoritosViewModel = viewModel(
+                factory = FavoritosViewModel.factory(container.itemRepository)
+            )
+            FavoritosScreen(
+                viewModel = viewModel,
+                onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVolver = { navController.popBackStack() }
             )
         }

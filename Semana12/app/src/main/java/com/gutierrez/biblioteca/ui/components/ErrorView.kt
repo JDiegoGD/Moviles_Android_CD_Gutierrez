@@ -15,11 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-/** Mensaje de error con un boton para reintentar; el reintento lo decide el ViewModel. */
+/** Mensaje de error con un boton opcional para reintentar; el reintento lo decide el ViewModel. */
 @Composable
 fun ErrorView(
     mensaje: String,
-    onReintentar: () -> Unit,
+    onReintentar: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -34,9 +34,11 @@ fun ErrorView(
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onReintentar) {
-            Text("Reintentar")
+        if (onReintentar != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onReintentar) {
+                Text("Reintentar")
+            }
         }
     }
 }

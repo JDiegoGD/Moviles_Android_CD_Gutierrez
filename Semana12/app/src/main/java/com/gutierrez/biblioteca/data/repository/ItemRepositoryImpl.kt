@@ -19,6 +19,11 @@ class ItemRepositoryImpl(
     override fun observarPorCarrera(carrera: Carrera): Flow<List<Item>> =
         dao.porCarrera(carrera.name).map { entidades -> entidades.map { it.toItem() } }
 
+    override fun observarFavoritos(): Flow<List<Item>> =
+        dao.favoritos().map { entidades -> entidades.map { it.toItem() } }
+
+    override suspend fun alternarFavorito(id: Int) = dao.alternarFavorito(id)
+
     override suspend fun refrescar(carrera: Carrera): Result<Unit> = llamar {
         val remotos = api.listarPorCategoria(carrera.slug).products
         // @Upsert reemplaza la fila completa: se conservan los favoritos ya marcados.

@@ -1,24 +1,21 @@
 package com.gutierrez.biblioteca.ui.lista
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,18 +23,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
 import com.gutierrez.biblioteca.ui.components.Cargando
 import com.gutierrez.biblioteca.ui.components.ErrorView
+import com.gutierrez.biblioteca.ui.components.ItemCard
 import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
 
 /** Pantalla de lista. Solo observa el estado del ViewModel y le avisa de los clics. */
@@ -45,6 +39,7 @@ import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
 fun ListaScreen(
     viewModel: ListaViewModel,
     onItemClick: (Int) -> Unit,
+    onVerFavoritos: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -55,6 +50,8 @@ fun ListaScreen(
         onCarreraSeleccionada = viewModel::seleccionar,
         onReintentar = viewModel::reintentar,
         onItemClick = onItemClick,
+        onAlternarFavorito = viewModel::alternarFavorito,
+        onVerFavoritos = onVerFavoritos,
         modifier = modifier
     )
 }
@@ -68,11 +65,25 @@ fun ListaContenido(
     onCarreraSeleccionada: (Carrera) -> Unit,
     onReintentar: () -> Unit,
     onItemClick: (Int) -> Unit,
+    onAlternarFavorito: (Int) -> Unit,
+    onVerFavoritos: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("Biblioteca") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Biblioteca") },
+                actions = {
+                    IconButton(onClick = onVerFavoritos) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = "Ver favoritos"
+                        )
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             FiltroCarreras(
@@ -83,7 +94,7 @@ fun ListaContenido(
                 when (estado) {
                     is UiState.Cargando -> Cargando()
                     is UiState.Error -> ErrorView(mensaje = estado.mensaje, onReintentar = onReintentar)
-                    is UiState.Exito -> ListaDeItems(estado.datos, onItemClick)
+                    is UiState.Exito -> ListaDeItems(estado.datos, onItemClick, onAlternarFavorito)
                 }
             }
         }
@@ -111,7 +122,11 @@ private fun FiltroCarreras(
 }
 
 @Composable
-private fun ListaDeItems(items: List<Item>, onItemClick: (Int) -> Unit) {
+private fun ListaDeItems(
+    items: List<Item>,
+    onItemClick: (Int) -> Unit,
+    onAlternarFavorito: (Int) -> Unit
+) {
     if (items.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No hay libros en esta carrera.")
@@ -124,51 +139,11 @@ private fun ListaDeItems(items: List<Item>, onItemClick: (Int) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items, key = { it.id }) { item ->
-            ItemCard(item, onClick = { onItemClick(item.id) })
-        }
-    }
-}
-
-@Composable
-private fun ItemCard(item: Item, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val miniatura = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp))
-            if (item.imagenUrl != null) {
-                AsyncImage(
-                    model = item.imagenUrl,
-                    contentDescription = item.titulo,
-                    contentScale = ContentScale.Crop,
-                    modifier = miniatura
-                )
-            } else {
-                Box(
-                    modifier = miniatura.background(MaterialTheme.colorScheme.secondaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = item.titulo.take(1),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-            }
-            Column(modifier = Modifier.padding(start = 12.dp)) {
-                Text(
-                    text = item.titulo,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = item.subtitulo,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            ItemCard(
+                item = item,
+                onClick = { onItemClick(item.id) },
+                onAlternarFavorito = { onAlternarFavorito(item.id) }
+            )
         }
     }
 }
@@ -180,14 +155,16 @@ private fun ListaContenidoPreview() {
         ListaContenido(
             estado = UiState.Exito(
                 listOf(
-                    Item(1, "Essence Mascara Lash Princess", "Essence", null),
+                    Item(1, "Essence Mascara Lash Princess", "Essence", null, esFavorito = true),
                     Item(2, "Apple MacBook Pro 14 Inch Space Grey", "Apple", null)
                 )
             ),
             carreraSeleccionada = Carrera.DISENO_DESARROLLO_SOFTWARE,
             onCarreraSeleccionada = {},
             onReintentar = {},
-            onItemClick = {}
+            onItemClick = {},
+            onAlternarFavorito = {},
+            onVerFavoritos = {}
         )
     }
 }

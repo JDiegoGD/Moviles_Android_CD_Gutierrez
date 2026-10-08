@@ -28,6 +28,15 @@ class DetalleViewModel(
 
     fun reintentar() = cargar()
 
+    /** Guarda el cambio en Room y actualiza el corazon del detalle que se esta viendo. */
+    fun alternarFavorito() {
+        val actual = (_estado.value as? UiState.Exito)?.datos ?: return
+        viewModelScope.launch {
+            repository.alternarFavorito(actual.id)
+            _estado.value = UiState.Exito(actual.copy(esFavorito = !actual.esFavorito))
+        }
+    }
+
     private fun cargar() {
         _estado.value = UiState.Cargando
         viewModelScope.launch {

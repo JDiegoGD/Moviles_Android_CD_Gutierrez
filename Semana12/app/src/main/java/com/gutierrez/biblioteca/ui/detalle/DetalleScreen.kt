@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
+import com.gutierrez.biblioteca.ui.components.BotonFavorito
 import com.gutierrez.biblioteca.ui.components.Cargando
 import com.gutierrez.biblioteca.ui.components.ErrorView
 import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
@@ -47,6 +48,7 @@ fun DetalleScreen(
         estado = estado,
         onVolver = onVolver,
         onReintentar = viewModel::reintentar,
+        onAlternarFavorito = viewModel::alternarFavorito,
         modifier = modifier
     )
 }
@@ -58,6 +60,7 @@ fun DetalleContenido(
     estado: UiState<Item>,
     onVolver: () -> Unit,
     onReintentar: () -> Unit,
+    onAlternarFavorito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -70,6 +73,14 @@ fun DetalleContenido(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver"
+                        )
+                    }
+                },
+                actions = {
+                    if (estado is UiState.Exito) {
+                        BotonFavorito(
+                            esFavorito = estado.datos.esFavorito,
+                            onClick = onAlternarFavorito
                         )
                     }
                 }
@@ -150,7 +161,8 @@ private fun DetalleContenidoPreview() {
                 )
             ),
             onVolver = {},
-            onReintentar = {}
+            onReintentar = {},
+            onAlternarFavorito = {}
         )
     }
 }

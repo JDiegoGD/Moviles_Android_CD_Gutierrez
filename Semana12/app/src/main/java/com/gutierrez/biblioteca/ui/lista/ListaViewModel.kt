@@ -44,6 +44,11 @@ class ListaViewModel(
 
     fun reintentar() = cargar()
 
+    /** Room avisa del cambio y la lista se actualiza sola. */
+    fun alternarFavorito(id: Int) {
+        viewModelScope.launch { repository.alternarFavorito(id) }
+    }
+
     private fun cargar() {
         trabajo?.cancel() // al cambiar de carrera se descarta la carga y la observacion anteriores
         val carrera = _carreraSeleccionada.value
