@@ -138,3 +138,42 @@ FORMATO DE RESPUESTA
 Aplica los cambios directamente en los archivos del proyecto (crea util/FechasEs.kt y edita
 app/build.gradle.kts); no me pegues el código en el chat. Al terminar, dime en máximo 5 líneas qué
 archivos creaste o modificaste y qué hace cada función.
+
+### Prompt N°2:
+ROL
+Actúa como un desarrollador Android senior experto en Jetpack Compose y manejo de estado.
+
+CONTEXTO
+En la app Clínica SaludPlus (paquete com.gutierrez.citas) la pantalla FechaHoraScreen.kt
+muestra cinco días fijos en una lista (diasFijos), el título "Octubre 2026" escrito a mano y flechas
+< y > deshabilitadas. Debajo hay un LazyVerticalGrid con los horarios que salen de
+Repositorio.horariosDisponibles(medicoId, fecha), que ya descuenta las horas que ese médico tiene
+reservadas en esa fecha. Ya existe util/FechasEs.kt con proximosDiasHabiles, nombreMesAnio y
+abreviaturaDia. Las fechas viajan como String "yyyy-MM-dd".
+
+TAREA
+Convierte FechaHoraScreen.kt en un calendario dinámico:
+1. Estado con rememberSaveable: semanasAdelante (Int, empieza en 0), fechaElegida (String?) y
+   horaElegida (String?).
+2. inicio = LocalDate.now().plusWeeks(semanasAdelante.toLong()). Los cinco chips de días salen de
+   proximosDiasHabiles(inicio, 5); cada chip muestra abreviaturaDia y el número del día.
+3. El título del centro usa nombreMesAnio del primer día mostrado.
+4. Flecha izquierda: resta una semana y queda deshabilitada cuando semanasAdelante == 0 (no se puede
+   retroceder antes de la semana actual). Flecha derecha: suma una semana.
+5. Al cambiar de semana, fechaElegida y horaElegida vuelven a null.
+6. Al tocar un día, se guarda como fechaElegida y horaElegida vuelve a null (la hora se reinicia).
+7. Los horarios disponibles se recalculan solos con Repositorio.horariosDisponibles(medicoId,
+   fechaElegida) cada vez que cambia el día elegido.
+
+RESTRICCIONES
+- Elimina la data class DiaOpcion y la lista diasFijos.
+- No guardes LocalDate dentro de rememberSaveable; usa String o Int.
+- No modifiques Repositorio.kt: el bloqueo de horarios ya reservados debe seguir funcionando igual.
+- Conserva el diseño actual (colores, tamaños, LazyVerticalGrid de 3 columnas) y que el botón
+  Continuar solo se habilite con día y hora elegidos.
+- Solo cambia la lógica del calendario; no cambies textos ni estilos de otras partes de la pantalla.
+
+FORMATO DE RESPUESTA
+Aplica los cambios directamente en ui/screens/agendamiento/FechaHoraScreen.kt (con todos sus imports);
+no me pegues el archivo en el chat. Al terminar, explícame en máximo 6 líneas cómo manejaste las
+semanas y el reinicio de la hora.

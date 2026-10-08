@@ -3,6 +3,7 @@ package com.gutierrez.citas.ui.screens.agendamiento
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -34,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.unit.sp
 import com.gutierrez.citas.data.repository.Repositorio
 import com.gutierrez.citas.ui.components.BarraSuperior
@@ -43,17 +44,10 @@ import com.gutierrez.citas.ui.components.TarjetaMedico
 import com.gutierrez.citas.ui.theme.AzulClinica
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
-
-// Fase 1: los cinco días son fijos (lunes a viernes). La Fase 2 los vuelve dinámicos.
-private data class DiaOpcion(val fecha: String, val diaSemana: String, val numero: String)
-
-private val diasFijos = listOf(
-    DiaOpcion("2026-10-12", "Lun", "12"),
-    DiaOpcion("2026-10-13", "Mar", "13"),
-    DiaOpcion("2026-10-14", "Mié", "14"),
-    DiaOpcion("2026-10-15", "Jue", "15"),
-    DiaOpcion("2026-10-16", "Vie", "16")
-)
+import com.gutierrez.citas.util.abreviaturaDia
+import com.gutierrez.citas.util.nombreMesAnio
+import com.gutierrez.citas.util.proximosDiasHabiles
+import java.time.LocalDate
 
 // Pantalla 6 · Fecha y hora: eliges un día y una de las horas libres de ese médico
 @Composable
@@ -65,8 +59,12 @@ fun FechaHoraScreen(
     val medico = Repositorio.obtenerMedico(medicoId)
     val especialidad = medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
 
+    var semanasAdelante by rememberSaveable { mutableIntStateOf(0) }
     var fechaElegida by rememberSaveable { mutableStateOf<String?>(null) }
     var horaElegida by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val inicio = LocalDate.now().plusWeeks(semanasAdelante.toLong())
+    val diasMostrados = proximosDiasHabiles(inicio, 5)
 
     // Los horarios dependen del día elegido y se recalculan solos cuando éste cambia
     val horarios = fechaElegida
@@ -91,23 +89,38 @@ fun FechaHoraScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            // Mes y año con las flechas (todavía sin función: se activan en la Fase 2)
+            // Mes y año dinámicos con navegación por semanas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        if (semanasAdelante > 0) {
+                            semanasAdelante--
+                            fechaElegida = null
+                            horaElegida = null
+                        }
+                    },
+                    enabled = semanasAdelante > 0
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Semana anterior")
                 }
                 Text(
-                    text = "Octubre 2026",
+                    text = nombreMesAnio(diasMostrados.first()),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = AzulNoche,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        semanasAdelante++
+                        fechaElegida = null
+                        horaElegida = null
+                    }
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Semana siguiente")
                 }
             }
@@ -116,12 +129,13 @@ fun FechaHoraScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                diasFijos.forEach { dia ->
+                diasMostrados.forEach { fecha ->
+                    val fechaIso = fecha.toString()
                     ChipDia(
-                        dia = dia,
-                        seleccionado = dia.fecha == fechaElegida,
+                        fecha = fecha,
+                        seleccionado = fechaIso == fechaElegida,
                         onClick = {
-                            fechaElegida = dia.fecha
+                            fechaElegida = fechaIso
                             horaElegida = null // al cambiar de día se reinicia la hora
                         },
                         modifier = Modifier.weight(1f)
@@ -181,7 +195,7 @@ private fun MensajeHorarios(texto: String) {
 
 @Composable
 private fun ChipDia(
-    dia: DiaOpcion,
+    fecha: LocalDate,
     seleccionado: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -197,13 +211,13 @@ private fun ChipDia(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = dia.diaSemana,
+            text = abreviaturaDia(fecha),
             fontSize = 12.sp,
             color = if (seleccionado) Color.White else GrisMedio
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = dia.numero,
+            text = fecha.dayOfMonth.toString(),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = if (seleccionado) Color.White else AzulNoche
