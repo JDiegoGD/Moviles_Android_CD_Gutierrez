@@ -13,11 +13,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel de la lista. Guarda el estado y decide que hacer con cada evento
- * (elegir carrera, reintentar); la pantalla solo lo observa.
+ * ViewModel de la lista. Observa Room (fuente unica de verdad) y pide al
+ * repositorio que la actualice desde la API; la pantalla solo dibuja el estado.
  */
 class ListaViewModel(
     private val repository: ItemRepository
@@ -44,12 +45,29 @@ class ListaViewModel(
     fun reintentar() = cargar()
 
     private fun cargar() {
-        trabajo?.cancel() // si el usuario cambia de carrera, se descarta la carga anterior
+        trabajo?.cancel() // al cambiar de carrera se descarta la carga y la observacion anteriores
+        val carrera = _carreraSeleccionada.value
         _estado.value = UiState.Cargando
         trabajo = viewModelScope.launch {
-            _estado.value = repository.listarPorCarrera(_carreraSeleccionada.value).fold(
-                onSuccess = { UiState.Exito(it) },
-                onFailure = { UiState.Error(mensajeDeError(it)) }
+            var termino = false
+
+            // Lo que haya en Room se muestra de inmediato y se actualiza solo cuando cambia.
+            launch {
+                repository.observarPorCarrera(carrera).collect { items ->
+                    if (items.isNotEmpty() || termino) _estado.value = UiState.Exito(items)
+                }
+            }
+
+            val resultado = repository.refrescar(carrera)
+            termino = true
+            val guardados = repository.observarPorCarrera(carrera).first()
+            _estado.value = resultado.fold(
+                onSuccess = { UiState.Exito(guardados) },
+                onFailure = {
+                    // Sin red pero con datos guardados se muestran esos; si no, error.
+                    if (guardados.isNotEmpty()) UiState.Exito(guardados)
+                    else UiState.Error(mensajeDeError(it))
+                }
             )
         }
     }

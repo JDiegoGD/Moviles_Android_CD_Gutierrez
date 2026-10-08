@@ -9,7 +9,7 @@ import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val container by lazy { AppContainer() }
+    private val container by lazy { AppContainer(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

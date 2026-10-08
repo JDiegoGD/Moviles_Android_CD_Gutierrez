@@ -12,10 +12,10 @@ import com.gutierrez.biblioteca.data.repository.ItemRepositoryImpl
  */
 class AppContainer(context: Context) {
 
-    // Se crea la primera vez que se usa; en H9 el repositorio empieza a usarla.
+    // Se crea la primera vez que se usa (cuando se pide el repositorio).
     val database: AppDatabase by lazy { AppDatabase.crear(context) }
 
     val itemRepository: ItemRepository by lazy {
-        ItemRepositoryImpl(api = RetrofitClient.api)
+        ItemRepositoryImpl(api = RetrofitClient.api, dao = database.itemDao())
     }
 }
