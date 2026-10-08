@@ -177,3 +177,25 @@ FORMATO DE RESPUESTA
 Aplica los cambios directamente en ui/screens/agendamiento/FechaHoraScreen.kt (con todos sus imports);
 no me pegues el archivo en el chat. Al terminar, explícame en máximo 6 líneas cómo manejaste las
 semanas y el reinicio de la hora.
+
+### Prompt N°3:
+ROL
+Actúa como un desarrollador Android senior experto en Jetpack Compose.
+
+CONTEXTO
+En la app Clínica SaludPlus (paquete com.gutierrez.citas), ConfirmarCitaScreen.kt recibe la
+fecha como String "yyyy-MM-dd" y la muestra en una fila de resumen con fechaLegible(fecha), por ejemplo
+"12 de octubre de 2026". Ya existe util/FechasEs.kt con la función fechaLargaEs(fechaIso: String).
+
+TAREA
+Haz que la fila de la fecha use fechaLargaEs(fecha) para mostrar, por ejemplo,
+"Lunes 12 de octubre 2026" (día de la semana, día, mes y año en español).
+
+RESTRICCIONES
+- Cambia únicamente esa llamada y el import que corresponda; no toques el resto del archivo.
+- Si fechaLegible deja de usarse en este archivo, quita su import.
+- No modifiques FechasEs.kt ni ningún otro archivo.
+
+FORMATO DE RESPUESTA
+Aplica el cambio directamente en ui/screens/agendamiento/ConfirmarCitaScreen.kt; no me pegues el
+archivo en el chat. Al terminar, dime en 2 líneas qué línea cambiaste.

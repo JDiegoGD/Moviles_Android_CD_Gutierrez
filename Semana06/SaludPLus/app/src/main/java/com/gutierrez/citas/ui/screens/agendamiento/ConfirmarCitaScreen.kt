@@ -46,7 +46,7 @@ import com.gutierrez.citas.ui.components.TarjetaMedico
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
 import com.gutierrez.citas.ui.theme.RojoAlerta
-import com.gutierrez.citas.util.fechaLegible
+import com.gutierrez.citas.util.fechaLargaEs
 import com.gutierrez.citas.util.rangoDeHora
 
 // Pantalla 7 · Resumen de la cita elegida; aquí recién se guarda en el Repositorio
@@ -102,7 +102,7 @@ fun ConfirmarCitaScreen(
                 Column {
                     FilaDato(
                         etiqueta = "Fecha",
-                        valor = fechaLegible(fecha),
+                        valor = fechaLargaEs(fecha),
                         icono = Icons.Filled.Event,
                         conLinea = true
                     )
