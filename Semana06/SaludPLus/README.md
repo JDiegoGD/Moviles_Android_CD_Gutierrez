@@ -78,17 +78,17 @@ com.gutierrez.citas
 
 ## Capturas
 
-| Splash                                                | Registro                                                   | Iniciar sesión                                                     |
-|-------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------|
-| <img src="img/Captura1.png" width="200" alt="Splash"> | <img src="img/CrearCuenta.png" width="200" alt="Registro"> | <img src="img/IniciarSesion.png" width="200" alt="Iniciar sesión"> |
+| Splash                                                 | Registro                                                   | Iniciar sesión                                                     |
+|--------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------|
+| <img src="img/Captura01.png" width="200" alt="Splash"> | <img src="img/CrearCuenta.png" width="200" alt="Registro"> | <img src="img/IniciarSesion.png" width="200" alt="Iniciar sesión"> |
 
 | Inicio                                                      | Especialidades                                                    | Médicos                                              |
 |-------------------------------------------------------------|-------------------------------------------------------------------|------------------------------------------------------|
 | <img src="img/VistaPrincipal.png" width="200" alt="Inicio"> | <img src="img/Especialidad.png" width="200" alt="Especialidades"> | <img src="img/Medico.png" width="200" alt="Médicos"> |
 
-| Fecha y hora                                                 | Confirmar cita                                                     | Cita agendada                                                     |
-|--------------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------------------------------|
-| <img src="img/FechaHora.png" width="200" alt="Fecha y hora"> | <img src="img/ConfirmarCita.png" width="200" alt="Confirmar cita"> | <img src="img/CitaAngendada.png" width="200" alt="Cita agendada"> |
+| Fecha y hora                                                 | Confirmar cita                                                     | Cita agendada                                                    |
+|--------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------|
+| <img src="img/FechaHora.png" width="200" alt="Fecha y hora"> | <img src="img/ConfirmarCita.png" width="200" alt="Confirmar cita"> | <img src="img/CitaAgendada.png" width="200" alt="Cita agendada"> |
 
 | Mis citas                                                          | Mis citas (sin citas)                                                          | Detalle de cita                                                   |
 |--------------------------------------------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------|
