@@ -101,3 +101,40 @@ com.gutierrez.citas
 | Notificaciones                                                      | Notificaciones (vacío)                                                            | Términos y condiciones                                                           |
 |---------------------------------------------------------------------|-----------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | <img src="img/Notificaciones.png" width="200" alt="Notificaciones"> | <img src="img/Notificaciones(Vacia).png" width="200" alt="Notificaciones (vacío)"> | <img src="img/TerminosCondiciones.png" width="200" alt="Términos y condiciones"> |
+
+---
+## FASE 2: CON-IA
+### Prompt N°1:
+ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y el paquete java.time.
+
+CONTEXTO
+Tengo una app llamada Clínica SaludPlus (Kotlin, Jetpack Compose, Material 3, paquete
+com.gutierrez.citas, sin base de datos). Las fechas de las citas se guardan como String con formato
+"yyyy-MM-dd" (por ejemplo "2026-10-12"). Hoy la pantalla Fecha y hora muestra una lista fija de días y
+quiero reemplazarla por un calendario dinámico con java.time.LocalDate. En este primer paso solo
+necesito las funciones de apoyo. El proyecto ya tiene util/FechaTexto.kt, que no debes modificar.
+El minSdk actual es 24.
+
+TAREA
+1. Crea el archivo util/FechasEs.kt con estas funciones:
+    - proximosDiasHabiles(desde: LocalDate, cantidad: Int = 5): List<LocalDate>
+      Devuelve los siguientes `cantidad` días hábiles a partir de `desde` (incluido si es hábil).
+    - nombreMesAnio(fecha: LocalDate): String  ->  "Octubre 2026"
+    - abreviaturaDia(fecha: LocalDate): String ->  "Lun", "Mar", "Mié", "Jue", "Vie"
+    - fechaLargaEs(fechaIso: String): String   ->  "Martes 16 de setiembre 2026"
+2. Sube minSdk de 24 a 26 en el build.gradle.kts del módulo app, porque java.time lo requiere.
+
+RESTRICCIONES
+- Sin librerías externas y sin depender del Locale del sistema: los nombres de meses y días van en
+  listas propias en español.
+- Los sábados y domingos nunca deben aparecer en proximosDiasHabiles.
+- El mes lleva mayúscula inicial en nombreMesAnio; en fechaLargaEs el día de la semana lleva
+  mayúscula inicial, el mes va en minúscula, se escribe "setiembre" (con t) y no hay "de" antes del año.
+- Si fechaLargaEs recibe un texto que no se puede convertir a fecha, lo devuelve tal cual.
+- No cambies ningún otro archivo.
+
+FORMATO DE RESPUESTA
+Aplica los cambios directamente en los archivos del proyecto (crea util/FechasEs.kt y edita
+app/build.gradle.kts); no me pegues el código en el chat. Al terminar, dime en máximo 5 líneas qué
+archivos creaste o modificaste y qué hace cada función.
