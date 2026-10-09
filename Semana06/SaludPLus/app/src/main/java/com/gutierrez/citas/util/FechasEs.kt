@@ -66,6 +66,21 @@ fun abreviaturaDia(fecha: LocalDate): String {
 }
 
 /**
+ * Convierte un conjunto de días de la semana a texto legible en español, por ejemplo:
+ * "Lun, Mié y Vie" o "Mar y Jue".
+ */
+fun diasEnTexto(dias: Set<DayOfWeek>): String {
+    if (dias.isEmpty()) return ""
+    val ordenados = dias.sortedBy { it.value }.mapNotNull { diasAbreviados[it] }
+    if (ordenados.isEmpty()) return ""
+    if (ordenados.size == 1) return ordenados[0]
+    if (ordenados.size == 2) return "${ordenados[0]} y ${ordenados[1]}"
+    val anteriores = ordenados.dropLast(1).joinToString(", ")
+    val ultimo = ordenados.last()
+    return "$anteriores y $ultimo"
+}
+
+/**
  * Convierte una fecha ISO ("yyyy-MM-dd") a fecha larga en español, por ejemplo:
  * "Martes 16 de setiembre 2026". Si no se puede convertir, devuelve el texto original.
  */

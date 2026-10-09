@@ -7,6 +7,10 @@ import com.gutierrez.citas.data.model.Local
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Resultado
 import com.gutierrez.citas.data.model.Usuario
+import com.gutierrez.citas.util.diasEnTexto
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
 
 object Repositorio {
 
@@ -95,22 +99,22 @@ object Repositorio {
         "https://randomuser.me/api/portraits/$genero/$numero.jpg"
 
     val medicos = listOf(
-        Medico(1, "Dra. Rosa Delgado", 1, 4.8, 12, 134, "Disponible hoy", retrato("women", 21)),
-        Medico(2, "Dr. Hugo Benavides", 1, 4.5, 8, 92, "Disponible mañana", retrato("men", 14)),
-        Medico(3, "Dra. Marisol Quiroga", 2, 4.7, 10, 118, "Disponible hoy", retrato("women", 52)),
-        Medico(4, "Dr. Raúl Espinoza", 2, 4.4, 6, 61, "Disponible mañana", retrato("men", 29)),
-        Medico(5, "Dra. Teresa Villanueva", 3, 4.9, 15, 187, "Disponible hoy", retrato("women", 71)),
-        Medico(6, "Dra. Gabriela Montoya", 3, 4.6, 9, 103, "Disponible esta semana", retrato("women", 8)),
-        Medico(7, "Dr. Alonso Cárdenas", 4, 4.9, 16, 226, "Disponible hoy", retrato("men", 63)),
-        Medico(8, "Dr. Percy Altamirano", 4, 4.5, 11, 94, "Disponible esta semana", retrato("men", 40)),
-        Medico(9, "Dra. Karina Bustamante", 5, 4.8, 10, 121, "Disponible mañana", retrato("women", 35)),
-        Medico(10, "Dr. Sergio Medina", 5, 4.4, 7, 58, "Disponible hoy", retrato("men", 77)),
-        Medico(11, "Dr. Iván Camacho", 6, 4.6, 9, 84, "Disponible hoy", retrato("men", 5)),
-        Medico(12, "Dra. Natalia Ponce", 6, 4.7, 8, 97, "Disponible mañana", retrato("women", 59)),
-        Medico(13, "Dra. Beatriz Lazo", 7, 4.8, 13, 142, "Disponible esta semana", retrato("women", 83)),
-        Medico(14, "Dr. Emilio Arce", 7, 4.3, 5, 47, "Disponible hoy", retrato("men", 91)),
-        Medico(15, "Dr. Joaquín Palacios", 8, 4.7, 14, 133, "Disponible mañana", retrato("men", 24)),
-        Medico(16, "Dra. Daniela Zegarra", 8, 4.5, 7, 76, "Disponible hoy", retrato("women", 46))
+        Medico(1, "Dra. Rosa Delgado", 1, 4.8, 12, 134, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), "09:00", "13:00", retrato("women", 21)),
+        Medico(2, "Dr. Hugo Benavides", 1, 4.5, 8, 92, setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), "14:00", "18:00", retrato("men", 14)),
+        Medico(3, "Dra. Marisol Quiroga", 2, 4.7, 10, 118, setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY), "08:00", "12:00", retrato("women", 52)),
+        Medico(4, "Dr. Raúl Espinoza", 2, 4.4, 6, 61, setOf(DayOfWeek.THURSDAY, DayOfWeek.FRIDAY), "15:00", "19:00", retrato("men", 29)),
+        Medico(5, "Dra. Teresa Villanueva", 3, 4.9, 15, 187, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), "14:00", "18:00", retrato("women", 71)),
+        Medico(6, "Dra. Gabriela Montoya", 3, 4.6, 9, 103, setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), "09:00", "13:00", retrato("women", 8)),
+        Medico(7, "Dr. Alonso Cárdenas", 4, 4.9, 16, 226, setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), "09:00", "13:00", retrato("men", 63)),
+        Medico(8, "Dr. Percy Altamirano", 4, 4.5, 11, 94, setOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), "14:00", "19:00", retrato("men", 40)),
+        Medico(9, "Dra. Karina Bustamante", 5, 4.8, 10, 121, setOf(DayOfWeek.MONDAY, DayOfWeek.THURSDAY), "08:00", "12:00", retrato("women", 35)),
+        Medico(10, "Dr. Sergio Medina", 5, 4.4, 7, 58, setOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY), "15:00", "19:00", retrato("men", 77)),
+        Medico(11, "Dr. Iván Camacho", 6, 4.6, 9, 84, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), "08:00", "12:00", retrato("men", 5)),
+        Medico(12, "Dra. Natalia Ponce", 6, 4.7, 8, 97, setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), "14:00", "18:00", retrato("women", 59)),
+        Medico(13, "Dra. Beatriz Lazo", 7, 4.8, 13, 142, setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY), "09:00", "13:00", retrato("women", 83)),
+        Medico(14, "Dr. Emilio Arce", 7, 4.3, 5, 47, setOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), "09:00", "13:00", retrato("men", 91)),
+        Medico(15, "Dr. Joaquín Palacios", 8, 4.7, 14, 133, setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY), "14:00", "18:00", retrato("men", 24)),
+        Medico(16, "Dra. Daniela Zegarra", 8, 4.5, 7, 76, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY), "15:00", "19:00", retrato("women", 46))
     )
 
     fun obtenerMedico(id: Int): Medico? {
@@ -145,6 +149,34 @@ object Repositorio {
         }
     }
 
+    // Genera las franjas horarias de un médico cada 30 minutos desde horaInicio hasta antes de horaFin.
+    fun generarHorariosMedico(medico: Medico): List<String> {
+        val resultado = mutableListOf<String>()
+        try {
+            val inicio = LocalTime.parse(medico.horaInicio)
+            val fin = LocalTime.parse(medico.horaFin)
+            var actual = inicio
+            while (actual.isBefore(fin)) {
+                resultado.add(actual.toString())
+                actual = actual.plusMinutes(30)
+            }
+        } catch (_: Exception) {}
+        return resultado
+    }
+
+    // Calcula la etiqueta de disponibilidad basada en la fecha actual y los días de atención.
+    fun calcularDisponibilidad(medico: Medico, hoy: LocalDate = LocalDate.now()): String {
+        val diaHoy = hoy.dayOfWeek
+        if (diaHoy in medico.diasAtencion) {
+            return "Disponible hoy"
+        }
+        val manana = hoy.plusDays(1)
+        if (manana.dayOfWeek in medico.diasAtencion) {
+            return "Disponible mañana"
+        }
+        return "Atiende ${diasEnTexto(medico.diasAtencion)}"
+    }
+
     // ------------------------------------------------------------------
     // CITAS Y HORARIOS
     // ------------------------------------------------------------------
@@ -154,30 +186,45 @@ object Repositorio {
     /** Número que recibirá la próxima cita creada; se incrementa con cada una. */
     private var siguienteIdCita = 1
 
-    /** Franjas que atiende cada médico todos los días. */
-    val horariosBase = listOf(
-        "09:00", "09:30", "10:00",
-        "10:30", "11:00", "11:30",
-        "12:00", "12:30", "13:00"
-    )
-
-    // Horas libres de un médico en una fecha (formato "2026-10-12"): a los horarios base
-    // se les quitan las horas de las citas que ese médico ya tiene ese día.
+    // Horas libres de un médico en una fecha (formato "2026-10-12"):
+    // si el médico atiende ese día, a sus horas base se les quitan las citas reservadas.
     fun horariosDisponibles(medicoId: Int, fecha: String): List<String> {
+        val medico = obtenerMedico(medicoId) ?: return emptyList()
+        val localDate = try {
+            LocalDate.parse(fecha)
+        } catch (_: Exception) {
+            return emptyList()
+        }
+        if (localDate.dayOfWeek !in medico.diasAtencion) {
+            return emptyList()
+        }
+        val baseMedico = generarHorariosMedico(medico)
         val ocupadas = citas
             .filter { it.medicoId == medicoId && it.fecha == fecha }
             .map { it.hora }
-        return horariosBase.filter { it !in ocupadas }
+        return baseMedico.filter { it !in ocupadas }
     }
 
-    // Crea la cita para el usuario en sesión. Devuelve false si no hay sesión o si el
-    // médico ya tiene una cita en esa fecha y hora (alguien se le adelantó).
+    // Crea la cita para el usuario en sesión. Devuelve false si no hay sesión, si la fecha/hora
+    // no pertenecen al horario del médico, o si la hora ya fue tomada.
     fun agendarCita(medicoId: Int, especialidadId: Int, fecha: String, hora: String): Boolean {
         val paciente = usuarioActual ?: return false
+        val medico = obtenerMedico(medicoId) ?: return false
+        val localDate = try {
+            LocalDate.parse(fecha)
+        } catch (_: Exception) {
+            return false
+        }
+        if (localDate.dayOfWeek !in medico.diasAtencion) return false
+
+        val baseMedico = generarHorariosMedico(medico)
+        if (hora !in baseMedico) return false
+
         val horaTomada = citas.any {
             it.medicoId == medicoId && it.fecha == fecha && it.hora == hora
         }
         if (horaTomada) return false
+
         val localId = localElegido?.id ?: 1
         citas.add(Cita(siguienteIdCita++, paciente.correo, medicoId, especialidadId, localId, fecha, hora))
         localElegido = null

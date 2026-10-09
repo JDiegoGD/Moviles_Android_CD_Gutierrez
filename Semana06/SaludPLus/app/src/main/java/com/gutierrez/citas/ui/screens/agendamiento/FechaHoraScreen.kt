@@ -45,6 +45,7 @@ import com.gutierrez.citas.ui.theme.AzulClinica
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
 import com.gutierrez.citas.util.abreviaturaDia
+import com.gutierrez.citas.util.diasEnTexto
 import com.gutierrez.citas.util.nombreMesAnio
 import com.gutierrez.citas.util.proximosDiasHabiles
 import java.time.LocalDate
@@ -86,7 +87,14 @@ fun FechaHoraScreen(
         ) {
             if (medico != null) {
                 TarjetaMedico(medico = medico, especialidad = especialidad?.nombre.orEmpty())
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Atiende ${diasEnTexto(medico.diasAtencion)} · ${medico.horaInicio} a ${medico.horaFin}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = GrisMedio
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // Mes y año dinámicos con navegación por semanas
@@ -131,9 +139,11 @@ fun FechaHoraScreen(
             ) {
                 diasMostrados.forEach { fecha ->
                     val fechaIso = fecha.toString()
+                    val atiende = medico?.diasAtencion?.contains(fecha.dayOfWeek) ?: true
                     ChipDia(
                         fecha = fecha,
                         seleccionado = fechaIso == fechaElegida,
+                        habilitado = atiende,
                         onClick = {
                             fechaElegida = fechaIso
                             horaElegida = null // al cambiar de día se reinicia la hora
@@ -197,30 +207,47 @@ private fun MensajeHorarios(texto: String) {
 private fun ChipDia(
     fecha: LocalDate,
     seleccionado: Boolean,
+    habilitado: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val forma = RoundedCornerShape(14.dp)
+    val fondo = when {
+        !habilitado -> Color(0xFFE5E7EB)
+        seleccionado -> AzulClinica
+        else -> Color(0xFFF1F5FB)
+    }
+    val colorTextoDia = when {
+        !habilitado -> Color(0xFF9CA3AF)
+        seleccionado -> Color.White
+        else -> GrisMedio
+    }
+    val colorTextoNumero = when {
+        !habilitado -> Color(0xFF9CA3AF)
+        seleccionado -> Color.White
+        else -> AzulNoche
+    }
+
     Column(
         modifier = modifier
             .height(72.dp)
             .clip(forma)
-            .background(if (seleccionado) AzulClinica else Color(0xFFF1F5FB))
-            .clickable(onClick = onClick),
+            .background(fondo)
+            .then(if (habilitado) Modifier.clickable(onClick = onClick) else Modifier),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = abreviaturaDia(fecha),
             fontSize = 12.sp,
-            color = if (seleccionado) Color.White else GrisMedio
+            color = colorTextoDia
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = fecha.dayOfMonth.toString(),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = if (seleccionado) Color.White else AzulNoche
+            color = colorTextoNumero
         )
     }
 }

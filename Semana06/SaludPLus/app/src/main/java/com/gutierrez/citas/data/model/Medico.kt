@@ -1,5 +1,7 @@
 package com.gutierrez.citas.data.model
 
+import java.time.DayOfWeek
+
 data class Medico(
     val id: Int,
     val nombre: String,
@@ -7,6 +9,8 @@ data class Medico(
     val calificacion: Double,
     val aniosExperiencia: Int,
     val resenas: Int,
-    val disponibilidad: String,
+    val diasAtencion: Set<DayOfWeek>,
+    val horaInicio: String,
+    val horaFin: String,
     val foto: String
 )
