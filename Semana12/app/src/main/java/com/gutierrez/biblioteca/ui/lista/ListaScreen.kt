@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
+import com.gutierrez.biblioteca.ui.components.BannerAviso
 import com.gutierrez.biblioteca.ui.components.Cargando
 import com.gutierrez.biblioteca.ui.components.ErrorView
 import com.gutierrez.biblioteca.ui.components.ItemCard
@@ -44,9 +45,11 @@ fun ListaScreen(
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val carrera by viewModel.carreraSeleccionada.collectAsStateWithLifecycle()
+    val aviso by viewModel.aviso.collectAsStateWithLifecycle()
     ListaContenido(
         estado = estado,
         carreraSeleccionada = carrera,
+        aviso = aviso,
         onCarreraSeleccionada = viewModel::seleccionar,
         onReintentar = viewModel::reintentar,
         onItemClick = onItemClick,
@@ -62,6 +65,7 @@ fun ListaScreen(
 fun ListaContenido(
     estado: UiState<List<Item>>,
     carreraSeleccionada: Carrera,
+    aviso: String?,
     onCarreraSeleccionada: (Carrera) -> Unit,
     onReintentar: () -> Unit,
     onItemClick: (Int) -> Unit,
@@ -90,6 +94,9 @@ fun ListaContenido(
                 seleccionada = carreraSeleccionada,
                 onSeleccionar = onCarreraSeleccionada
             )
+            if (aviso != null) {
+                BannerAviso(mensaje = aviso, onReintentar = onReintentar)
+            }
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when (estado) {
                     is UiState.Cargando -> Cargando()
@@ -160,6 +167,7 @@ private fun ListaContenidoPreview() {
                 )
             ),
             carreraSeleccionada = Carrera.DISENO_DESARROLLO_SOFTWARE,
+            aviso = "Sin conexión: mostrando datos guardados.",
             onCarreraSeleccionada = {},
             onReintentar = {},
             onItemClick = {},

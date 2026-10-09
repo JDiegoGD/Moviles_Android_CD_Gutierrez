@@ -19,3 +19,11 @@ fun mensajeDeError(error: Throwable): String =
     } else {
         "Ocurrió un error al cargar los datos."
     }
+
+/** Aviso para cuando falla la actualizacion pero se muestran los datos guardados en Room. */
+fun avisoDatosGuardados(error: Throwable): String =
+    if (error is IOException) {
+        "Sin conexión: mostrando datos guardados."
+    } else {
+        "No se pudo actualizar: mostrando datos guardados."
+    }

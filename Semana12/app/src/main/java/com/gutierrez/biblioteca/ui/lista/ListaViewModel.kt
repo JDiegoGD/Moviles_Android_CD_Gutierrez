@@ -8,6 +8,7 @@ import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
+import com.gutierrez.biblioteca.ui.avisoDatosGuardados
 import com.gutierrez.biblioteca.ui.mensajeDeError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,10 @@ class ListaViewModel(
 
     private val _carreraSeleccionada = MutableStateFlow(Carrera.entries.first())
     val carreraSeleccionada: StateFlow<Carrera> = _carreraSeleccionada.asStateFlow()
+
+    /** Aviso para el usuario (por ejemplo, sin conexion); null cuando no hay nada que avisar. */
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
     private var trabajo: Job? = null
 
@@ -53,6 +58,7 @@ class ListaViewModel(
         trabajo?.cancel() // al cambiar de carrera se descarta la carga y la observacion anteriores
         val carrera = _carreraSeleccionada.value
         _estado.value = UiState.Cargando
+        _aviso.value = null
         trabajo = viewModelScope.launch {
             var termino = false
 
@@ -69,9 +75,13 @@ class ListaViewModel(
             _estado.value = resultado.fold(
                 onSuccess = { UiState.Exito(guardados) },
                 onFailure = {
-                    // Sin red pero con datos guardados se muestran esos; si no, error.
-                    if (guardados.isNotEmpty()) UiState.Exito(guardados)
-                    else UiState.Error(mensajeDeError(it))
+                    if (guardados.isNotEmpty()) {
+                        // Sin red pero con datos guardados: se muestran y se avisa al usuario.
+                        _aviso.value = avisoDatosGuardados(it)
+                        UiState.Exito(guardados)
+                    } else {
+                        UiState.Error(mensajeDeError(it))
+                    }
                 }
             )
         }
