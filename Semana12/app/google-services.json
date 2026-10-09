@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1031884740242",
+    "project_id": "bibliotecatecsup-da2e5",
+    "storage_bucket": "bibliotecatecsup-da2e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1031884740242:android:7bf883eda2a49fa5a9784b",
+        "android_client_info": {
+          "package_name": "com.gutierrez.biblioteca"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSnqfFMy-LxX3HNwSfbcxhAdXFABt6Xw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
