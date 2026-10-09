@@ -104,6 +104,7 @@ com.gutierrez.citas
 
 ---
 ## FASE 2: CON-IA
+Se reemplazó la lista fija de días de la pantalla Fecha y hora por un calendario dinámico con java.time.LocalDate. Muestra los próximos 5 días hábiles, permite cambiar de semana con las flechas (sin ir antes de la semana actual), actualiza el mes y año según la semana, reinicia la hora al cambiar de día y mantiene el bloqueo de horarios ya reservados.
 ### Prompt N°1:
 ROL
 Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y el paquete java.time.
@@ -199,3 +200,8 @@ RESTRICCIONES
 FORMATO DE RESPUESTA
 Aplica el cambio directamente en ui/screens/agendamiento/ConfirmarCitaScreen.kt; no me pegues el
 archivo en el chat. Al terminar, dime en 2 líneas qué línea cambiaste.
+
+### Resultado
+| Diciembre 2026                                         | Febrero 2027                                           | Reserva Realizada Febrero 2027                                      | Desaparece El horario disponible reservado anteriormente     |
+|--------------------------------------------------------|--------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------|
+| <img src="img/Diciembre.png" width="200" alt="Splash"> | <img src="img/Febrero.png" width="200" alt="Registro"> | <img src="img/ReservadaFecha.png" width="200" alt="Iniciar sesión"> | <img src="img/DesapareceFecha.png" width="200" alt="Splash"> |
