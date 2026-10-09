@@ -11,6 +11,7 @@ import com.gutierrez.citas.ui.screens.agendamiento.CitaExitosaScreen
 import com.gutierrez.citas.ui.screens.agendamiento.ConfirmarCitaScreen
 import com.gutierrez.citas.ui.screens.agendamiento.EspecialidadesScreen
 import com.gutierrez.citas.ui.screens.agendamiento.FechaHoraScreen
+import com.gutierrez.citas.ui.screens.agendamiento.LocalesScreen
 import com.gutierrez.citas.ui.screens.agendamiento.MedicosScreen
 import com.gutierrez.citas.ui.screens.auth.LoginScreen
 import com.gutierrez.citas.ui.screens.auth.RegistroScreen
@@ -18,6 +19,7 @@ import com.gutierrez.citas.ui.screens.auth.SplashScreen
 import com.gutierrez.citas.ui.screens.auth.TerminosScreen
 import com.gutierrez.citas.ui.screens.citas.DetalleCitaScreen
 import com.gutierrez.citas.ui.screens.citas.MisCitasScreen
+import com.gutierrez.citas.ui.screens.doctores.DoctoresScreen
 import com.gutierrez.citas.ui.screens.home.HomeScreen
 import com.gutierrez.citas.ui.screens.notificaciones.NotificacionesScreen
 import com.gutierrez.citas.ui.screens.perfil.PerfilScreen
@@ -67,12 +69,13 @@ fun AppNavigation() {
         composable(Rutas.HOME) {
             HomeScreen(
                 onNotificaciones = { navController.navigate(Rutas.NOTIFICACIONES) },
-                onAgendar = { navController.navigate(Rutas.ESPECIALIDADES) },
+                onLocal = { navController.navigate(Rutas.LOCALES) },
                 onMisCitas = { navController.irAPestana(Rutas.MIS_CITAS) },
                 onMisDatos = { navController.irAPestana(Rutas.PERFIL) },
                 onResultados = { navController.irAPestana(Rutas.RESULTADOS) },
+                onDoctores = { navController.navigate(Rutas.DOCTORES) },
                 onEspecialidad = { id -> navController.navigate(Rutas.medicos(id)) },
-                onVerEspecialidades = { navController.navigate(Rutas.ESPECIALIDADES) },
+                onVerEspecialidades = { navController.navigate(Rutas.LOCALES) },
                 onNavegar = { ruta -> navController.irAPestana(ruta) }
             )
         }
@@ -95,6 +98,18 @@ fun AppNavigation() {
         }
 
         // ---------- Flujo de agendamiento ----------
+        composable(Rutas.LOCALES) {
+            LocalesScreen(
+                onAtras = { navController.popBackStack() },
+                onLocalSeleccionado = { navController.navigate(Rutas.ESPECIALIDADES) }
+            )
+        }
+        composable(Rutas.DOCTORES) {
+            DoctoresScreen(
+                onAtras = { navController.popBackStack() },
+                onMedico = { medicoId -> navController.navigate(Rutas.fechaHora(medicoId)) }
+            )
+        }
         composable(Rutas.ESPECIALIDADES) {
             EspecialidadesScreen(
                 onAtras = { navController.popBackStack() },
@@ -156,7 +171,7 @@ fun AppNavigation() {
         composable(Rutas.MIS_CITAS) {
             MisCitasScreen(
                 onNavegar = { ruta -> navController.irAPestana(ruta) },
-                onAgendar = { navController.navigate(Rutas.ESPECIALIDADES) },
+                onAgendar = { navController.navigate(Rutas.LOCALES) },
                 onCita = { citaId -> navController.navigate(Rutas.detalleCita(citaId)) }
             )
         }

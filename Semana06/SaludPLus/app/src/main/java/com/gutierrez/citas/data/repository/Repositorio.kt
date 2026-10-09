@@ -3,6 +3,7 @@ package com.gutierrez.citas.data.repository
 import androidx.compose.runtime.mutableStateListOf
 import com.gutierrez.citas.data.model.Cita
 import com.gutierrez.citas.data.model.Especialidad
+import com.gutierrez.citas.data.model.Local
 import com.gutierrez.citas.data.model.Medico
 import com.gutierrez.citas.data.model.Resultado
 import com.gutierrez.citas.data.model.Usuario
@@ -38,6 +39,21 @@ object Repositorio {
 
     fun cerrarSesion() {
         usuarioActual = null
+    }
+
+    // ------------------------------------------------------------------
+    // LOCALES
+    // ------------------------------------------------------------------
+    val locales = listOf(
+        Local(1, "Sede Los Olivos", "Av. Los Olivos 123, Los Olivos"),
+        Local(2, "Sede Miraflores", "Av. Larco 845, Miraflores"),
+        Local(3, "Sede San Isidro", "Av. Javier Prado Este 1260, San Isidro")
+    )
+
+    var localElegido: Local? = null
+
+    fun obtenerLocal(id: Int): Local? {
+        return locales.find { it.id == id }
     }
 
     // ------------------------------------------------------------------
@@ -115,6 +131,20 @@ object Repositorio {
             .filter { it.nombre.contains(buscado, ignoreCase = true) }
     }
 
+    // Búsqueda general de médicos por nombre de médico o por nombre de su especialidad.
+    // Con el texto vacío devuelve todos los médicos ordenados por nombre.
+    fun buscarMedicos(texto: String): List<Medico> {
+        val buscado = texto.trim()
+        if (buscado.isEmpty()) {
+            return medicos.sortedBy { it.nombre }
+        }
+        return medicos.filter { medico ->
+            val especialidadNombre = obtenerEspecialidad(medico.especialidadId)?.nombre.orEmpty()
+            medico.nombre.contains(buscado, ignoreCase = true) ||
+                    especialidadNombre.contains(buscado, ignoreCase = true)
+        }
+    }
+
     // ------------------------------------------------------------------
     // CITAS Y HORARIOS
     // ------------------------------------------------------------------
@@ -148,7 +178,9 @@ object Repositorio {
             it.medicoId == medicoId && it.fecha == fecha && it.hora == hora
         }
         if (horaTomada) return false
-        citas.add(Cita(siguienteIdCita++, paciente.correo, medicoId, especialidadId, fecha, hora))
+        val localId = localElegido?.id ?: 1
+        citas.add(Cita(siguienteIdCita++, paciente.correo, medicoId, especialidadId, localId, fecha, hora))
+        localElegido = null
         return true
     }
 

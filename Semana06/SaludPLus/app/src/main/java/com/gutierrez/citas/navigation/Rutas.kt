@@ -14,6 +14,9 @@ object Rutas {
     const val PERFIL = "perfil"
     const val NOTIFICACIONES = "notificaciones"
 
+    const val LOCALES = "locales"
+    const val DOCTORES = "doctores"
+
     // Flujo de agendamiento
     const val ESPECIALIDADES = "especialidades"
     const val MEDICOS = "medicos/{especialidadId}"

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ba370397-98b8-4d57-b489-ca4f29bc2f36" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/Moviles_Android_CD_Gutierrez.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/AndroidProjectSystem.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/markdown.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/runConfigurations.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/agendamiento/Local.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/data/model/Cita.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/data/model/Cita.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/data/repository/Repositorio.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/data/repository/Repositorio.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/navigation/AppNavigation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/navigation/AppNavigation.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/navigation/Rutas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/navigation/Rutas.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/agendamiento/ConfirmarCitaScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/agendamiento/ConfirmarCitaScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/citas/DetalleCitaScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/citas/DetalleCitaScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/home/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana06/SaludPLus/app/src/main/java/com/gutierrez/citas/ui/screens/home/HomeScreen.kt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AngelRosales78"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/JDiegoGD/Moviles_Android_CD_Gutierrez.git",
+    "accountId": "218008dc-bb0f-432e-8fe2-e3e5d029ee63"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3KT5RNA3q5QAbjQcnLMBtx9cVaG" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "mejora-iaC",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ba370397-98b8-4d57-b489-ca4f29bc2f36" name="Changes" comment="" />
+      <created>1791568709241</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1791568709241</updated>
+    </task>
+    <servers />
+  </component>
+</project>
