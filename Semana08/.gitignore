@@ -13,3 +13,17 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+.kotlin/
+
+# Gradle
+.gradle/
+gradle/gradle-daemon-jvm.properties
+
+# Archivos de otros proyectos o carpetas externas que estén dentro del repo por error
+../Semana05/
+../Semana06/
+../.idea/

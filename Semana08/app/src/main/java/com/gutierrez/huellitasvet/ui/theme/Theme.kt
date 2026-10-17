@@ -1,58 +1,44 @@
 package com.gutierrez.huellitasvet.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import com.gutierrez.huellitasvet.model.Rol
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
-
+/** Entrega un ColorScheme segun el perfil (dueño = verde, veterinario = azul). */
 @Composable
-fun HuellitasvetTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+fun VetTheme(rol: Rol, oscuro: Boolean, content: @Composable () -> Unit) {
+    val dueno = rol == Rol.CLIENTE
+    val esquema = if (oscuro) {
+        darkColorScheme(
+            primary = if (dueno) Color(0xFF34D399) else Color(0xFF93C5FD),
+            onPrimary = Color(0xFF062016),
+            primaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
+            onPrimaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
+            background = if (dueno) Color(0xFF0D1511) else Color(0xFF0D1220),
+            onBackground = Color(0xFFE6EDEA),
+            surface = if (dueno) Color(0xFF141E19) else Color(0xFF131A2B),
+            onSurface = Color(0xFFE6EDEA),
+            surfaceVariant = if (dueno) Color(0xFF1C2A23) else Color(0xFF1B2540),
+            onSurfaceVariant = Color(0xFFB8C4BE),
+            outline = Color(0xFF55635C)
+        )
+    } else {
+        lightColorScheme(
+            primary = if (dueno) EsmeraldaPrimario else AzulPrimario,
+            onPrimary = Color.White,
+            primaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
+            onPrimaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
+            background = if (dueno) EsmeraldaFondo else AzulFondo,
+            onBackground = Color(0xFF1F2937),
+            surface = Color.White,
+            onSurface = Color(0xFF1F2937),
+            surfaceVariant = if (dueno) Color(0xFFEAF7F0) else Color(0xFFEEF2FF),
+            onSurfaceVariant = Color(0xFF6B7280),
+            outline = Color(0xFFCBD5E1)
+        )
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    MaterialTheme(colorScheme = esquema, typography = VetTypography, content = content)
 }
