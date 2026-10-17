@@ -1,9 +1,9 @@
-package com.tecsup.huellitasvet.data.local.dao
+package com.gutierrez.huellitasvet.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.tecsup.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.Usuario
 
 @Dao
 interface UsuarioDao {

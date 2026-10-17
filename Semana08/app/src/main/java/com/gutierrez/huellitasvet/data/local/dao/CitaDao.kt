@@ -1,12 +1,12 @@
-package com.tecsup.huellitasvet.data.local.dao
+package com.gutierrez.huellitasvet.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.tecsup.huellitasvet.data.local.entity.Cita
-import com.tecsup.huellitasvet.data.local.relation.CitaConDetalle
-import com.tecsup.huellitasvet.model.ConteoServicio
+import com.gutierrez.huellitasvet.data.local.entity.Cita
+import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
+import com.gutierrez.huellitasvet.model.ConteoServicio
 import kotlinx.coroutines.flow.Flow
 
 @Dao

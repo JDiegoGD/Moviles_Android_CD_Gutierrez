@@ -18,9 +18,9 @@ class VetApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // TODO (Paso 3): cambiar sembrarServicios por DatosIniciales.sembrar(database)
+        // Siembra los datos de prueba la primera vez (en un hilo de IO)
         CoroutineScope(Dispatchers.IO).launch {
-            DatosIniciales.sembrarServicios(database)
+            DatosIniciales.sembrar(database)
         }
     }
 }
