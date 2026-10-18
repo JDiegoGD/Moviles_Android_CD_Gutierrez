@@ -3,6 +3,7 @@ package com.gutierrez.huellitasvet
 import android.app.Application
 import com.gutierrez.huellitasvet.data.local.DatosIniciales
 import com.gutierrez.huellitasvet.data.local.VetDatabase
+import com.gutierrez.huellitasvet.data.prefs.PreferenciasStore
 import com.gutierrez.huellitasvet.data.repository.VetRepository
 import com.gutierrez.huellitasvet.data.repository.VetRepositoryRoom
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,9 @@ class VetApp : Application() {
 
     // La app solo conoce la interface; la implementacion con Room queda aqui.
     val repository: VetRepository by lazy { VetRepositoryRoom(database) }
+
+    // Preferencias del dispositivo (perfil activo, modo oscuro, etc.)
+    val prefs: PreferenciasStore by lazy { PreferenciasStore(this) }
 
     override fun onCreate() {
         super.onCreate()
