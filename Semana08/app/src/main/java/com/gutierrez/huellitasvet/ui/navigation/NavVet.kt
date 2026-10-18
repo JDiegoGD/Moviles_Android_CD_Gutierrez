@@ -45,6 +45,9 @@ import androidx.compose.material3.Button
 import com.tecsup.huellitasvet.ui.dueno.InicioScreen
 import com.tecsup.huellitasvet.ui.dueno.MascotasScreen
 import com.tecsup.huellitasvet.viewmodel.InicioViewModel
+import com.tecsup.huellitasvet.ui.dueno.FichaMascotaScreen
+import com.tecsup.huellitasvet.ui.dueno.FormularioMascotaScreen
+import com.tecsup.huellitasvet.viewmodel.MascotaViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -152,8 +155,10 @@ fun NavVet() {
                         nombre = u.nombre,
                         vm = vm,
                         onVerMascota = { id ->
+                            nav.navigate(Rutas.fichaMascota(id))
                         },
                         onAgregar = {
+                            nav.navigate(Rutas.formMascota())
                         },
                         onVerTodas = { nav.navigate(Rutas.MASCOTAS) { launchSingleTop = true } },
                         onPedirCita = {
@@ -169,9 +174,48 @@ fun NavVet() {
                     MascotasScreen(
                         vm = vm,
                         onVerMascota = { id ->
+                            nav.navigate(Rutas.fichaMascota(id))
                         },
                         onAgregar = {
+                            nav.navigate(Rutas.formMascota())
                         }
+                    )
+                }
+                composable(
+                    Rutas.FICHA_MASCOTA,
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { entry ->
+                    val id = entry.arguments?.getInt("id") ?: return@composable
+                    val vm: MascotaViewModel = viewModel(
+                        factory = VetViewModelFactory { MascotaViewModel(repo) }
+                    )
+                    FichaMascotaScreen(
+                        id = id,
+                        vm = vm,
+                        onBack = { nav.popBackStack() },
+                        onPedirCita = { mascotaId ->
+                        },
+                        onEditar = { mascotaId -> nav.navigate(Rutas.formMascota(mascotaId)) },
+                        soloLectura = usuario?.rol == Rol.ADMIN.name
+                    )
+                }
+                composable(
+                    Rutas.FORM_MASCOTA,
+                    arguments = listOf(navArgument("id") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    })
+                ) { entry ->
+                    val idArg = entry.arguments?.getInt("id") ?: -1
+                    val u = usuario ?: return@composable
+                    val vm: MascotaViewModel = viewModel(
+                        factory = VetViewModelFactory { MascotaViewModel(repo) }
+                    )
+                    FormularioMascotaScreen(
+                        id = if (idArg > 0) idArg else null,
+                        duenoId = u.id,
+                        vm = vm,
+                        onBack = { nav.popBackStack() }
                     )
                 }
 
