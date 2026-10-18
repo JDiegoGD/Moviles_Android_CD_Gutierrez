@@ -33,15 +33,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.gutierrez.huellitasvet.VetApp
-import com.gutierrez.huellitasvet.model.EstadoCita
-import com.gutierrez.huellitasvet.model.Rol
-import com.gutierrez.huellitasvet.ui.dueno.LoginScreen
-import com.gutierrez.huellitasvet.ui.dueno.SplashScreen
-import com.gutierrez.huellitasvet.ui.theme.VetTheme
-import com.gutierrez.huellitasvet.viewmodel.SesionViewModel
-import com.gutierrez.huellitasvet.viewmodel.VetViewModelFactory
+import com.tecsup.huellitasvet.VetApp
+import com.tecsup.huellitasvet.model.EstadoCita
+import com.tecsup.huellitasvet.model.Rol
+import com.tecsup.huellitasvet.ui.dueno.LoginScreen
+import com.tecsup.huellitasvet.ui.dueno.SplashScreen
+import com.tecsup.huellitasvet.ui.theme.VetTheme
+import com.tecsup.huellitasvet.viewmodel.SesionViewModel
+import com.tecsup.huellitasvet.viewmodel.VetViewModelFactory
 import androidx.compose.material3.Button
+import com.tecsup.huellitasvet.ui.dueno.InicioScreen
+import com.tecsup.huellitasvet.ui.dueno.MascotasScreen
+import com.tecsup.huellitasvet.viewmodel.InicioViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -63,6 +66,8 @@ fun NavVet() {
 
     // Barra inferior: 4 items para el dueño y 5 para el veterinario
     val tabsDueno: List<Tab> = listOf(
+        Tab(Rutas.INICIO, "Inicio", Icons.Filled.Home),
+        Tab(Rutas.MASCOTAS, "Mascotas", Icons.Filled.Pets),
     )
     val tabsVet: List<Tab> = listOf(
     )
@@ -135,11 +140,40 @@ fun NavVet() {
                     LoginScreen(sesionVm, onLogin = { rol -> irAHome(rol) })
                 }
 
-                // Pantallas provisionales: se reemplazan en los siguientes commits
-                composable(Rutas.INICIO) { Provisional("Inicio del dueño", onSalir = { salir() }) }
                 composable(Rutas.PANEL) { Provisional("Panel del veterinario", onSalir = { salir() }) }
 
                 // ---------- Flujo del dueño ----------
+                composable(Rutas.INICIO) {
+                    val u = usuario ?: return@composable
+                    val vm: InicioViewModel = viewModel(
+                        factory = VetViewModelFactory { InicioViewModel(repo, u.id) }
+                    )
+                    InicioScreen(
+                        nombre = u.nombre,
+                        vm = vm,
+                        onVerMascota = { id ->
+                        },
+                        onAgregar = {
+                        },
+                        onVerTodas = { nav.navigate(Rutas.MASCOTAS) { launchSingleTop = true } },
+                        onPedirCita = {
+                        },
+                        onCerrarSesion = { salir() }
+                    )
+                }
+                composable(Rutas.MASCOTAS) {
+                    val u = usuario ?: return@composable
+                    val vm: InicioViewModel = viewModel(
+                        factory = VetViewModelFactory { InicioViewModel(repo, u.id) }
+                    )
+                    MascotasScreen(
+                        vm = vm,
+                        onVerMascota = { id ->
+                        },
+                        onAgregar = {
+                        }
+                    )
+                }
 
                 // ---------- Flujo del veterinario ----------
             }
