@@ -33,21 +33,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.tecsup.huellitasvet.VetApp
-import com.tecsup.huellitasvet.model.EstadoCita
-import com.tecsup.huellitasvet.model.Rol
-import com.tecsup.huellitasvet.ui.dueno.LoginScreen
-import com.tecsup.huellitasvet.ui.dueno.SplashScreen
-import com.tecsup.huellitasvet.ui.theme.VetTheme
-import com.tecsup.huellitasvet.viewmodel.SesionViewModel
-import com.tecsup.huellitasvet.viewmodel.VetViewModelFactory
+import com.gutierrez.huellitasvet.VetApp
+import com.gutierrez.huellitasvet.model.EstadoCita
+import com.gutierrez.huellitasvet.model.Rol
+import com.gutierrez.huellitasvet.ui.dueno.LoginScreen
+import com.gutierrez.huellitasvet.ui.dueno.SplashScreen
+import com.gutierrez.huellitasvet.ui.theme.VetTheme
+import com.gutierrez.huellitasvet.viewmodel.SesionViewModel
+import com.gutierrez.huellitasvet.viewmodel.VetViewModelFactory
 import androidx.compose.material3.Button
-import com.tecsup.huellitasvet.ui.dueno.InicioScreen
-import com.tecsup.huellitasvet.ui.dueno.MascotasScreen
-import com.tecsup.huellitasvet.viewmodel.InicioViewModel
-import com.tecsup.huellitasvet.ui.dueno.FichaMascotaScreen
-import com.tecsup.huellitasvet.ui.dueno.FormularioMascotaScreen
-import com.tecsup.huellitasvet.viewmodel.MascotaViewModel
+import com.gutierrez.huellitasvet.ui.dueno.InicioScreen
+import com.gutierrez.huellitasvet.ui.dueno.MascotasScreen
+import com.gutierrez.huellitasvet.viewmodel.InicioViewModel
+import com.gutierrez.huellitasvet.ui.dueno.FichaMascotaScreen
+import com.gutierrez.huellitasvet.ui.dueno.FormularioMascotaScreen
+import com.gutierrez.huellitasvet.viewmodel.MascotaViewModel
+import com.gutierrez.huellitasvet.ui.dueno.PedirCitaScreen
+import com.gutierrez.huellitasvet.viewmodel.PedirCitaViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -162,6 +164,7 @@ fun NavVet() {
                         },
                         onVerTodas = { nav.navigate(Rutas.MASCOTAS) { launchSingleTop = true } },
                         onPedirCita = {
+                            nav.navigate(Rutas.pedirCita())
                         },
                         onCerrarSesion = { salir() }
                     )
@@ -194,6 +197,7 @@ fun NavVet() {
                         vm = vm,
                         onBack = { nav.popBackStack() },
                         onPedirCita = { mascotaId ->
+                            nav.navigate(Rutas.pedirCita(mascotaId))
                         },
                         onEditar = { mascotaId -> nav.navigate(Rutas.formMascota(mascotaId)) },
                         soloLectura = usuario?.rol == Rol.ADMIN.name
@@ -216,6 +220,28 @@ fun NavVet() {
                         duenoId = u.id,
                         vm = vm,
                         onBack = { nav.popBackStack() }
+                    )
+                }
+                composable(
+                    Rutas.PEDIR_CITA,
+                    arguments = listOf(navArgument("mascotaId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    })
+                ) { entry ->
+                    val mascotaId = entry.arguments?.getInt("mascotaId") ?: -1
+                    val u = usuario ?: return@composable
+                    val vm: PedirCitaViewModel = viewModel(
+                        factory = VetViewModelFactory {
+                            PedirCitaViewModel(repo, app.prefs, u.id, if (mascotaId > 0) mascotaId else null)
+                        }
+                    )
+                    PedirCitaScreen(
+                        vm = vm,
+                        onBack = { nav.popBackStack() },
+                        onCreada = {
+                            nav.popBackStack()
+                        }
                     )
                 }
 

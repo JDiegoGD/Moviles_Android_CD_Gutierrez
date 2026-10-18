@@ -1,4 +1,4 @@
-package com.tecsup.huellitasvet.ui.dueno
+package com.gutierrez.huellitasvet.ui.dueno
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
