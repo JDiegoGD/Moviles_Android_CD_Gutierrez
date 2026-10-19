@@ -57,6 +57,10 @@ import com.gutierrez.huellitasvet.ui.veterinario.ServiciosScreen
 import com.gutierrez.huellitasvet.viewmodel.AgendaViewModel
 import com.gutierrez.huellitasvet.viewmodel.PanelViewModel
 import com.gutierrez.huellitasvet.viewmodel.ServiciosViewModel
+import com.gutierrez.huellitasvet.ui.veterinario.AtenderCitaScreen
+import com.gutierrez.huellitasvet.ui.veterinario.PacientesScreen
+import com.gutierrez.huellitasvet.viewmodel.AtenderCitaViewModel
+import com.gutierrez.huellitasvet.viewmodel.PacientesViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -85,6 +89,7 @@ fun NavVet() {
     val tabsVet: List<Tab> = listOf(
         Tab(Rutas.PANEL, "Panel", Icons.Filled.BarChart),
         Tab(Rutas.AGENDA, "Agenda", Icons.Filled.CalendarMonth),
+        Tab(Rutas.PACIENTES, "Pacientes", Icons.Filled.Pets),
         Tab(Rutas.SERVICIOS, "Servicios", Icons.Filled.LocalOffer),
     )
     val rutasDueno = tabsDueno.map { it.ruta }
@@ -280,6 +285,7 @@ fun NavVet() {
                     AgendaScreen(
                         vm = vm,
                         onAtender = { citaId ->
+                            nav.navigate(Rutas.atenderCita(citaId))
                         }
                     )
                 }
@@ -294,6 +300,22 @@ fun NavVet() {
                         onNuevo = {
                         }
                     )
+                }
+                composable(
+                    Rutas.ATENDER_CITA,
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { entry ->
+                    val citaId = entry.arguments?.getInt("id") ?: return@composable
+                    val vm: AtenderCitaViewModel = viewModel(
+                        factory = VetViewModelFactory { AtenderCitaViewModel(repo, citaId) }
+                    )
+                    AtenderCitaScreen(vm, onBack = { nav.popBackStack() })
+                }
+                composable(Rutas.PACIENTES) {
+                    val vm: PacientesViewModel = viewModel(
+                        factory = VetViewModelFactory { PacientesViewModel(repo) }
+                    )
+                    PacientesScreen(vm, onVerMascota = { id -> nav.navigate(Rutas.fichaMascota(id)) })
                 }
             }
         }
