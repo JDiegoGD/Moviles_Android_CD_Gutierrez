@@ -41,7 +41,6 @@ import com.gutierrez.huellitasvet.ui.dueno.SplashScreen
 import com.gutierrez.huellitasvet.ui.theme.VetTheme
 import com.gutierrez.huellitasvet.viewmodel.SesionViewModel
 import com.gutierrez.huellitasvet.viewmodel.VetViewModelFactory
-import androidx.compose.material3.Button
 import com.gutierrez.huellitasvet.ui.dueno.InicioScreen
 import com.gutierrez.huellitasvet.ui.dueno.MascotasScreen
 import com.gutierrez.huellitasvet.viewmodel.InicioViewModel
@@ -52,6 +51,12 @@ import com.gutierrez.huellitasvet.ui.dueno.PedirCitaScreen
 import com.gutierrez.huellitasvet.viewmodel.PedirCitaViewModel
 import com.gutierrez.huellitasvet.ui.dueno.MisCitasScreen
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
+import com.gutierrez.huellitasvet.ui.veterinario.AgendaScreen
+import com.gutierrez.huellitasvet.ui.veterinario.PanelScreen
+import com.gutierrez.huellitasvet.ui.veterinario.ServiciosScreen
+import com.gutierrez.huellitasvet.viewmodel.AgendaViewModel
+import com.gutierrez.huellitasvet.viewmodel.PanelViewModel
+import com.gutierrez.huellitasvet.viewmodel.ServiciosViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -78,6 +83,9 @@ fun NavVet() {
         Tab(Rutas.MIS_CITAS, "Citas", Icons.Filled.CalendarMonth),
     )
     val tabsVet: List<Tab> = listOf(
+        Tab(Rutas.PANEL, "Panel", Icons.Filled.BarChart),
+        Tab(Rutas.AGENDA, "Agenda", Icons.Filled.CalendarMonth),
+        Tab(Rutas.SERVICIOS, "Servicios", Icons.Filled.LocalOffer),
     )
     val rutasDueno = tabsDueno.map { it.ruta }
     val rutasVet = tabsVet.map { it.ruta }
@@ -148,7 +156,6 @@ fun NavVet() {
                     LoginScreen(sesionVm, onLogin = { rol -> irAHome(rol) })
                 }
 
-                composable(Rutas.PANEL) { Provisional("Panel del veterinario", onSalir = { salir() }) }
 
                 // ---------- Flujo del dueño ----------
                 composable(Rutas.INICIO) {
@@ -256,21 +263,40 @@ fun NavVet() {
                 }
 
                 // ---------- Flujo del veterinario ----------
+                composable(Rutas.PANEL) {
+                    val vm: PanelViewModel = viewModel(
+                        factory = VetViewModelFactory { PanelViewModel(repo) }
+                    )
+                    PanelScreen(
+                        vm = vm,
+                        onVerPendientes = { nav.navigate(Rutas.AGENDA) { launchSingleTop = true } },
+                        onCerrarSesion = { salir() }
+                    )
+                }
+                composable(Rutas.AGENDA) {
+                    val vm: AgendaViewModel = viewModel(
+                        factory = VetViewModelFactory { AgendaViewModel(repo) }
+                    )
+                    AgendaScreen(
+                        vm = vm,
+                        onAtender = { citaId ->
+                        }
+                    )
+                }
+                composable(Rutas.SERVICIOS) {
+                    val vm: ServiciosViewModel = viewModel(
+                        factory = VetViewModelFactory { ServiciosViewModel(repo) }
+                    )
+                    ServiciosScreen(
+                        vm = vm,
+                        onEditar = { id ->
+                        },
+                        onNuevo = {
+                        }
+                    )
+                }
             }
         }
     }
 }
 
-/** Pantalla temporal para poder probar el login antes de crear las pantallas reales. */
-@Composable
-private fun Provisional(titulo: String, onSalir: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(titulo, style = MaterialTheme.typography.headlineSmall)
-        Text("(pantalla provisional)")
-        Button(onClick = onSalir) { Text("Cerrar sesión") }
-    }
-}
