@@ -50,6 +50,8 @@ import com.gutierrez.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.gutierrez.huellitasvet.viewmodel.MascotaViewModel
 import com.gutierrez.huellitasvet.ui.dueno.PedirCitaScreen
 import com.gutierrez.huellitasvet.viewmodel.PedirCitaViewModel
+import com.gutierrez.huellitasvet.ui.dueno.MisCitasScreen
+import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -73,6 +75,7 @@ fun NavVet() {
     val tabsDueno: List<Tab> = listOf(
         Tab(Rutas.INICIO, "Inicio", Icons.Filled.Home),
         Tab(Rutas.MASCOTAS, "Mascotas", Icons.Filled.Pets),
+        Tab(Rutas.MIS_CITAS, "Citas", Icons.Filled.CalendarMonth),
     )
     val tabsVet: List<Tab> = listOf(
     )
@@ -240,9 +243,16 @@ fun NavVet() {
                         vm = vm,
                         onBack = { nav.popBackStack() },
                         onCreada = {
-                            nav.popBackStack()
+                            nav.navigate(Rutas.MIS_CITAS) { popUpTo(Rutas.INICIO) }
                         }
                     )
+                }
+                composable(Rutas.MIS_CITAS) {
+                    val u = usuario ?: return@composable
+                    val vm: MisCitasViewModel = viewModel(
+                        factory = VetViewModelFactory { MisCitasViewModel(repo, u.id) }
+                    )
+                    MisCitasScreen(vm, onPedirCita = { nav.navigate(Rutas.pedirCita()) })
                 }
 
                 // ---------- Flujo del veterinario ----------
