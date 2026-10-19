@@ -80,5 +80,37 @@ class SesionViewModel(
         }
     }
 
-    // TODO (Paso 13): cambiarPerfil y setters de preferencias (modo oscuro, notificaciones, aceptar citas)
+    /**
+     * Modo practica: guarda el OTRO perfil (dueño <-> veterinario) y avisa para
+     * navegar a su grafo. Usa las cuentas de prueba de los datos iniciales.
+     */
+    fun cambiarPerfil(onListo: (Rol) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val (correo, clave) =
+            if (actual.rol == Rol.CLIENTE.name) "vet@huellitas.test" to "admin"
+            else "ana@correo.test" to "1234"
+        viewModelScope.launch {
+            val otro = repo.login(correo, clave)
+            if (otro == null) {
+                _error.value = "No se encontró el otro perfil"
+                return@launch
+            }
+            prefs.guardarSesion(otro.rol, otro.id)
+            _usuarioActual.value = otro
+            onListo(Rol.valueOf(otro.rol))
+        }
+    }
+
+    // ---------- Preferencias (DataStore) ----------
+    fun cambiarModoOscuro(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(valor) }
+    }
+
+    fun cambiarNotificaciones(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(valor) }
+    }
+
+    fun cambiarAceptarCitas(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarAceptarCitas(valor) }
+    }
 }

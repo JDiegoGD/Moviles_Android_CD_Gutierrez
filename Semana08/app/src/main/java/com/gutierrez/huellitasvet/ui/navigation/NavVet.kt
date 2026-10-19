@@ -61,6 +61,9 @@ import com.gutierrez.huellitasvet.ui.veterinario.AtenderCitaScreen
 import com.gutierrez.huellitasvet.ui.veterinario.PacientesScreen
 import com.gutierrez.huellitasvet.viewmodel.AtenderCitaViewModel
 import com.gutierrez.huellitasvet.viewmodel.PacientesViewModel
+import com.gutierrez.huellitasvet.ui.dueno.PerfilScreen
+import com.gutierrez.huellitasvet.ui.veterinario.AjustesScreen
+import com.gutierrez.huellitasvet.ui.veterinario.FormularioServicioScreen
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -85,12 +88,14 @@ fun NavVet() {
         Tab(Rutas.INICIO, "Inicio", Icons.Filled.Home),
         Tab(Rutas.MASCOTAS, "Mascotas", Icons.Filled.Pets),
         Tab(Rutas.MIS_CITAS, "Citas", Icons.Filled.CalendarMonth),
+        Tab(Rutas.PERFIL, "Perfil", Icons.Filled.Person),
     )
     val tabsVet: List<Tab> = listOf(
         Tab(Rutas.PANEL, "Panel", Icons.Filled.BarChart),
         Tab(Rutas.AGENDA, "Agenda", Icons.Filled.CalendarMonth),
         Tab(Rutas.PACIENTES, "Pacientes", Icons.Filled.Pets),
         Tab(Rutas.SERVICIOS, "Servicios", Icons.Filled.LocalOffer),
+        Tab(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings),
     )
     val rutasDueno = tabsDueno.map { it.ruta }
     val rutasVet = tabsVet.map { it.ruta }
@@ -181,7 +186,6 @@ fun NavVet() {
                         onPedirCita = {
                             nav.navigate(Rutas.pedirCita())
                         },
-                        onCerrarSesion = { salir() }
                     )
                 }
                 composable(Rutas.MASCOTAS) {
@@ -266,6 +270,31 @@ fun NavVet() {
                     )
                     MisCitasScreen(vm, onPedirCita = { nav.navigate(Rutas.pedirCita()) })
                 }
+                composable(Rutas.PERFIL) {
+                    val u = usuario ?: return@composable
+                    val inicioVm: InicioViewModel = viewModel(
+                        factory = VetViewModelFactory { InicioViewModel(repo, u.id) }
+                    )
+                    val citasVm: MisCitasViewModel = viewModel(
+                        factory = VetViewModelFactory { MisCitasViewModel(repo, u.id) }
+                    )
+                    val mascotas by inicioVm.mascotas.collectAsState()
+                    val proximas by citasVm.proximas.collectAsState()
+                    val historial by citasVm.historial.collectAsState()
+                    val notificaciones by sesionVm.notificaciones.collectAsState()
+                    PerfilScreen(
+                        usuario = u,
+                        mascotas = mascotas.size,
+                        proximas = proximas.size,
+                        atenciones = historial.count { it.cita.estado == EstadoCita.ATENDIDA.name },
+                        oscuro = oscuro,
+                        notificaciones = notificaciones,
+                        onOscuro = { sesionVm.cambiarModoOscuro(it) },
+                        onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
+                        onCambiarPerfil = { sesionVm.cambiarPerfil { rol -> irAHome(rol) } },
+                        onCerrarSesion = { salir() }
+                    )
+                }
 
                 // ---------- Flujo del veterinario ----------
                 composable(Rutas.PANEL) {
@@ -275,7 +304,6 @@ fun NavVet() {
                     PanelScreen(
                         vm = vm,
                         onVerPendientes = { nav.navigate(Rutas.AGENDA) { launchSingleTop = true } },
-                        onCerrarSesion = { salir() }
                     )
                 }
                 composable(Rutas.AGENDA) {
@@ -296,8 +324,10 @@ fun NavVet() {
                     ServiciosScreen(
                         vm = vm,
                         onEditar = { id ->
+                            nav.navigate(Rutas.formServicio(id))
                         },
                         onNuevo = {
+                            nav.navigate(Rutas.formServicio())
                         }
                     )
                 }
@@ -316,6 +346,39 @@ fun NavVet() {
                         factory = VetViewModelFactory { PacientesViewModel(repo) }
                     )
                     PacientesScreen(vm, onVerMascota = { id -> nav.navigate(Rutas.fichaMascota(id)) })
+                }
+                composable(
+                    Rutas.FORM_SERVICIO,
+                    arguments = listOf(navArgument("id") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    })
+                ) { entry ->
+                    val idArg = entry.arguments?.getInt("id") ?: -1
+                    val vm: ServiciosViewModel = viewModel(
+                        factory = VetViewModelFactory { ServiciosViewModel(repo) }
+                    )
+                    FormularioServicioScreen(
+                        id = if (idArg > 0) idArg else null,
+                        vm = vm,
+                        onBack = { nav.popBackStack() }
+                    )
+                }
+                composable(Rutas.AJUSTES) {
+                    val u = usuario ?: return@composable
+                    val notificaciones by sesionVm.notificaciones.collectAsState()
+                    val aceptarCitas by sesionVm.aceptarCitas.collectAsState()
+                    AjustesScreen(
+                        usuario = u,
+                        oscuro = oscuro,
+                        notificaciones = notificaciones,
+                        aceptarCitas = aceptarCitas,
+                        onOscuro = { sesionVm.cambiarModoOscuro(it) },
+                        onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
+                        onAceptarCitas = { sesionVm.cambiarAceptarCitas(it) },
+                        onCambiarPerfil = { sesionVm.cambiarPerfil { rol -> irAHome(rol) } },
+                        onCerrarSesion = { salir() }
+                    )
                 }
             }
         }
