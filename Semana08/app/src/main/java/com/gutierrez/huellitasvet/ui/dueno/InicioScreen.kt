@@ -1,5 +1,8 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.graphics.Color
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -73,6 +76,10 @@ fun InicioScreen(
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
                 }
             }
+            Icon(
+                Icons.Filled.Notifications, contentDescription = "Notificaciones",
+                modifier = Modifier.size(28.dp)
+            )
         }
 
         TarjetaProximaCita(proxima)
@@ -94,7 +101,7 @@ fun InicioScreen(
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                modifier = Modifier.width(96.dp)
+                modifier = Modifier.width(100.dp)
             ) {
                 Column(
                     Modifier.padding(vertical = 18.dp),
@@ -112,6 +119,21 @@ fun InicioScreen(
             AccesoRapido("Consulta", "heart", Modifier.weight(1f), onPedirCita)
             AccesoRapido("Vacunas", "syringe", Modifier.weight(1f), onPedirCita)
             AccesoRapido("Baño", "scissors", Modifier.weight(1f), onPedirCita)
+        }
+
+        proxima?.let { prox ->
+            Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFFEF3C7), modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Filled.Notifications, null, tint = Color(0xFFB45309))
+                    Column {
+                        Text("Recordatorio", fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
+                        Text(
+                            "${prox.mascota.mascota.nombre}: ${prox.servicio.nombre.lowercase()} el ${Formato.fechaCorta(prox.cita.fecha)}",
+                            style = MaterialTheme.typography.bodySmall, color = Color(0xFF78350F)
+                        )
+                    }
+                }
+            }
         }
 
         VetButton("Pedir una cita", onClick = onPedirCita)
@@ -133,20 +155,19 @@ private fun TarjetaProximaCita(proxima: CitaConDetalle?) {
         } else {
             Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Próxima cita", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), style = MaterialTheme.typography.labelMedium)
-                    Text(
-                        "${proxima.mascota.mascota.nombre} · ${proxima.servicio.nombre}",
+                        Text(
+                        "${proxima.mascota.mascota.nombre} - ${proxima.servicio.nombre}",
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold
                     )
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Icon(Icons.Filled.Schedule, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
                         Text(
-                            Formato.fechaHora(proxima.cita.fecha, proxima.cita.hora),
+                            Formato.fechaCorta(proxima.cita.fecha) + " - " + proxima.cita.hora,
                             color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.SemiBold
                         )
                     }
-                    EstadoCitaChip(EstadoCita.valueOf(proxima.cita.estado))
+                    EstadoCitaChip(EstadoCita.valueOf(proxima.cita.estado), sobrePrimario = true)
                 }
                 Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
                     MascotaAvatar(proxima.mascota.mascota.especie, Modifier.padding(6.dp), tamano = 52.dp)
@@ -162,15 +183,15 @@ private fun TarjetaMascota(m: Mascota, onClick: () -> Unit) {
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        modifier = Modifier.width(96.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+        modifier = Modifier.width(100.dp)
     ) {
         Column(
             Modifier.padding(vertical = 14.dp, horizontal = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            MascotaAvatar(m.especie, tamano = 52.dp)
+            MascotaAvatar(m.especie, tamano = 60.dp)
             Text(m.nombre, fontWeight = FontWeight.Bold, maxLines = 1)
             Text("Ver ficha", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -182,7 +203,8 @@ private fun AccesoRapido(texto: String, icono: String, modifier: Modifier, onCli
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
         modifier = modifier
     ) {
         Column(

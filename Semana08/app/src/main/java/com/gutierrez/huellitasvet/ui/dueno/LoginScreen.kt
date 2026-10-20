@@ -1,5 +1,6 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +39,7 @@ import com.gutierrez.huellitasvet.viewmodel.SesionViewModel
 
 /** Un solo Composable para ambos roles: el selector cambia el color de la pantalla. */
 @Composable
-fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit) {
+fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> Unit = {}) {
     val oscuro by vm.modoOscuro.collectAsState()
     val error by vm.error.collectAsState()
     var rol by remember { mutableStateOf(Rol.CLIENTE) }
@@ -47,7 +48,7 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit) {
 
     // El tema local sigue a la pestaña elegida (verde = dueño, azul = veterinario)
     VetTheme(rol = rol, oscuro = oscuro) {
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             Column(
                 Modifier.verticalScroll(rememberScrollState()).padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -69,22 +70,26 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit) {
                     password = true, teclado = KeyboardType.Password
                 )
 
+                Text(
+                    "¿Olvidaste tu contraseña?",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge
+                )
+
                 if (error != null) {
                     Text(error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
 
                 VetButton("Ingresar", onClick = { vm.login(correo, clave, rol, onLogin) })
 
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Modo práctica", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                        Text("Dueño: ana@correo.test / 1234", style = MaterialTheme.typography.bodySmall)
-                        Text("Veterinario: vet@huellitas.test / admin", style = MaterialTheme.typography.bodySmall)
-                    }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Text("¿No tienes cuenta? ")
+                    Text(
+                        "Regístrate", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { vm.limpiarError(); onRegistro() }
+                    )
                 }
             }
         }
@@ -92,7 +97,7 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit) {
 }
 
 @Composable
-private fun SelectorRol(seleccionado: Rol, onElegir: (Rol) -> Unit) {
+internal fun SelectorRol(seleccionado: Rol, onElegir: (Rol) -> Unit) {
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,

@@ -14,6 +14,8 @@ interface VetRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
+    /** Crea el usuario y devuelve su id, o -1 si el correo ya esta registrado. */
+    suspend fun registrarUsuario(usuario: Usuario): Long
 
     // Servicios (ejemplo resuelto)
     fun observarServicios(): Flow<List<Servicio>>

@@ -20,6 +20,10 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override suspend fun obtenerUsuario(id: Int): Usuario? = db.usuarioDao().obtener(id)
 
+    override suspend fun registrarUsuario(usuario: Usuario): Long =
+        if (db.usuarioDao().existeCorreo(usuario.correo) > 0) -1L
+        else db.usuarioDao().insertar(usuario)
+
     // ---------- Servicios ----------
     override fun observarServicios(): Flow<List<Servicio>> = db.servicioDao().observarTodos()
 

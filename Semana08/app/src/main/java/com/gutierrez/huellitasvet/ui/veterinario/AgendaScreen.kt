@@ -1,5 +1,13 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,7 +58,7 @@ fun AgendaScreen(vm: AgendaViewModel, onAtender: (Int) -> Unit) {
                 Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                vm.dias.forEach { d -> FechaChip(d, d == fecha, { vm.seleccionar(d) }) }
+                vm.dias.forEach { d -> FechaChip(d, d == fecha, { vm.seleccionar(d) }, compacto = true) }
             }
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -86,35 +94,45 @@ private fun ItemAgenda(
     onCancelar: () -> Unit
 ) {
     val estado = EstadoCita.valueOf(c.cita.estado)
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.Top) {
         Text(
             c.cita.hora, Modifier.width(52.dp).padding(top = 14.dp),
             color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.labelLarge
         )
+        Box(
+            Modifier.width(2.dp).fillMaxHeight()
+                .background(MaterialTheme.colorScheme.primaryContainer)
+        )
+        Spacer(Modifier.width(10.dp))
         Card(
             Modifier.weight(1f), shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
         ) {
             Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MascotaAvatar(c.mascota.mascota.especie, tamano = 44.dp)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("${c.mascota.mascota.nombre} · ${c.servicio.nombre}", fontWeight = FontWeight.Bold)
+                MascotaAvatar(c.mascota.mascota.especie, tamano = 48.dp)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("${c.mascota.mascota.nombre} - ${c.servicio.nombre}", fontWeight = FontWeight.Bold)
                     Text(
                         "Dueño: ${c.mascota.dueno.nombre}", style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    EstadoCitaChip(estado)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        EstadoCitaChip(estado)
                         when (estado) {
-                            EstadoCita.PENDIENTE -> Button(onClick = onConfirmar) { Text("Confirmar") }
-                            EstadoCita.CONFIRMADA -> Button(onClick = onAtender) { Text("Atender") }
+                            EstadoCita.PENDIENTE -> Button(onClick = onConfirmar, shape = RoundedCornerShape(20.dp)) { Text("Confirmar") }
+                            EstadoCita.CONFIRMADA -> Button(onClick = onAtender, shape = RoundedCornerShape(20.dp)) { Text("Atender") }
                             else -> {}
                         }
-                        if (estado == EstadoCita.PENDIENTE || estado == EstadoCita.CONFIRMADA) {
-                            TextButton(onClick = onCancelar) {
-                                Text("Cancelar", color = MaterialTheme.colorScheme.error)
-                            }
+                    }
+                    if (estado == EstadoCita.PENDIENTE || estado == EstadoCita.CONFIRMADA) {
+                        TextButton(onClick = onCancelar, modifier = Modifier.align(Alignment.End)) {
+                            Text("Cancelar", color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }

@@ -28,6 +28,11 @@ object Formato {
         return "${diaSemana(d)} ${d.dayOfMonth} ${meses[d.monthValue - 1]}"
     }
 
+    fun fechaDiaMes(fecha: String): String {
+        val d = LocalDate.parse(fecha)
+        return "${d.dayOfMonth} ${meses[d.monthValue - 1]}"
+    }
+
     fun fechaHora(fecha: String, hora: String): String = "${fechaCorta(fecha)} · $hora"
 
     fun soles(monto: Double): String = "S/ " + String.format(Locale.US, "%.2f", monto)

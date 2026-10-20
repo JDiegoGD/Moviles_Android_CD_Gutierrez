@@ -1,5 +1,8 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,7 +60,7 @@ fun PanelScreen(
             Column(Modifier.weight(1f)) {
                 Text("Panel de la clínica", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text(
-                    "Hoy · ${Formato.fechaCorta(hoy.toString())}",
+                    "Hoy - ${Formato.fechaCorta(hoy.toString())}",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -66,11 +69,16 @@ fun PanelScreen(
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
                 }
             }
+            Icon(Icons.Filled.AccountCircle, contentDescription = null, modifier = Modifier.size(30.dp))
+            Icon(
+                Icons.Filled.Notifications, contentDescription = null,
+                modifier = Modifier.padding(start = 14.dp).size(28.dp)
+            )
         }
 
         // 3 contadores de color
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Contador("Citas hoy", citasHoy, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
+            Contador("Citas hoy", citasHoy, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, Modifier.weight(1f))
             Contador("Pendientes", pendientes, ColorPendiente.copy(alpha = 0.18f), ColorPendiente, Modifier.weight(1f))
             Contador("Atendidas", atendidas, ColorAtendida.copy(alpha = 0.15f), ColorAtendida, Modifier.weight(1f))
         }
@@ -79,14 +87,16 @@ fun PanelScreen(
         Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(18.dp)) {
                 Text("Ingresos del mes", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f), style = MaterialTheme.typography.labelMedium)
-                Text(
-                    Formato.soles(ingresos), color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 28.sp, fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "Suma de las citas atendidas", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        Formato.soles(ingresos), Modifier.weight(1f), color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 28.sp, fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "$atendidas atenciones", color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
 
@@ -102,7 +112,7 @@ fun PanelScreen(
                     Icon(Icons.Filled.Warning, null, tint = ColorPendiente)
                     Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                         Text("$pendientes citas por confirmar", fontWeight = FontWeight.Bold)
-                        Text("Revisa la agenda", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("para hoy y mañana", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Button(onClick = onVerPendientes, colors = ButtonDefaults.buttonColors(containerColor = ColorPendiente, contentColor = Color.White)) {
                         Text("Ver")

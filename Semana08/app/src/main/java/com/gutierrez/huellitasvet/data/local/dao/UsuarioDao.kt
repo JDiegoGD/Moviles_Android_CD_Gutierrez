@@ -13,6 +13,12 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtener(id: Int): Usuario?
 
+    @Query("SELECT COUNT(*) FROM usuarios WHERE LOWER(correo) = LOWER(:correo)")
+    suspend fun existeCorreo(correo: String): Int
+
+    @Insert
+    suspend fun insertar(usuario: Usuario): Long
+
     @Insert
     suspend fun insertarTodos(lista: List<Usuario>)
 

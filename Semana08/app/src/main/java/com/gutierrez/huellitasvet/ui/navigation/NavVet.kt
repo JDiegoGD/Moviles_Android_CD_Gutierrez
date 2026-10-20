@@ -1,5 +1,6 @@
 package com.gutierrez.huellitasvet.ui.navigation
 
+import com.gutierrez.huellitasvet.ui.dueno.RegistroScreen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -163,7 +164,18 @@ fun NavVet() {
                     })
                 }
                 composable(Rutas.LOGIN) {
-                    LoginScreen(sesionVm, onLogin = { rol -> irAHome(rol) })
+                    LoginScreen(
+                        sesionVm,
+                        onLogin = { rol -> irAHome(rol) },
+                        onRegistro = { nav.navigate(Rutas.REGISTRO) }
+                    )
+                }
+                composable(Rutas.REGISTRO) {
+                    RegistroScreen(
+                        vm = sesionVm,
+                        onRegistrado = { rol -> irAHome(rol) },
+                        onVolver = { nav.popBackStack() }
+                    )
                 }
 
 

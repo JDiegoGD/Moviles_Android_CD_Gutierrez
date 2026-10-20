@@ -31,11 +31,11 @@ fun etiquetaEstado(estado: EstadoCita): String = when (estado) {
 }
 
 @Composable
-fun EstadoCitaChip(estado: EstadoCita, modifier: Modifier = Modifier) {
+fun EstadoCitaChip(estado: EstadoCita, modifier: Modifier = Modifier, sobrePrimario: Boolean = false) {
     val color = colorEstado(estado)
     Surface(
         modifier = modifier,
-        color = color.copy(alpha = 0.15f),
+        color = if (sobrePrimario) Color.White else color.copy(alpha = 0.15f),
         shape = RoundedCornerShape(50)
     ) {
         Text(

@@ -1,5 +1,7 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -92,15 +94,23 @@ fun FichaMascotaScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(m.nombre, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text(
-                            "${etiquetaEspecie(m.especie)} · ${m.raza} · ${Formato.edad(m.anioNacimiento)} años",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "${etiquetaEspecie(m.especie)}${if (m.raza.isNotBlank()) " ${m.raza.lowercase()}" else ""} - ${Formato.edad(m.anioNacimiento)} años",
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            "Peso actual: ${Formato.peso(m.peso)}",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
+                            "${etiquetaSexo(m.sexo)} - ${Formato.peso(m.peso)}",
+                            style = MaterialTheme.typography.bodyMedium
                         )
+                        if (historial.any { it.cita.estado == "ATENDIDA" && it.servicio.nombre.contains("vacun", ignoreCase = true) }) {
+                            Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer) {
+                                Text(
+                                    "Vacunas al día",
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -118,9 +128,31 @@ fun FichaMascotaScreen(
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OpcionChip("Datos", pestana == 0, { pestana = 0 }, Modifier.weight(1f))
-                OpcionChip("Historial clínico", pestana == 1, { pestana = 1 }, Modifier.weight(1f))
+            // Pestañas tipo segmentado: la activa queda resaltada sobre un fondo gris
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(Modifier.padding(4.dp)) {
+                    listOf("Datos", "Historial clínico").forEachIndexed { i, texto ->
+                        val activa = pestana == i
+                        Surface(
+                            onClick = { pestana = i },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (activa) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                texto,
+                                modifier = Modifier.padding(vertical = 11.dp),
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                color = if (activa) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
 
             if (pestana == 0) {

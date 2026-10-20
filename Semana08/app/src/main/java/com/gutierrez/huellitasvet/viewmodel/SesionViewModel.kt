@@ -66,6 +66,34 @@ class SesionViewModel(
         }
     }
 
+    /** Regla de negocio del registro: valida los campos, crea la cuenta y abre la sesion. */
+    fun registrar(
+        nombre: String, correo: String, clave: String, confirmar: String,
+        rol: Rol, onExito: (Rol) -> Unit
+    ) {
+        val mail = correo.trim()
+        when {
+            nombre.isBlank() || mail.isBlank() || clave.isBlank() || confirmar.isBlank() ->
+                _error.value = "Completa todos los campos"
+            !mail.contains("@") || !mail.contains(".") -> _error.value = "Ingresa un correo válido"
+            clave.length < 4 -> _error.value = "La contraseña debe tener al menos 4 caracteres"
+            clave != confirmar -> _error.value = "Las contraseñas no coinciden"
+            else -> viewModelScope.launch {
+                val nuevo = Usuario(nombre = nombre.trim(), correo = mail, clave = clave, rol = rol.name)
+                val id = repo.registrarUsuario(nuevo)
+                if (id < 0) {
+                    _error.value = "Ese correo ya está registrado"
+                } else {
+                    val creado = nuevo.copy(id = id.toInt())
+                    prefs.guardarSesion(creado.rol, creado.id)
+                    _usuarioActual.value = creado
+                    _error.value = null
+                    onExito(rol)
+                }
+            }
+        }
+    }
+
     fun limpiarError() {
         _error.value = null
     }

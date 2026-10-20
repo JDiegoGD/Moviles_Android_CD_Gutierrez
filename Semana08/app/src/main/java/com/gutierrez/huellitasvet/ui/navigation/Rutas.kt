@@ -3,6 +3,7 @@ package com.gutierrez.huellitasvet.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+    const val REGISTRO = "registro"
 
     // Dueño
     const val INICIO = "inicio"

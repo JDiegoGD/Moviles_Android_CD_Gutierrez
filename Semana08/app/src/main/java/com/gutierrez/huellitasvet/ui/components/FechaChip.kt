@@ -21,9 +21,28 @@ fun FechaChip(
     fecha: LocalDate,
     seleccionada: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compacto: Boolean = false
 ) {
     val primario = MaterialTheme.colorScheme.primary
+    if (compacto) {
+        val etiqueta = if (fecha == LocalDate.now()) "Hoy" else Formato.diaSemana(fecha)
+        Surface(
+            onClick = onClick,
+            modifier = modifier,
+            shape = RoundedCornerShape(50),
+            color = if (seleccionada) primario else MaterialTheme.colorScheme.surface,
+            border = if (seleccionada) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        ) {
+            Text(
+                "$etiqueta ${fecha.dayOfMonth}",
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp),
+                fontWeight = FontWeight.SemiBold,
+                color = if (seleccionada) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+            )
+        }
+        return
+    }
     Surface(
         onClick = onClick,
         modifier = modifier,
