@@ -43,6 +43,9 @@ interface CitaDao {
     @Query("SELECT hora FROM citas WHERE fecha = :fecha AND estado != 'CANCELADA'")
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>
 
+    @Query("SELECT DISTINCT fecha FROM citas WHERE estado != 'CANCELADA' AND fecha BETWEEN :inicio AND :fin")
+    fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>>
+
     // ---------- Lectura (Flow de CitaConDetalle) ----------
     @Transaction
     @Query(

@@ -70,6 +70,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
         db.citaDao().observarHorasOcupadas(fecha)
 
+    override fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>> =
+        db.citaDao().observarDiasConCitas(inicio, fin)
+
     override suspend fun crearCita(
         mascotaId: Int, servicioId: Int, fecha: String, hora: String, nota: String
     ): Long {

@@ -220,3 +220,28 @@ Muéstrame solo los archivos que cambian, completos y con su ruta, listos para c
 
 ---
 
+### PROMPT - 6
+
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, coroutines/Flow y arquitectura MVVM + Repository.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Compose, Material 3, MVVM, Room y VetRepository como interface. Los archivos adjuntos son mi código actual. La agenda del veterinario (AgendaScreen) muestra chips de los próximos 7 días y la lista de citas del día elegido; AgendaViewModel tiene fechaSeleccionada y citas con flatMapLatest. Las fechas se guardan como texto 'aaaa-MM-dd'.
+
+#### TAREA
+Agrega una vista de mes en la agenda, con un punto en los días que tienen citas. Hazlo capa por capa, en este orden:
+1. CitaDao: fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>> con un SELECT DISTINCT fecha de las citas no CANCELADAS entre esas fechas (BETWEEN).
+2. VetRepository (primero en la interface): observarDiasConCitas(inicio: String, fin: String): Flow<List<String>>. Luego impleméntala en VetRepositoryRoom.
+3. AgendaViewModel: StateFlow del mes visible (YearMonth), funciones mesAnterior() y mesSiguiente(), un StateFlow diasConCitas (Set<LocalDate>) que cambie con el mes usando flatMapLatest, y la lista de celdas del mes (con los espacios vacíos iniciales para empezar en lunes). Al tocar un día se reutiliza seleccionar(fecha), de modo que la lista de citas de abajo sigue funcionando.
+4. ui/components/CalendarioMes.kt: composable con encabezado "octubre 2026" y flechas para cambiar de mes, letras de los días (L M X J V S D), el día seleccionado resaltado y un punto bajo los días con citas. Recibe todo por parámetros y no conoce el ViewModel.
+5. AgendaScreen: reemplaza los chips por el calendario y mantén la lista de citas del día elegido debajo.
+
+#### RESTRICCIONES
+- La View no usa DAO ni Repository.
+- El ViewModel solo conoce la interface VetRepository.
+- Toda función nueva se declara primero en la interface.
+- No modifiques entidades ni la versión de la base de datos.
+- No uses XML ni librerías externas. Mantén el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.

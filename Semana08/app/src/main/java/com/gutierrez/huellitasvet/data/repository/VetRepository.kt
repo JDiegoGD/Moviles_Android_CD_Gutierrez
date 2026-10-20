@@ -35,6 +35,7 @@ interface VetRepository {
 
     // Citas
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>
+    fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>>
     suspend fun crearCita(
         mascotaId: Int, servicioId: Int, fecha: String,
         hora: String, nota: String

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -38,14 +36,17 @@ import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.model.EstadoCita
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
+import com.gutierrez.huellitasvet.ui.components.CalendarioMes
 import com.gutierrez.huellitasvet.ui.components.EstadoCitaChip
-import com.gutierrez.huellitasvet.ui.components.FechaChip
 import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
 import com.gutierrez.huellitasvet.viewmodel.AgendaViewModel
 
 @Composable
 fun AgendaScreen(vm: AgendaViewModel, onAtender: (Int) -> Unit) {
     val fecha by vm.fechaSeleccionada.collectAsState()
+    val mesVisible by vm.mesVisible.collectAsState()
+    val diasConCitas by vm.diasConCitas.collectAsState()
+    val diasMes by vm.diasMes.collectAsState()
     val citas by vm.citas.collectAsState()
 
     Scaffold(
@@ -53,33 +54,37 @@ fun AgendaScreen(vm: AgendaViewModel, onAtender: (Int) -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        Column(Modifier.padding(padding)) {
-            Row(
-                Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                vm.dias.forEach { d -> FechaChip(d, d == fecha, { vm.seleccionar(d) }, compacto = true) }
+        LazyColumn(
+            modifier = Modifier.padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                CalendarioMes(
+                    mesVisible = mesVisible,
+                    fechaSeleccionada = fecha,
+                    diasConCitas = diasConCitas,
+                    diasMes = diasMes,
+                    onSeleccionar = { vm.seleccionar(it) },
+                    onMesAnterior = { vm.mesAnterior() },
+                    onMesSiguiente = { vm.mesSiguiente() }
+                )
             }
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                if (citas.isEmpty()) {
-                    item {
-                        Text(
-                            "No hay citas para este día",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                items(citas, key = { it.cita.id }) { c ->
-                    ItemAgenda(
-                        c,
-                        onConfirmar = { vm.confirmar(c.cita) },
-                        onAtender = { onAtender(c.cita.id) },
-                        onCancelar = { vm.cancelar(c.cita) }
+            if (citas.isEmpty()) {
+                item {
+                    Text(
+                        "No hay citas para este día",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+            items(citas, key = { it.cita.id }) { c ->
+                ItemAgenda(
+                    c,
+                    onConfirmar = { vm.confirmar(c.cita) },
+                    onAtender = { onAtender(c.cita.id) },
+                    onCancelar = { vm.cancelar(c.cita) }
+                )
             }
         }
     }
