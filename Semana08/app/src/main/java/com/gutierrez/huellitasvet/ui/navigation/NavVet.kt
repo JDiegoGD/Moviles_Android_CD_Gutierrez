@@ -52,6 +52,8 @@ import com.gutierrez.huellitasvet.ui.dueno.PedirCitaScreen
 import com.gutierrez.huellitasvet.viewmodel.PedirCitaViewModel
 import com.gutierrez.huellitasvet.ui.dueno.MisCitasScreen
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
+import com.gutierrez.huellitasvet.ui.dueno.ReprogramarCitaScreen
+import com.gutierrez.huellitasvet.viewmodel.ReprogramarCitaViewModel
 import com.gutierrez.huellitasvet.ui.veterinario.AgendaScreen
 import com.gutierrez.huellitasvet.ui.veterinario.PanelScreen
 import com.gutierrez.huellitasvet.ui.veterinario.ServiciosScreen
@@ -275,12 +277,32 @@ fun NavVet() {
                         }
                     )
                 }
+                composable(
+                    Rutas.REPROGRAMAR_CITA,
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { entry ->
+                    val citaId = entry.arguments?.getInt("id") ?: return@composable
+                    val vm: ReprogramarCitaViewModel = viewModel(
+                        factory = VetViewModelFactory { ReprogramarCitaViewModel(repo, citaId) }
+                    )
+                    ReprogramarCitaScreen(
+                        vm = vm,
+                        onBack = { nav.popBackStack() },
+                        onListo = {
+                            nav.navigate(Rutas.MIS_CITAS) { popUpTo(Rutas.MIS_CITAS) { inclusive = true } }
+                        }
+                    )
+                }
                 composable(Rutas.MIS_CITAS) {
                     val u = usuario ?: return@composable
                     val vm: MisCitasViewModel = viewModel(
                         factory = VetViewModelFactory { MisCitasViewModel(repo, u.id) }
                     )
-                    MisCitasScreen(vm, onPedirCita = { nav.navigate(Rutas.pedirCita()) })
+                    MisCitasScreen(
+                        vm = vm,
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) },
+                        onReprogramar = { citaId -> nav.navigate(Rutas.reprogramarCita(citaId)) }
+                    )
                 }
                 composable(Rutas.PERFIL) {
                     val u = usuario ?: return@composable
@@ -396,4 +418,3 @@ fun NavVet() {
         }
     }
 }
-

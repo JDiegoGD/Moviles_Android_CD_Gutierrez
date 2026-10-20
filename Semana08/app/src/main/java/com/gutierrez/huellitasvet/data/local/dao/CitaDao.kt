@@ -32,6 +32,9 @@ interface CitaDao {
         fechaControl: String?
     )
 
+    @Query("UPDATE citas SET fecha = :fecha, hora = :hora WHERE id = :id")
+    suspend fun reprogramar(id: Int, fecha: String, hora: String)
+
     @Query("SELECT * FROM citas WHERE id = :id")
     suspend fun obtener(id: Int): Cita?
 

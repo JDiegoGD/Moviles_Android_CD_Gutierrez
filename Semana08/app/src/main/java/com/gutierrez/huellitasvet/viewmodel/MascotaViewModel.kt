@@ -3,6 +3,7 @@ package com.gutierrez.huellitasvet.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.repository.VetRepository
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,7 @@ import java.time.LocalDate
 /** Registrar/editar/eliminar mascota y consultar su historial clinico. */
 class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
 
-    // Errores por campo: "nombre", "especie", "sexo", "anio", "peso"
+    // Errores por campo: "nombre", "especie", "sexo", "anio", "peso", "fecha", "proximaDosis"
     private val _errores = MutableStateFlow<Map<String, String>>(emptyMap())
     val errores: StateFlow<Map<String, String>> = _errores.asStateFlow()
 
@@ -25,6 +26,7 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
     private val historiales = mutableMapOf<Int, StateFlow<List<CitaConDetalle>>>()
+    private val vacunasCache = mutableMapOf<Int, StateFlow<List<Vacuna>>>()
 
     fun mascota(id: Int): Flow<Mascota?> = repo.observarMascota(id)
 
@@ -32,6 +34,12 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
     fun historial(mascotaId: Int): StateFlow<List<CitaConDetalle>> =
         historiales.getOrPut(mascotaId) {
             repo.observarHistorial(mascotaId)
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }
+
+    fun vacunas(mascotaId: Int): StateFlow<List<Vacuna>> =
+        vacunasCache.getOrPut(mascotaId) {
+            repo.observarVacunas(mascotaId)
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         }
 
@@ -54,6 +62,61 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
         viewModelScope.launch {
             repo.guardarMascota(m.copy(nombre = m.nombre.trim(), raza = m.raza.trim()))
             onGuardada()
+        }
+    }
+
+    fun guardarVacuna(mascotaId: Int, nombre: String, fecha: String, proximaDosis: String?, onListo: () -> Unit) {
+        val errores = mutableMapOf<String, String>()
+        val hoy = LocalDate.now()
+
+        if (nombre.trim().length < 3) {
+            errores["nombre"] = "Mínimo 3 caracteres"
+        }
+
+        val fechaParsed = try {
+            LocalDate.parse(fecha.trim())
+        } catch (e: Exception) {
+            null
+        }
+
+        if (fechaParsed == null) {
+            errores["fecha"] = "Fecha inválida (aaaa-MM-dd)"
+        } else if (fechaParsed.isAfter(hoy)) {
+            errores["fecha"] = "No puede ser una fecha futura"
+        }
+
+        if (!proximaDosis.isNullOrBlank()) {
+            val proxParsed = try {
+                LocalDate.parse(proximaDosis.trim())
+            } catch (e: Exception) {
+                null
+            }
+            if (proxParsed == null) {
+                errores["proximaDosis"] = "Fecha inválida (aaaa-MM-dd)"
+            } else if (fechaParsed != null && !proxParsed.isAfter(fechaParsed)) {
+                errores["proximaDosis"] = "Debe ser posterior a la fecha"
+            }
+        }
+
+        _errores.value = errores
+        if (errores.isNotEmpty()) return
+
+        viewModelScope.launch {
+            repo.guardarVacuna(
+                Vacuna(
+                    mascotaId = mascotaId,
+                    nombre = nombre.trim(),
+                    fecha = fecha.trim(),
+                    proximaDosis = proximaDosis?.takeIf { it.isNotBlank() }?.trim()
+                )
+            )
+            onListo()
+        }
+    }
+
+    fun eliminarVacuna(v: Vacuna) {
+        viewModelScope.launch {
+            repo.eliminarVacuna(v)
         }
     }
 

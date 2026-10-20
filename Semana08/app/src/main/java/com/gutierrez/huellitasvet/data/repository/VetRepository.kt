@@ -3,6 +3,7 @@ package com.gutierrez.huellitasvet.data.repository
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
@@ -33,6 +34,11 @@ interface VetRepository {
     suspend fun eliminarMascota(m: Mascota)
     suspend fun mascotaTieneCitas(id: Int): Boolean
 
+    // Vacunas
+    fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>>
+    suspend fun guardarVacuna(v: Vacuna)
+    suspend fun eliminarVacuna(v: Vacuna)
+
     // Citas
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>
     fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>>
@@ -50,6 +56,7 @@ interface VetRepository {
         tratamiento: String, peso: Double,
         fechaControl: String?
     )
+    suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean
 
     // Panel
     fun observarCitasDeFecha(fecha: String): Flow<Int>

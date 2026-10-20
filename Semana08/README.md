@@ -245,3 +245,13 @@ Agrega una vista de mes en la agenda, con un punto en los días que tienen citas
 
 #### FORMATO DE SALIDA
 Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
+
+## Capturas Fase 2
+
+| Gráfico de peso | Reprogramar cita | Búsqueda de pacientes |
+| --- | --- | --- |
+| ![Gráfico de peso](img/Fase2GraficoPeso.png) | ![Reprogramar cita](img/Fase2ReprogramarCita.png) | ![Búsqueda de pacientes](img/Fase02BusquedaDePacientes.png) |
+
+| Carnet de vacunas | Recordatorio de próximo control | Calendario mensual |
+| --- | --- | --- |
+| ![Carnet de vacunas](img/Fase2CarnetDeVacunas.png) | ![Recordatorio de próximo control](img/Fase2RecordatorioControlVeterinario.png) | ![Calendario mensual](img/Fase2CalendarioMensual.png) |

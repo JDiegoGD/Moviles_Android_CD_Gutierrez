@@ -43,7 +43,11 @@ import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
 
 @Composable
-fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
+fun MisCitasScreen(
+    vm: MisCitasViewModel,
+    onPedirCita: () -> Unit,
+    onReprogramar: (Int) -> Unit
+) {
     val proximas by vm.proximas.collectAsState()
     val historial by vm.historial.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
@@ -90,22 +94,24 @@ fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
                 items(lista, key = { it.cita.id }) { c ->
                     val estado = EstadoCita.valueOf(c.cita.estado)
                     val puedeCancelar = pestana == 0 && vm.puedeCancelar(c.cita)
+                    val puedeReprogramar = pestana == 0 && vm.puedeReprogramar(c.cita)
                     CitaCard(
                         servicio = c.servicio.nombre,
                         icono = c.servicio.icono,
                         detalle = "${c.mascota.mascota.nombre} · ${Formato.fechaHora(c.cita.fecha, c.cita.hora)}",
                         estado = estado
                     ) {
-                        if (puedeCancelar) {
-                            TextButton(onClick = { citaACancelar = c.cita }) {
-                                Text("Cancelar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            if (puedeReprogramar) {
+                                TextButton(onClick = { onReprogramar(c.cita.id) }) {
+                                    Text("Reprogramar", fontWeight = FontWeight.Bold)
+                                }
                             }
-                        } else if (pestana == 0) {
-                            Text(
-                                "Ya no puedes cancelar esta cita",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            if (puedeCancelar) {
+                                TextButton(onClick = { citaACancelar = c.cita }) {
+                                    Text("Cancelar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
                 }
@@ -114,7 +120,7 @@ fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
                         Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
                             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Filled.Schedule, null, tint = MaterialTheme.colorScheme.primary)
-                                Text("  Puedes cancelar hasta 2 horas antes", style = MaterialTheme.typography.bodySmall)
+                                Text("  Puedes cancelar o reprogramar hasta 2 horas antes", style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }

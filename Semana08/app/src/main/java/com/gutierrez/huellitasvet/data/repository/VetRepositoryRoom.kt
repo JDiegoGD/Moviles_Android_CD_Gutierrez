@@ -6,6 +6,7 @@ import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
@@ -60,11 +61,26 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     }
 
     override suspend fun eliminarMascota(m: Mascota) {
-        db.mascotaDao().eliminar(m)
+        db.withTransaction {
+            db.vacunaDao().eliminarPorMascota(m.id)
+            db.mascotaDao().eliminar(m)
+        }
     }
 
     override suspend fun mascotaTieneCitas(id: Int): Boolean =
         db.mascotaDao().contarCitas(id) > 0
+
+    // ---------- Vacunas ----------
+    override fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>> =
+        db.vacunaDao().observarPorMascota(mascotaId)
+
+    override suspend fun guardarVacuna(v: Vacuna) {
+        if (v.id == 0) db.vacunaDao().insertar(v) else db.vacunaDao().actualizar(v)
+    }
+
+    override suspend fun eliminarVacuna(v: Vacuna) {
+        db.vacunaDao().eliminar(v)
+    }
 
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
@@ -117,6 +133,14 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
             db.citaDao().registrarAtencion(citaId, diagnostico, tratamiento, peso, fechaControl)
             db.mascotaDao().actualizarPeso(cita.mascotaId, peso)
         }
+    }
+
+    override suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean {
+        val cita = db.citaDao().obtener(id) ?: return false
+        if (cita.fecha == fecha && cita.hora == hora) return true
+        if (db.citaDao().contarOcupadas(fecha, hora) > 0) return false
+        db.citaDao().reprogramar(id, fecha, hora)
+        return true
     }
 
     // ---------- Panel ----------
