@@ -6,6 +6,7 @@ import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
@@ -61,11 +62,26 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     }
 
     override suspend fun eliminarMascota(m: Mascota) {
-        db.mascotaDao().eliminar(m)
+        db.withTransaction {
+            db.vacunaDao().eliminarPorMascota(m.id)
+            db.mascotaDao().eliminar(m)
+        }
     }
 
     override suspend fun mascotaTieneCitas(id: Int): Boolean =
         db.mascotaDao().contarCitas(id) > 0
+
+    // ---------- Vacunas ----------
+    override fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>> =
+        db.vacunaDao().observarPorMascota(mascotaId)
+
+    override suspend fun guardarVacuna(v: Vacuna) {
+        db.vacunaDao().insertar(v)
+    }
+
+    override suspend fun eliminarVacuna(v: Vacuna) {
+        db.vacunaDao().eliminar(v)
+    }
 
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =

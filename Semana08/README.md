@@ -137,7 +137,7 @@ Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, li
 
 ---
 
-### PROMPT - 2
+### PROMPT - 3
 
 #### ROL
 Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, coroutines/Flow y arquitectura MVVM.
@@ -162,3 +162,30 @@ Mejora la búsqueda de pacientes sin tocar el DAO ni el Repository:
 #### FORMATO DE SALIDA
 Muéstrame solo los archivos que cambian, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué cambió.
 
+---
+### PROMPT - 4
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, Room y arquitectura MVVM + Repository.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Compose, Material 3, MVVM, Room y VetRepository como interface. Los archivos adjuntos son mi código actual. La base tiene 4 tablas (usuarios, servicios, mascotas, citas) y las fechas se guardan como texto 'aaaa-MM-dd'. La ficha de la mascota (FichaMascotaScreen) tiene las pestañas "Datos" e "Historial clínico" y recibe soloLectura = true cuando entra el veterinario.
+
+#### TAREA
+Agrega un carnet de vacunas visible en la ficha de la mascota. Hazlo capa por capa, en este orden:
+1. Entidad data/local/entity/Vacuna.kt: id (autoGenerate), mascotaId (FK a Mascota con índice), nombre, fecha ('aaaa-MM-dd') y proximaDosis (String? opcional).
+2. VacunaDao: insertar, eliminar y observarPorMascota(mascotaId): Flow<List<Vacuna>> ordenada por fecha descendente. Registra la entidad y el DAO en VetDatabase y SUBE el número de version en 1 respecto al actual.
+3. VetRepository (primero en la interface): observarVacunas(mascotaId), guardarVacuna(v) y eliminarVacuna(v). Luego impleméntalas en VetRepositoryRoom. Además, eliminarMascota debe borrar antes las vacunas de esa mascota, dentro de una transacción, para no violar la llave foránea.
+4. MascotaViewModel: vacunas(mascotaId): StateFlow<List<Vacuna>> (cacheado por mascotaId como historial()) y guardarVacuna(...) con estas validaciones en el ViewModel: nombre de mínimo 3 caracteres, fecha válida y no futura, y proximaDosis (si se escribe) válida y posterior a la fecha. Errores por campo en un StateFlow, como ya hace guardar() de mascota.
+5. FichaMascotaScreen: nueva pestaña "Vacunas" con la lista (nombre, fecha, próxima dosis) y un botón "Agregar vacuna" que abre un diálogo con campos de texto. Si soloLectura es true, solo se ve la lista. La View solo muestra y llama al ViewModel.
+
+#### RESTRICCIONES
+- La View no usa DAO ni Repository.
+- El ViewModel solo conoce la interface VetRepository.
+- Toda función nueva se declara primero en la interface.
+- Como cambia el esquema, la versión de la base debe subir (uso fallbackToDestructiveMigration).
+- No uses XML ni librerías externas. Mantén el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
+
+---

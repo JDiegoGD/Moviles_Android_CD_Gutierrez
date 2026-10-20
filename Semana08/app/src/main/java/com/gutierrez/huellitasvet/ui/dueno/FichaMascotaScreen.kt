@@ -13,11 +13,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Button
@@ -38,16 +40,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.model.Formato
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
 import com.gutierrez.huellitasvet.ui.components.HistorialItem
 import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
 import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.ui.components.VetButton
+import com.gutierrez.huellitasvet.ui.components.VetTextField
 import com.gutierrez.huellitasvet.ui.components.etiquetaEspecie
 import com.gutierrez.huellitasvet.ui.components.etiquetaSexo
 import com.gutierrez.huellitasvet.ui.components.graficos.GraficoLineas
 import com.gutierrez.huellitasvet.viewmodel.MascotaViewModel
+import java.time.LocalDate
 
 /** Ficha de la mascota con pestañas Datos / Historial clinico. */
 @Composable
@@ -137,7 +142,7 @@ fun FichaMascotaScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(Modifier.padding(4.dp)) {
-                    listOf("Datos", "Historial clínico").forEachIndexed { i, texto ->
+                    listOf("Datos", "Historial clínico", "Vacunas").forEachIndexed { i, texto ->
                         val activa = pestana == i
                         Surface(
                             onClick = { pestana = i },
@@ -157,45 +162,51 @@ fun FichaMascotaScreen(
                 }
             }
 
-            if (pestana == 0) {
-                DatosMascota(m)
-                if (!soloLectura) {
-                    VetButton("Eliminar mascota", onClick = { confirmarBorrado = true }, secundario = true, peligro = true)
-                }
-            } else {
-                Card(
-                    Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Column(
-                        Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            "Evolución de peso",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        GraficoLineas(datos = pesos)
+            when (pestana) {
+                0 -> {
+                    DatosMascota(m)
+                    if (!soloLectura) {
+                        VetButton("Eliminar mascota", onClick = { confirmarBorrado = true }, secundario = true, peligro = true)
                     }
                 }
+                1 -> {
+                    Card(
+                        Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(
+                            Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                "Evolución de peso",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            GraficoLineas(datos = pesos)
+                        }
+                    }
 
-                if (historial.isEmpty()) {
-                    Text(
-                        "Aún no tiene atenciones",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(8.dp)
-                    )
+                    if (historial.isEmpty()) {
+                        Text(
+                            "Aún no tiene atenciones",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                    historial.forEachIndexed { i, c ->
+                        HistorialItem(
+                            fecha = c.cita.fecha,
+                            servicio = c.servicio.nombre,
+                            diagnostico = c.cita.diagnostico ?: "Sin diagnóstico",
+                            peso = c.cita.pesoRegistrado,
+                            esUltimo = i == historial.lastIndex
+                        )
+                    }
                 }
-                historial.forEachIndexed { i, c ->
-                    HistorialItem(
-                        fecha = c.cita.fecha,
-                        servicio = c.servicio.nombre,
-                        diagnostico = c.cita.diagnostico ?: "Sin diagnóstico",
-                        peso = c.cita.pesoRegistrado,
-                        esUltimo = i == historial.lastIndex
-                    )
+                2 -> {
+                    SeccionVacunas(mascotaId = m.id, vm = vm, soloLectura = soloLectura)
                 }
             }
         }
@@ -238,5 +249,131 @@ private fun Fila(etiqueta: String, valor: String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(etiqueta, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(valor, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun SeccionVacunas(
+    mascotaId: Int,
+    vm: MascotaViewModel,
+    soloLectura: Boolean
+) {
+    val vacunas by vm.vacunas(mascotaId).collectAsState()
+    val erroresVacuna by vm.erroresVacuna.collectAsState()
+    var mostrarDialogo by remember { mutableStateOf(false) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!soloLectura) {
+            VetButton(
+                texto = "Agregar vacuna",
+                onClick = {
+                    vm.limpiarErroresVacuna()
+                    mostrarDialogo = true
+                }
+            )
+        }
+
+        if (vacunas.isEmpty()) {
+            Text(
+                "Aún no tiene vacunas registradas",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+
+        vacunas.forEach { v ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(v.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        Text("Fecha: ${Formato.fechaCorta(v.fecha)}", style = MaterialTheme.typography.bodyMedium)
+                        if (!v.proximaDosis.isNullOrBlank()) {
+                            Text(
+                                "Próxima dosis: ${Formato.fechaCorta(v.proximaDosis)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    if (!soloLectura) {
+                        IconButton(onClick = { vm.eliminarVacuna(v) }) {
+                            Icon(
+                                Icons.Filled.Delete,
+                                contentDescription = "Eliminar vacuna",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (mostrarDialogo) {
+        var nombre by remember { mutableStateOf("") }
+        var fecha by remember { mutableStateOf(LocalDate.now().toString()) }
+        var proximaDosis by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogo = false
+                vm.limpiarErroresVacuna()
+            },
+            title = { Text("Registrar vacuna") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    VetTextField(
+                        valor = nombre,
+                        onCambio = { nombre = it },
+                        etiqueta = "Nombre de la vacuna",
+                        error = erroresVacuna["nombre"]
+                    )
+                    VetTextField(
+                        valor = fecha,
+                        onCambio = { fecha = it },
+                        etiqueta = "Fecha (aaaa-MM-dd)",
+                        error = erroresVacuna["fecha"]
+                    )
+                    VetTextField(
+                        valor = proximaDosis,
+                        onCambio = { proximaDosis = it },
+                        etiqueta = "Próxima dosis (opcional)",
+                        error = erroresVacuna["proximaDosis"]
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val nuevaVacuna = Vacuna(
+                        mascotaId = mascotaId,
+                        nombre = nombre,
+                        fecha = fecha,
+                        proximaDosis = proximaDosis.ifBlank { null }
+                    )
+                    vm.guardarVacuna(nuevaVacuna) {
+                        mostrarDialogo = false
+                        vm.limpiarErroresVacuna()
+                    }
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarDialogo = false
+                    vm.limpiarErroresVacuna()
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
