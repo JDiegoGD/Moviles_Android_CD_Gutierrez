@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.model.ConteoServicio
+import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -60,6 +61,14 @@ interface CitaDao {
             "ORDER BY fecha DESC, hora DESC"
     )
     fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>>
+
+    /** Pesos registrados en citas ATENDIDAS de una mascota, ordenados por fecha y hora ascendente. */
+    @Query(
+        "SELECT fecha, pesoRegistrado AS peso FROM citas " +
+            "WHERE mascotaId = :mascotaId AND estado = 'ATENDIDA' AND pesoRegistrado IS NOT NULL " +
+            "ORDER BY fecha ASC, hora ASC"
+    )
+    fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>
 
     // ---------- Conteos de apoyo (reglas de eliminacion) ----------
     @Query("SELECT COUNT(*) FROM citas WHERE servicioId = :servicioId")

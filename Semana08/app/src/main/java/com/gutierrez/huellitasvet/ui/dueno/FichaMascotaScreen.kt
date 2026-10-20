@@ -46,6 +46,7 @@ import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.ui.components.VetButton
 import com.gutierrez.huellitasvet.ui.components.etiquetaEspecie
 import com.gutierrez.huellitasvet.ui.components.etiquetaSexo
+import com.gutierrez.huellitasvet.ui.components.graficos.GraficoLineas
 import com.gutierrez.huellitasvet.viewmodel.MascotaViewModel
 
 /** Ficha de la mascota con pestañas Datos / Historial clinico. */
@@ -61,6 +62,7 @@ fun FichaMascotaScreen(
     val flujo = remember(id) { vm.mascota(id) }
     val mascota by flujo.collectAsState(initial = null)
     val historial by vm.historial(id).collectAsState()
+    val pesos by vm.pesos(id).collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     var pestana by remember { mutableStateOf(0) }
@@ -161,6 +163,24 @@ fun FichaMascotaScreen(
                     VetButton("Eliminar mascota", onClick = { confirmarBorrado = true }, secundario = true, peligro = true)
                 }
             } else {
+                Card(
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            "Evolución de peso",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        GraficoLineas(datos = pesos)
+                    }
+                }
+
                 if (historial.isEmpty()) {
                     Text(
                         "Aún no tiene atenciones",

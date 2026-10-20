@@ -10,6 +10,7 @@ import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
+import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -100,6 +101,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>> =
         db.citaDao().observarHistorial(mascotaId)
+
+    override fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>> =
+        db.citaDao().observarPesos(mascotaId)
 
     override suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita) {
         db.citaDao().actualizarEstado(id, estado.name)

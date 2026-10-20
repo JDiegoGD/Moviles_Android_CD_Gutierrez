@@ -7,6 +7,7 @@ import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
+import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 /** El contrato: ViewModels solo conocen esta interface, nunca el DAO. */
@@ -43,6 +44,7 @@ interface VetRepository {
     fun observarCitasPorFecha(fecha: String): Flow<List<CitaConDetalle>>
     fun observarCita(id: Int): Flow<CitaConDetalle?>
     fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>>
+    fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>
     suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita)
     suspend fun registrarAtencion(
         citaId: Int, diagnostico: String,

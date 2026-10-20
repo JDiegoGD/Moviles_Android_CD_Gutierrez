@@ -74,3 +74,30 @@ com.tecsup.huellitasvet
 | Pantalla en modo oscuro |
 | --- |
 | ![Modo oscuro](img/PantallaOscuraEjemplo.png) |
+
+## FASE 2 - PROMPTS
+### PROMPT - 1 
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, Room y arquitectura MVVM + Repository.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Kotlin, Jetpack Compose, Material 3, MVVM, Room y un VetRepository (interface) con su implementación VetRepositoryRoom. Los archivos adjuntos son mi código actual. La ficha de la mascota (FichaMascotaScreen) tiene una pestaña "Historial clínico". Cada cita ATENDIDA guarda el peso en la columna pesoRegistrado. Ya existen GraficoDona y GraficoBarras en ui/components/graficos, pero no hay un gráfico de líneas.
+
+#### TAREA
+Agrega en la pestaña "Historial clínico" un gráfico de línea con el peso registrado en cada cita ATENDIDA de la mascota. Hazlo capa por capa, en este orden:
+1. model/PuntoPeso.kt: data class PuntoPeso(val fecha: String, val peso: Double).
+2. CitaDao: fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>> con @Query. Debe devolver fecha y pesoRegistrado (alias peso), solo de citas ATENDIDAS de esa mascota con peso no nulo, ordenadas por fecha y hora ascendente.
+3. VetRepository (primero en la interface): fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>. Después impleméntala en VetRepositoryRoom llamando al DAO.
+4. MascotaViewModel: fun pesos(mascotaId: Int): StateFlow<List<DatoGrafico>>. Convierte cada PuntoPeso a DatoGrafico (etiqueta con Formato.fechaDiaMes, valor Float). Cachea el flujo por mascotaId, igual que ya se hace con historial().
+5. ui/components/graficos/GraficoLineas.kt: composable GraficoLineas(datos: List<DatoGrafico>) dibujado con Canvas (línea, puntos y etiquetas) con colores de MaterialTheme. Si hay menos de 2 puntos, muestra el texto "Aún no hay suficientes datos".
+6. FichaMascotaScreen: muestra el gráfico encima de la línea de tiempo. La View solo observa vm.pesos(id) y dibuja.
+
+#### RESTRICCIONES
+- La View no usa DAO ni Repository.
+- El ViewModel solo conoce la interface VetRepository.
+- Toda función nueva se declara primero en la interface.
+- No modifiques ninguna entidad ni la versión de la base de datos.
+- No uses XML ni librerías externas. Mantén el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.

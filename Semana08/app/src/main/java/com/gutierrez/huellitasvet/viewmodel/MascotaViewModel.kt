@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.repository.VetRepository
+import com.gutierrez.huellitasvet.model.Formato
+import com.gutierrez.huellitasvet.ui.components.graficos.DatoGrafico
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -25,6 +28,7 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
     private val historiales = mutableMapOf<Int, StateFlow<List<CitaConDetalle>>>()
+    private val mapaPesos = mutableMapOf<Int, StateFlow<List<DatoGrafico>>>()
 
     fun mascota(id: Int): Flow<Mascota?> = repo.observarMascota(id)
 
@@ -32,6 +36,21 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
     fun historial(mascotaId: Int): StateFlow<List<CitaConDetalle>> =
         historiales.getOrPut(mascotaId) {
             repo.observarHistorial(mascotaId)
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }
+
+    /** Puntos de peso para gráfico: citas ATENDIDAS con peso. */
+    fun pesos(mascotaId: Int): StateFlow<List<DatoGrafico>> =
+        mapaPesos.getOrPut(mascotaId) {
+            repo.observarPesos(mascotaId)
+                .map { lista ->
+                    lista.map { p ->
+                        DatoGrafico(
+                            etiqueta = Formato.fechaDiaMes(p.fecha),
+                            valor = p.peso.toFloat()
+                        )
+                    }
+                }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         }
 
