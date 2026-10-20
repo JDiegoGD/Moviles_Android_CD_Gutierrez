@@ -6,12 +6,10 @@ import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
-import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
-import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -62,26 +60,11 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     }
 
     override suspend fun eliminarMascota(m: Mascota) {
-        db.withTransaction {
-            db.vacunaDao().eliminarPorMascota(m.id)
-            db.mascotaDao().eliminar(m)
-        }
+        db.mascotaDao().eliminar(m)
     }
 
     override suspend fun mascotaTieneCitas(id: Int): Boolean =
         db.mascotaDao().contarCitas(id) > 0
-
-    // ---------- Vacunas ----------
-    override fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>> =
-        db.vacunaDao().observarPorMascota(mascotaId)
-
-    override suspend fun guardarVacuna(v: Vacuna) {
-        db.vacunaDao().insertar(v)
-    }
-
-    override suspend fun eliminarVacuna(v: Vacuna) {
-        db.vacunaDao().eliminar(v)
-    }
 
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
@@ -118,26 +101,17 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     override fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>> =
         db.citaDao().observarHistorial(mascotaId)
 
-    override fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>> =
-        db.citaDao().observarPesos(mascotaId)
-
     override suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita) {
         db.citaDao().actualizarEstado(id, estado.name)
     }
 
-    override suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean {
-        if (db.citaDao().contarOcupadas(fecha, hora) > 0) return false
-        db.citaDao().reprogramar(id, fecha, hora)
-        return true
-    }
-
     override suspend fun registrarAtencion(
-        citaId: Int, diagnostico: String, tratamiento: String, peso: Double
+        citaId: Int, diagnostico: String, tratamiento: String, peso: Double, fechaControl: String?
     ) {
         // Una sola transaccion: si algo falla, no queda nada a medias
         db.withTransaction {
             val cita = db.citaDao().obtener(citaId) ?: return@withTransaction
-            db.citaDao().registrarAtencion(citaId, diagnostico, tratamiento, peso)
+            db.citaDao().registrarAtencion(citaId, diagnostico, tratamiento, peso, fechaControl)
             db.mascotaDao().actualizarPeso(cita.mascotaId, peso)
         }
     }

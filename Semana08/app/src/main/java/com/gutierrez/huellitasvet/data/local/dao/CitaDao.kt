@@ -7,7 +7,6 @@ import androidx.room.Transaction
 import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.model.ConteoServicio
-import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,15 +19,18 @@ interface CitaDao {
     @Query("UPDATE citas SET estado = :estado WHERE id = :id")
     suspend fun actualizarEstado(id: Int, estado: String)
 
-    @Query("UPDATE citas SET fecha = :fecha, hora = :hora WHERE id = :id")
-    suspend fun reprogramar(id: Int, fecha: String, hora: String)
-
-    /** Pone estado ATENDIDA y guarda diagnostico, tratamiento y peso. */
+    /** Pone estado ATENDIDA y guarda diagnostico, tratamiento, peso y fechaControl. */
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +
-            "tratamiento = :tratamiento, pesoRegistrado = :peso WHERE id = :id"
+            "tratamiento = :tratamiento, pesoRegistrado = :peso, fechaControl = :fechaControl WHERE id = :id"
     )
-    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double)
+    suspend fun registrarAtencion(
+        id: Int,
+        diagnostico: String,
+        tratamiento: String,
+        peso: Double,
+        fechaControl: String?
+    )
 
     @Query("SELECT * FROM citas WHERE id = :id")
     suspend fun obtener(id: Int): Cita?
@@ -64,14 +66,6 @@ interface CitaDao {
             "ORDER BY fecha DESC, hora DESC"
     )
     fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>>
-
-    /** Pesos registrados en citas ATENDIDAS de una mascota, ordenados por fecha y hora ascendente. */
-    @Query(
-        "SELECT fecha, pesoRegistrado AS peso FROM citas " +
-            "WHERE mascotaId = :mascotaId AND estado = 'ATENDIDA' AND pesoRegistrado IS NOT NULL " +
-            "ORDER BY fecha ASC, hora ASC"
-    )
-    fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>
 
     // ---------- Conteos de apoyo (reglas de eliminacion) ----------
     @Query("SELECT COUNT(*) FROM citas WHERE servicioId = :servicioId")

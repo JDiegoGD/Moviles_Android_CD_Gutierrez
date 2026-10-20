@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /** Registro clinico de una cita (diagnostico, tratamiento y peso). */
 class AtenderCitaViewModel(
@@ -22,7 +23,7 @@ class AtenderCitaViewModel(
     val cita: StateFlow<CitaConDetalle?> = repo.observarCita(citaId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    // Errores por campo: "diagnostico", "peso", "general"
+    // Errores por campo: "diagnostico", "peso", "control", "general"
     private val _errores = MutableStateFlow<Map<String, String>>(emptyMap())
     val errores: StateFlow<Map<String, String>> = _errores.asStateFlow()
 
@@ -33,7 +34,7 @@ class AtenderCitaViewModel(
      * Valida y llama a repo.registrarAtencion (UNA transaccion): la cita queda ATENDIDA
      * y el peso de la mascota se actualiza en la misma operacion.
      */
-    fun registrar(diagnostico: String, tratamiento: String, peso: Double, onListo: () -> Unit) {
+    fun registrar(diagnostico: String, tratamiento: String, peso: Double, fechaControl: String?, onListo: () -> Unit) {
         viewModelScope.launch {
             val actual = repo.observarCita(citaId).first()
             val errores = mutableMapOf<String, String>()
@@ -42,10 +43,18 @@ class AtenderCitaViewModel(
             }
             if (diagnostico.trim().length < 5) errores["diagnostico"] = "Mínimo 5 caracteres"
             if (peso <= 0.0) errores["peso"] = "Debe ser mayor que 0"
+            if (fechaControl != null) {
+                val ctrl = LocalDate.parse(fechaControl)
+                val hoy = LocalDate.now()
+                val fechaCita = LocalDate.parse(actual?.cita?.fecha ?: LocalDate.now().toString())
+                if (!ctrl.isAfter(hoy) || !ctrl.isAfter(fechaCita)) {
+                    errores["control"] = "Debe ser posterior a hoy y a la fecha de la cita"
+                }
+            }
             _errores.value = errores
             if (errores.isNotEmpty()) return@launch
 
-            repo.registrarAtencion(citaId, diagnostico.trim(), tratamiento.trim(), peso)
+            repo.registrarAtencion(citaId, diagnostico.trim(), tratamiento.trim(), peso, fechaControl)
             onListo()
         }
     }

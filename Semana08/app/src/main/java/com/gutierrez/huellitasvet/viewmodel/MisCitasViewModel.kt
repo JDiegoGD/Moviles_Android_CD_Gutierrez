@@ -56,9 +56,6 @@ class MisCitasViewModel(
         return estadoValido && faltan > Duration.ofHours(2)
     }
 
-    /** Regla: solo PENDIENTE o CONFIRMADA y solo si faltan MAS de 2 horas. */
-    fun puedeReprogramar(cita: Cita): Boolean = puedeCancelar(cita)
-
     fun cancelar(cita: Cita) {
         if (!puedeCancelar(cita)) {
             _mensaje.value = "Ya no puedes cancelar esta cita"

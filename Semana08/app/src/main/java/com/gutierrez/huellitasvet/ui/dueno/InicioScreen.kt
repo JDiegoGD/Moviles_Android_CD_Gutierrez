@@ -1,5 +1,6 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Color
 
@@ -55,6 +56,7 @@ fun InicioScreen(
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
+    val control by vm.proximoControl.collectAsState()
 
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
@@ -100,7 +102,7 @@ fun InicioScreen(
                 onClick = onAgregar,
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 modifier = Modifier.width(100.dp)
             ) {
                 Column(
@@ -121,16 +123,31 @@ fun InicioScreen(
             AccesoRapido("Baño", "scissors", Modifier.weight(1f), onPedirCita)
         }
 
-        proxima?.let { prox ->
+        if (control != null) {
             Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFFEF3C7), modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Icon(Icons.Filled.Notifications, null, tint = Color(0xFFB45309))
                     Column {
                         Text("Recordatorio", fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
                         Text(
-                            "${prox.mascota.mascota.nombre}: ${prox.servicio.nombre.lowercase()} el ${Formato.fechaCorta(prox.cita.fecha)}",
+                            "Control de ${control!!.mascota.mascota.nombre}: ${Formato.fechaCorta(control!!.cita.fechaControl!!)}",
                             style = MaterialTheme.typography.bodySmall, color = Color(0xFF78350F)
                         )
+                    }
+                }
+            }
+        } else {
+            proxima?.let { prox ->
+                Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFFEF3C7), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Icon(Icons.Filled.Notifications, null, tint = Color(0xFFB45309))
+                        Column {
+                            Text("Recordatorio", fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
+                            Text(
+                                "${prox.mascota.mascota.nombre}: ${prox.servicio.nombre.lowercase()} el ${Formato.fechaCorta(prox.cita.fecha)}",
+                                style = MaterialTheme.typography.bodySmall, color = Color(0xFF78350F)
+                            )
+                        }
                     }
                 }
             }

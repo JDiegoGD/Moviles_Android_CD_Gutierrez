@@ -1,5 +1,6 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,10 +32,12 @@ import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.model.Formato
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
 import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
+import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.ui.components.VetButton
 import com.gutierrez.huellitasvet.ui.components.VetTextField
 import com.gutierrez.huellitasvet.ui.components.etiquetaEspecie
 import com.gutierrez.huellitasvet.viewmodel.AtenderCitaViewModel
+import java.time.LocalDate
 
 @Composable
 fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
@@ -44,6 +47,7 @@ fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
     var peso by remember { mutableStateOf("") }
     var diagnostico by remember { mutableStateOf("") }
     var tratamiento by remember { mutableStateOf("") }
+    var opcionControl by remember { mutableStateOf("Sin control") }
 
     // Propone el peso anterior de la mascota (una sola vez, cuando llega la cita)
     LaunchedEffect(detalle?.cita?.id) {
@@ -59,6 +63,13 @@ fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
         val d = detalle ?: return@Scaffold
         val m = d.mascota.mascota
         val pesoNuevo = peso.replace(',', '.').toDoubleOrNull() ?: 0.0
+
+        val fechaControl = when (opcionControl) {
+            "En 7 días" -> LocalDate.now().plusDays(7).toString()
+            "En 15 días" -> LocalDate.now().plusDays(15).toString()
+            "En 30 días" -> LocalDate.now().plusDays(30).toString()
+            else -> null
+        }
 
         Column(
             Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
@@ -101,6 +112,23 @@ fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
             VetTextField(diagnostico, { diagnostico = it }, "Diagnóstico", error = errores["diagnostico"], lineas = 3)
             VetTextField(tratamiento, { tratamiento = it }, "Tratamiento", lineas = 3)
 
+            Text("Próximo control", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+            Row(
+                Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Sin control", "En 7 días", "En 15 días", "En 30 días").forEach { opcion ->
+                    OpcionChip(
+                        texto = opcion,
+                        seleccionada = opcionControl == opcion,
+                        onClick = { opcionControl = opcion }
+                    )
+                }
+            }
+            errores["control"]?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+
             if (pesoNuevo > 0.0) {
                 Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -110,7 +138,7 @@ fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
                 }
             }
 
-            VetButton("Registrar atención", onClick = { vm.registrar(diagnostico, tratamiento, pesoNuevo, onBack) })
+            VetButton("Registrar atención", onClick = { vm.registrar(diagnostico, tratamiento, pesoNuevo, fechaControl, onBack) })
             VetButton("Cancelar cita", onClick = { vm.cancelar(onBack) }, secundario = true, peligro = true)
         }
     }

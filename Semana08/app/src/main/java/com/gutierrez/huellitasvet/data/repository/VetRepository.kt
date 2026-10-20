@@ -3,12 +3,10 @@ package com.gutierrez.huellitasvet.data.repository
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
-import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
-import com.gutierrez.huellitasvet.model.PuntoPeso
 import kotlinx.coroutines.flow.Flow
 
 /** El contrato: ViewModels solo conocen esta interface, nunca el DAO. */
@@ -35,11 +33,6 @@ interface VetRepository {
     suspend fun eliminarMascota(m: Mascota)
     suspend fun mascotaTieneCitas(id: Int): Boolean
 
-    // Vacunas
-    fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>>
-    suspend fun guardarVacuna(v: Vacuna)
-    suspend fun eliminarVacuna(v: Vacuna)
-
     // Citas
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>
     suspend fun crearCita(
@@ -50,12 +43,11 @@ interface VetRepository {
     fun observarCitasPorFecha(fecha: String): Flow<List<CitaConDetalle>>
     fun observarCita(id: Int): Flow<CitaConDetalle?>
     fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>>
-    fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>
     suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita)
-    suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean
     suspend fun registrarAtencion(
         citaId: Int, diagnostico: String,
-        tratamiento: String, peso: Double
+        tratamiento: String, peso: Double,
+        fechaControl: String?
     )
 
     // Panel

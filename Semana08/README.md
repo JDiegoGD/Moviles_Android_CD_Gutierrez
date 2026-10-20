@@ -189,3 +189,34 @@ Agrega un carnet de vacunas visible en la ficha de la mascota. Hazlo capa por ca
 Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
 
 ---
+
+### PROMPT - 5
+
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, Room y arquitectura MVVM + Repository.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Compose, Material 3, MVVM, Room y VetRepository como interface. Los archivos adjuntos son mi código actual. El veterinario atiende una cita en AtenderCitaScreen (diagnóstico, tratamiento y peso) y AtenderCitaViewModel llama a repo.registrarAtencion en una sola transacción. El dueño ve su pantalla InicioScreen, donde ya hay una tarjeta amarilla "Recordatorio" que hoy muestra la próxima cita. Las fechas se guardan como texto 'aaaa-MM-dd'.
+
+#### TAREA
+Al atender una cita, el veterinario puede fijar una fecha de próximo control, y el dueño la ve en su Inicio. Hazlo capa por capa, en este orden:
+1. Entidad Cita: agrega la columna fechaControl: String? = null. SUBE el número de version de VetDatabase en 1 respecto al actual.
+2. CitaDao: amplía el UPDATE de registrarAtencion con el parámetro fechaControl: String?.
+3. VetRepository (primero en la interface): agrega fechaControl: String? a registrarAtencion y actualiza VetRepositoryRoom. Debe seguir siendo una sola transacción.
+4. AtenderCitaViewModel.registrar: recibe fechaControl: String?. Regla en el ViewModel: si viene, debe ser posterior a hoy y a la fecha de la cita; si no, error en el campo "control".
+5. AtenderCitaScreen: agrega opciones con OpcionChip: "Sin control", "En 7 días", "En 15 días" y "En 30 días". La View solo convierte la opción a una fecha y se la pasa al ViewModel.
+6. InicioViewModel: nuevo StateFlow proximoControl con el control futuro más cercano de las citas ATENDIDAS de las mascotas del dueño (calculado en el ViewModel a partir de observarCitasDeDueno, sin tocar el DAO).
+7. InicioScreen: si hay proximoControl, la tarjeta "Recordatorio" muestra "Control de <mascota>: <fecha>"; si no, conserva el comportamiento actual.
+
+#### RESTRICCIONES
+- La View no usa DAO ni Repository.
+- El ViewModel solo conoce la interface VetRepository.
+- Toda función nueva o modificada se declara primero en la interface.
+- Como cambia una entidad, la versión de la base debe subir (uso fallbackToDestructiveMigration).
+- No uses XML ni librerías externas. Mantén el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
+
+---
+
