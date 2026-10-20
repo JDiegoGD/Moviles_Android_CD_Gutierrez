@@ -134,3 +134,31 @@ Hazlo capa por capa, en este orden:
 
 #### FORMATO DE SALIDA
 Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
+
+---
+
+### PROMPT - 2
+
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, coroutines/Flow y arquitectura MVVM.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Compose, Material 3, MVVM, Room y VetRepository como interface. Los archivos adjuntos son mi código actual. La pantalla Pacientes del veterinario ya filtra por texto (nombre de mascota o de dueño) y por especie al mismo tiempo, usando combine en PacientesViewModel.
+
+#### TAREA
+Mejora la búsqueda de pacientes sin tocar el DAO ni el Repository:
+1. La búsqueda ignora tildes y mayúsculas (java.text.Normalizer).
+2. También busca por raza.
+3. Espera 250 ms mientras el usuario escribe (debounce).
+4. Los chips de especie muestran cuántos pacientes hay por especie, por ejemplo "Perro (2)". Expón los conteos como un StateFlow en el ViewModel.
+5. Si no hay resultados, muestra un mensaje y un botón "Limpiar filtros" que llame a una función limpiar() del ViewModel.
+   Toda la lógica va en PacientesViewModel y PacientesScreen solo muestra el estado.
+
+#### RESTRICCIONES
+- No modifiques el DAO, el Repository ni las entidades.
+- La View no contiene lógica de filtrado.
+- Mantén Compose + Material 3, sin XML ni librerías externas. Conserva el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué cambió.
+
