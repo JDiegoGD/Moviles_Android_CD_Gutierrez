@@ -52,6 +52,8 @@ import com.gutierrez.huellitasvet.ui.dueno.PedirCitaScreen
 import com.gutierrez.huellitasvet.viewmodel.PedirCitaViewModel
 import com.gutierrez.huellitasvet.ui.dueno.MisCitasScreen
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
+import com.gutierrez.huellitasvet.ui.dueno.ReprogramarCitaScreen
+import com.gutierrez.huellitasvet.viewmodel.ReprogramarCitaViewModel
 import com.gutierrez.huellitasvet.ui.veterinario.AgendaScreen
 import com.gutierrez.huellitasvet.ui.veterinario.PanelScreen
 import com.gutierrez.huellitasvet.ui.veterinario.ServiciosScreen
@@ -280,7 +282,25 @@ fun NavVet() {
                     val vm: MisCitasViewModel = viewModel(
                         factory = VetViewModelFactory { MisCitasViewModel(repo, u.id) }
                     )
-                    MisCitasScreen(vm, onPedirCita = { nav.navigate(Rutas.pedirCita()) })
+                    MisCitasScreen(
+                        vm = vm,
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) },
+                        onReprogramarCita = { citaId -> nav.navigate(Rutas.reprogramarCita(citaId)) }
+                    )
+                }
+                composable(
+                    Rutas.REPROGRAMAR_CITA,
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { entry ->
+                    val citaId = entry.arguments?.getInt("id") ?: return@composable
+                    val vm: ReprogramarCitaViewModel = viewModel(
+                        factory = VetViewModelFactory { ReprogramarCitaViewModel(repo, citaId) }
+                    )
+                    ReprogramarCitaScreen(
+                        vm = vm,
+                        onBack = { nav.popBackStack() },
+                        onListo = { nav.popBackStack() }
+                    )
                 }
                 composable(Rutas.PERFIL) {
                     val u = usuario ?: return@composable

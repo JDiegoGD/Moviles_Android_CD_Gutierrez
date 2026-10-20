@@ -43,7 +43,11 @@ import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
 
 @Composable
-fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
+fun MisCitasScreen(
+    vm: MisCitasViewModel,
+    onPedirCita: () -> Unit,
+    onReprogramarCita: (Int) -> Unit = {}
+) {
     val proximas by vm.proximas.collectAsState()
     val historial by vm.historial.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
@@ -89,6 +93,7 @@ fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
                 }
                 items(lista, key = { it.cita.id }) { c ->
                     val estado = EstadoCita.valueOf(c.cita.estado)
+                    val puedeReprogramar = pestana == 0 && vm.puedeReprogramar(c.cita)
                     val puedeCancelar = pestana == 0 && vm.puedeCancelar(c.cita)
                     CitaCard(
                         servicio = c.servicio.nombre,
@@ -96,16 +101,23 @@ fun MisCitasScreen(vm: MisCitasViewModel, onPedirCita: () -> Unit) {
                         detalle = "${c.mascota.mascota.nombre} · ${Formato.fechaHora(c.cita.fecha, c.cita.hora)}",
                         estado = estado
                     ) {
-                        if (puedeCancelar) {
-                            TextButton(onClick = { citaACancelar = c.cita }) {
-                                Text("Cancelar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (puedeReprogramar) {
+                                TextButton(onClick = { onReprogramarCita(c.cita.id) }) {
+                                    Text("Reprogramar", fontWeight = FontWeight.Bold)
+                                }
                             }
-                        } else if (pestana == 0) {
-                            Text(
-                                "Ya no puedes cancelar esta cita",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            if (puedeCancelar) {
+                                TextButton(onClick = { citaACancelar = c.cita }) {
+                                    Text("Cancelar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                                }
+                            } else if (pestana == 0) {
+                                Text(
+                                    "Ya no puedes modificar esta cita",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

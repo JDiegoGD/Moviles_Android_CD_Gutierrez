@@ -20,6 +20,9 @@ interface CitaDao {
     @Query("UPDATE citas SET estado = :estado WHERE id = :id")
     suspend fun actualizarEstado(id: Int, estado: String)
 
+    @Query("UPDATE citas SET fecha = :fecha, hora = :hora WHERE id = :id")
+    suspend fun reprogramar(id: Int, fecha: String, hora: String)
+
     /** Pone estado ATENDIDA y guarda diagnostico, tratamiento y peso. */
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +

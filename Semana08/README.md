@@ -101,3 +101,36 @@ Agrega en la pestaña "Historial clínico" un gráfico de línea con el peso reg
 
 #### FORMATO DE SALIDA
 Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.
+
+---
+
+### PROMPT - 2
+#### ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose, Room y arquitectura MVVM + Repository.
+
+#### CONTEXTO
+Tengo la app "HuellitasVet" (paquete com.gutierrez.huellitasvet): Compose, Material 3, MVVM, Room y VetRepository como interface. Los archivos adjuntos son mi código actual. El dueño ya puede pedir citas (PedirCitaViewModel y PedirCitaScreen) y cancelarlas con la regla de 2 horas (MisCitasViewModel.puedeCancelar). Los horarios válidos son de 09:00 a 17:30 cada 30 minutos (Horarios.todos), y los días van de hoy a 7 días.
+
+#### TAREA
+Agrega "Reprogramar cita" para el dueño: puede cambiar la fecha y la hora de una cita PENDIENTE o CONFIRMADA. Reglas de negocio:
+- Solo si la cita está PENDIENTE o CONFIRMADA.
+- Solo si faltan MÁS de 2 horas para la cita actual.
+- Solo con horarios libres, sin horas ya pasadas del día de hoy.
+
+Hazlo capa por capa, en este orden:
+1. CitaDao: suspend fun reprogramar(id: Int, fecha: String, hora: String) con un @Query UPDATE.
+2. VetRepository (primero en la interface): suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean. En VetRepositoryRoom devuelve false si el nuevo horario ya está ocupado (verifícalo como lo hace crearCita) y true si actualizó.
+3. ReprogramarCitaViewModel(repo, citaId): expone la cita (repo.observarCita), la fecha, la hora, las horasOcupadas (flatMapLatest sobre la fecha, como PedirCitaViewModel), un mensaje y confirmar(onListo). Las reglas de negocio viven aquí.
+4. ReprogramarCitaScreen: reutiliza FechaChip y HoraChip y sigue el estilo de PedirCitaScreen. La View solo muestra y avisa.
+5. MisCitasViewModel: agrega puedeReprogramar(cita). MisCitasScreen: botón "Reprogramar" en las citas próximas que cumplan la regla.
+6. Rutas (REPROGRAMAR_CITA = "reprogramar_cita/{id}" y su función) y NavVet con VetViewModelFactory.
+
+#### RESTRICCIONES
+- La View no usa DAO ni Repository.
+- El ViewModel solo conoce la interface VetRepository.
+- Toda función nueva se declara primero en la interface.
+- No modifiques entidades ni la versión de la base de datos.
+- No uses XML ni librerías externas. Mantén el estilo y los nombres en español del código existente.
+
+#### FORMATO DE SALIDA
+Muéstrame solo los archivos que cambian o se crean, completos y con su ruta, listos para copiar. Al final, resume en 3 líneas qué hiciste en cada capa.

@@ -109,6 +109,12 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         db.citaDao().actualizarEstado(id, estado.name)
     }
 
+    override suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean {
+        if (db.citaDao().contarOcupadas(fecha, hora) > 0) return false
+        db.citaDao().reprogramar(id, fecha, hora)
+        return true
+    }
+
     override suspend fun registrarAtencion(
         citaId: Int, diagnostico: String, tratamiento: String, peso: Double
     ) {
