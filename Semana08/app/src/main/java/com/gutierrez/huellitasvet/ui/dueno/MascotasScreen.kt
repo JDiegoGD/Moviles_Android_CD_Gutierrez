@@ -14,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,14 +26,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.model.Formato
-import com.gutierrez.huellitasvet.ui.components.AppTopBar
+import com.gutierrez.huellitasvet.ui.components.AppTopBarScroll
 import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
 import com.gutierrez.huellitasvet.ui.components.etiquetaEspecie
 import com.gutierrez.huellitasvet.viewmodel.InicioViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MascotasScreen(
     vm: InicioViewModel,
@@ -39,10 +43,17 @@ fun MascotasScreen(
     onAgregar: () -> Unit
 ) {
     val mascotas by vm.mascotas.collectAsState()
+    // La barra de arriba se esconde al bajar la lista y reaparece al subir
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
-        topBar = { AppTopBar("Mis mascotas") },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { AppTopBarScroll("Mis mascotas", scrollBehavior) },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAgregar) { Icon(Icons.Filled.Add, contentDescription = "Agregar mascota") }
+            ExtendedFloatingActionButton(
+                onClick = onAgregar,
+                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                text = { Text("Agregar") }
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -62,9 +73,10 @@ fun MascotasScreen(
             items(mascotas, key = { it.id }) { m ->
                 Card(
                     onClick = { onVerMascota(m.id) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().animateItem(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Row(
                         Modifier.padding(14.dp),

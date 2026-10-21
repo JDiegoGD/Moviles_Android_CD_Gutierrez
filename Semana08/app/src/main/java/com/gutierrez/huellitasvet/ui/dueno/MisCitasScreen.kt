@@ -14,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,16 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.model.EstadoCita
 import com.gutierrez.huellitasvet.model.Formato
-import com.gutierrez.huellitasvet.ui.components.AppTopBar
+import com.gutierrez.huellitasvet.ui.components.AppTopBarScroll
 import com.gutierrez.huellitasvet.ui.components.CitaCard
 import com.gutierrez.huellitasvet.ui.components.OpcionChip
 import com.gutierrez.huellitasvet.viewmodel.MisCitasViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MisCitasScreen(
     vm: MisCitasViewModel,
@@ -59,11 +63,18 @@ fun MisCitasScreen(
         mensaje?.let { snackbar.showSnackbar(it); vm.limpiarMensaje() }
     }
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
-        topBar = { AppTopBar("Mis citas") },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { AppTopBarScroll("Mis citas", scrollBehavior) },
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            FloatingActionButton(onClick = onPedirCita) { Icon(Icons.Filled.Add, contentDescription = "Pedir cita") }
+            ExtendedFloatingActionButton(
+                onClick = onPedirCita,
+                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                text = { Text("Pedir cita") }
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)

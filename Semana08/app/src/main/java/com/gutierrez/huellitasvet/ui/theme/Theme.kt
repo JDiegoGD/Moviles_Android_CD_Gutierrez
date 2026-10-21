@@ -18,6 +18,9 @@ fun VetTheme(rol: Rol, oscuro: Boolean, content: @Composable () -> Unit) {
             primaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
             onPrimaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
             background = if (dueno) Color(0xFF0D1511) else Color(0xFF0D1220),
+            secondary = if (dueno) Color(0xFF34D399) else Color(0xFF93C5FD),
+            secondaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
+            onSecondaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
             onBackground = Color(0xFFE6EDEA),
             surface = if (dueno) Color(0xFF141E19) else Color(0xFF131A2B),
             onSurface = Color(0xFFE6EDEA),
@@ -32,6 +35,9 @@ fun VetTheme(rol: Rol, oscuro: Boolean, content: @Composable () -> Unit) {
             primaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
             onPrimaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
             background = if (dueno) EsmeraldaFondo else AzulFondo,
+            secondary = if (dueno) EsmeraldaPrimario else AzulPrimario,
+            secondaryContainer = if (dueno) EsmeraldaContenedor else AzulContenedor,
+            onSecondaryContainer = if (dueno) Color(0xFF064E3B) else Color(0xFF1E3A8A),
             onBackground = Color(0xFF1F2937),
             surface = Color.White,
             onSurface = Color(0xFF1F2937),
@@ -40,5 +46,5 @@ fun VetTheme(rol: Rol, oscuro: Boolean, content: @Composable () -> Unit) {
             outline = Color(0xFFCBD5E1)
         )
     }
-    MaterialTheme(colorScheme = esquema, typography = VetTypography, content = content)
+    MaterialTheme(colorScheme = esquema, typography = VetTypography, shapes = VetShapes, content = content)
 }

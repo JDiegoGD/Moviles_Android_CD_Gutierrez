@@ -15,7 +15,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -100,30 +104,26 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> U
     }
 }
 
+/** Selector de perfil con el SegmentedButton de Material 3 (Dueño | Veterinario). */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SelectorRol(seleccionado: Rol, onElegir: (Rol) -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(Modifier.padding(4.dp)) {
-            listOf(Rol.CLIENTE to "Dueño", Rol.ADMIN to "Veterinario").forEach { (r, texto) ->
-                val activo = r == seleccionado
-                Surface(
-                    onClick = { onElegir(r) },
-                    shape = RoundedCornerShape(11.dp),
-                    color = if (activo) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        texto,
-                        modifier = Modifier.padding(vertical = 10.dp),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        color = if (activo) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+    val opciones = listOf(Rol.CLIENTE to "Dueño", Rol.ADMIN to "Veterinario")
+    val colores = MaterialTheme.colorScheme
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+        opciones.forEachIndexed { indice, (rol, texto) ->
+            SegmentedButton(
+                selected = rol == seleccionado,
+                onClick = { onElegir(rol) },
+                shape = SegmentedButtonDefaults.itemShape(index = indice, count = opciones.size),
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = colores.primary,
+                    activeContentColor = colores.onPrimary,
+                    inactiveContainerColor = colores.surface,
+                    inactiveContentColor = colores.onSurface
+                )
+            ) {
+                Text(texto, fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -15,8 +15,17 @@ import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.runtime.remember
+import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
+import kotlinx.coroutines.flow.flowOf
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,6 +95,17 @@ fun NavVet() {
     val rolTema = if (usuario?.rol == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE
     val ruta = nav.currentBackStackEntryAsState().value?.destination?.route
 
+    // Numeros para los badges de la barra inferior (citas proximas del dueño y pendientes del veterinario)
+    val idDueno = if (usuario?.rol == Rol.CLIENTE.name) usuario?.id else null
+    val citasDueno by remember(idDueno) {
+        if (idDueno != null) repo.observarCitasDeDueno(idDueno) else flowOf(emptyList<CitaConDetalle>())
+    }.collectAsState(initial = emptyList())
+    val citasProximas = citasDueno.count {
+        it.cita.estado == EstadoCita.PENDIENTE.name || it.cita.estado == EstadoCita.CONFIRMADA.name
+    }
+    val pendientesVet by remember { repo.observarCantidadPorEstado(EstadoCita.PENDIENTE) }
+        .collectAsState(initial = 0)
+
     // Barra inferior: 4 items para el dueño y 5 para el veterinario
     val tabsDueno: List<Tab> = listOf(
         Tab(Rutas.INICIO, "Inicio", Icons.Filled.Home),
@@ -140,8 +160,20 @@ fun NavVet() {
                                         restoreState = true
                                     }
                                 },
-                                icon = { Icon(tab.icono, contentDescription = tab.titulo) },
-                                label = { Text(tab.titulo) }
+                                icon = {
+                                    val cantidad = when (tab.ruta) {
+                                        Rutas.MIS_CITAS -> citasProximas
+                                        Rutas.AGENDA -> pendientesVet
+                                        else -> 0
+                                    }
+                                    BadgedBox(badge = { if (cantidad > 0) Badge { Text("$cantidad") } }) {
+                                        Icon(tab.icono, contentDescription = tab.titulo)
+                                    }
+                                },
+                                label = { Text(tab.titulo) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                                )
                             )
                         }
                     }
@@ -151,7 +183,12 @@ fun NavVet() {
             NavHost(
                 navController = nav,
                 startDestination = Rutas.SPLASH,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                // Transicion suave entre pantallas
+                enterTransition = { fadeIn(tween(250)) },
+                exitTransition = { fadeOut(tween(150)) },
+                popEnterTransition = { fadeIn(tween(250)) },
+                popExitTransition = { fadeOut(tween(150)) }
             ) {
                 // ---------- Comunes ----------
                 composable(Rutas.SPLASH) {
@@ -410,7 +447,6 @@ fun NavVet() {
                         onOscuro = { sesionVm.cambiarModoOscuro(it) },
                         onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
                         onAceptarCitas = { sesionVm.cambiarAceptarCitas(it) },
-                        onCambiarPerfil = { sesionVm.cambiarPerfil { rol -> irAHome(rol) } },
                         onCerrarSesion = { salir() }
                     )
                 }

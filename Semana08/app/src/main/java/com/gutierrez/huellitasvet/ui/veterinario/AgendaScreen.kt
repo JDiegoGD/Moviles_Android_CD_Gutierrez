@@ -1,5 +1,8 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import com.gutierrez.huellitasvet.R
+import com.gutierrez.huellitasvet.ui.components.EstadoVacio
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -72,10 +75,7 @@ fun AgendaScreen(vm: AgendaViewModel, onAtender: (Int) -> Unit) {
             }
             if (citas.isEmpty()) {
                 item {
-                    Text(
-                        "No hay citas para este día",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    EstadoVacio(R.drawable.vacio_agenda, "Sin citas para este día")
                 }
             }
             items(citas, key = { it.cita.id }) { c ->

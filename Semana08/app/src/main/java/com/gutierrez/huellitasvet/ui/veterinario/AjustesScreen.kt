@@ -1,5 +1,11 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.gutierrez.huellitasvet.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,7 +44,6 @@ fun AjustesScreen(
     onOscuro: (Boolean) -> Unit,
     onNotificaciones: (Boolean) -> Unit,
     onAceptarCitas: (Boolean) -> Unit,
-    onCambiarPerfil: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -54,34 +58,16 @@ fun AjustesScreen(
             // Datos del usuario
             Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(56.dp)) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.Person, null, tint = MaterialTheme.colorScheme.primary)
-                        }
-                    }
+                    Image(
+                        painter = painterResource(R.drawable.avatar_vet),
+                        contentDescription = "Foto del veterinario",
+                        modifier = Modifier.size(56.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
                     Column {
                         Text(usuario.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Text(usuario.correo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("Perfil activo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            }
-
-            // Cambiar de perfil (modo practica)
-            Surface(
-                onClick = onCambiarPerfil,
-                shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.SwapHoriz, null, tint = MaterialTheme.colorScheme.onPrimary)
-                    Column(Modifier.padding(start = 12.dp)) {
-                        Text("Cambiar de perfil", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
-                        Text(
-                            "Modo práctica: ir a la vista Dueño",
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
-                            style = MaterialTheme.typography.bodySmall
-                        )
                     }
                 }
             }
