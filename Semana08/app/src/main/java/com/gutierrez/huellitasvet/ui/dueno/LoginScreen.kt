@@ -31,7 +31,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gutierrez.huellitasvet.R
 import com.gutierrez.huellitasvet.model.Rol
+import com.gutierrez.huellitasvet.ui.components.CabeceraImagen
 import com.gutierrez.huellitasvet.ui.components.VetButton
 import com.gutierrez.huellitasvet.ui.components.VetTextField
 import com.gutierrez.huellitasvet.ui.theme.VetTheme
@@ -49,11 +51,12 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> U
     // El tema local sigue a la pestaña elegida (verde = dueño, azul = veterinario)
     VetTheme(rol = rol, oscuro = oscuro) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Column(
-                Modifier.verticalScroll(rememberScrollState()).padding(24.dp),
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+              CabeceraImagen(R.drawable.cabecera_veterinaria)
+              Column(
+                Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Spacer(Modifier.height(24.dp))
+              ) {
                 Text("Bienvenido", fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 Text("Ingresa para continuar", color = MaterialTheme.colorScheme.onSurfaceVariant)
 
@@ -91,6 +94,7 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> U
                         modifier = Modifier.clickable { vm.limpiarError(); onRegistro() }
                     )
                 }
+              }
             }
         }
     }

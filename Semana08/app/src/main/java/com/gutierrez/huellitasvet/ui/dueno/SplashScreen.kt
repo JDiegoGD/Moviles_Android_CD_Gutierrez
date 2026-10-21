@@ -1,16 +1,16 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pets
@@ -22,11 +22,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gutierrez.huellitasvet.model.Especie
-import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
+import com.gutierrez.huellitasvet.R
 import com.gutierrez.huellitasvet.ui.components.VetButton
 
 @Composable
@@ -34,56 +36,57 @@ fun SplashScreen(onComenzar: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f))
-            .padding(horizontal = 28.dp, vertical = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            Modifier.weight(1f).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 36.dp, bottomEnd = 36.dp))
         ) {
+            Image(
+                painter = painterResource(R.drawable.splash_mascotas),
+                contentDescription = "Un perro y un gato juntos",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.BottomCenter
+            )
             Surface(
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(18.dp),
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(20.dp)
+                    .size(56.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         Icons.Filled.Pets, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(64.dp)
+                        tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(30.dp)
                     )
                 }
             }
-            Spacer(Modifier.height(28.dp))
+        }
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text("HuellitasVet", fontSize = 34.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 "Cuidamos a tu mejor amigo",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(48.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                listOf(Especie.PERRO, Especie.GATO, Especie.OTRO).forEach { e ->
-                    Surface(
-                        shape = RoundedCornerShape(22.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(84.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            MascotaAvatar(e.name, tamano = 58.dp)
-                        }
-                    }
-                }
+            Spacer(Modifier.height(22.dp))
+            VetButton("Comenzar", onClick = onComenzar)
+            TextButton(onClick = onComenzar) {
+                Text(
+                    "Ya tengo una cuenta",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
-        }
-        VetButton("Comenzar", onClick = onComenzar)
-        TextButton(onClick = onComenzar) {
-            Text(
-                "Ya tengo una cuenta",
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }

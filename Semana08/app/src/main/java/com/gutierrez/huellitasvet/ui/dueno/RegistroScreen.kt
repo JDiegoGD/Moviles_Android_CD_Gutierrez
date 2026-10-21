@@ -28,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gutierrez.huellitasvet.R
 import com.gutierrez.huellitasvet.model.Rol
+import com.gutierrez.huellitasvet.ui.components.CabeceraImagen
 import com.gutierrez.huellitasvet.ui.components.VetButton
 import com.gutierrez.huellitasvet.ui.components.VetTextField
 import com.gutierrez.huellitasvet.ui.theme.VetTheme
@@ -54,11 +56,12 @@ fun RegistroScreen(
 
     VetTheme(rol = rol, oscuro = oscuro) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Column(
-                Modifier.verticalScroll(rememberScrollState()).padding(24.dp),
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+              CabeceraImagen(R.drawable.cabecera_veterinaria)
+              Column(
+                Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Spacer(Modifier.height(24.dp))
+              ) {
                 Text("Crear cuenta", fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 Text("Elige tu perfil y completa tus datos", color = MaterialTheme.colorScheme.onSurfaceVariant)
 
@@ -94,6 +97,7 @@ fun RegistroScreen(
                 TextButton(onClick = onVolver, modifier = Modifier.padding(horizontal = 0.dp)) {
                     Text("¿Ya tienes cuenta? Inicia sesión", fontWeight = FontWeight.SemiBold)
                 }
+              }
             }
         }
     }
