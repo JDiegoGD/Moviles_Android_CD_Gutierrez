@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.model.EstadoCita
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
@@ -120,7 +121,7 @@ private fun ItemAgenda(
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("${c.mascota.mascota.nombre} - ${c.servicio.nombre}", fontWeight = FontWeight.Bold)
                     Text(
-                        "Dueño: ${c.mascota.dueno.nombre}", style = MaterialTheme.typography.bodySmall,
+                        "Dueño: ${c.mascota.dueno.nombreCompleto}", style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Row(

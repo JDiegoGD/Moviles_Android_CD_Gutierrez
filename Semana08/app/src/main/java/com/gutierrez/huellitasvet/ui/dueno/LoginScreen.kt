@@ -43,7 +43,7 @@ import com.gutierrez.huellitasvet.ui.components.VetTextField
 import com.gutierrez.huellitasvet.ui.theme.VetTheme
 import com.gutierrez.huellitasvet.viewmodel.SesionViewModel
 
-/** Un solo Composable para ambos roles: el selector cambia el color de la pantalla. */
+/** Un solo Composable para los tres roles: el selector cambia el color de la pantalla. */
 @Composable
 fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> Unit = {}) {
     val oscuro by vm.modoOscuro.collectAsState()
@@ -52,7 +52,7 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> U
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
 
-    // El tema local sigue a la pestaña elegida (verde = dueño, azul = veterinario)
+    // El tema local sigue a la pestaña elegida (verde = dueño, azul = veterinario, violeta = administrador)
     VetTheme(rol = rol, oscuro = oscuro) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -104,11 +104,15 @@ fun LoginScreen(vm: SesionViewModel, onLogin: (Rol) -> Unit, onRegistro: () -> U
     }
 }
 
-/** Selector de perfil con el SegmentedButton de Material 3 (Dueño | Veterinario). */
+/** Selector de perfil con el SegmentedButton de Material 3 (Dueño | Veterinario | Administrador). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SelectorRol(seleccionado: Rol, onElegir: (Rol) -> Unit) {
-    val opciones = listOf(Rol.CLIENTE to "Dueño", Rol.ADMIN to "Veterinario")
+    val opciones = listOf(
+        Rol.CLIENTE to "Dueño",
+        Rol.ADMIN to "Veterinario",
+        Rol.ADMINISTRADOR to "Admin"
+    )
     val colores = MaterialTheme.colorScheme
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         opciones.forEachIndexed { indice, (rol, texto) ->
@@ -123,7 +127,7 @@ internal fun SelectorRol(seleccionado: Rol, onElegir: (Rol) -> Unit) {
                     inactiveContentColor = colores.onSurface
                 )
             ) {
-                Text(texto, fontWeight = FontWeight.Bold)
+                Text(texto, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
         }
     }

@@ -43,6 +43,8 @@ fun ReprogramarCitaScreen(
     val fecha by vm.fecha.collectAsState()
     val hora by vm.hora.collectAsState()
     val ocupadas by vm.horasOcupadas.collectAsState()
+    val horas by vm.horasDelDia.collectAsState()
+    val horario by vm.horario.collectAsState()
     val puedeConfirmar by vm.puedeConfirmar.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val snackbar = remember { SnackbarHostState() }
@@ -72,11 +74,16 @@ fun ReprogramarCitaScreen(
 
             Titulo("Nueva fecha")
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                vm.dias.forEach { dt -> FechaChip(dt, dt == fecha, { vm.elegirFecha(dt) }) }
+                vm.dias.forEach { dt -> FechaChip(dt, dt == fecha, { vm.elegirFecha(dt) }, habilitada = Horarios.estaAbierto(horario, dt)) }
             }
 
             Titulo("Nueva hora")
-            Horarios.todos.chunked(4).forEach { fila ->
+            Text(
+                Horarios.resumen(Horarios.delDia(horario, fecha)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            horas.chunked(4).forEach { fila ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     fila.forEach { h ->
                         HoraChip(

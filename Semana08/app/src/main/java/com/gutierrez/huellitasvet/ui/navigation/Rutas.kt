@@ -23,6 +23,10 @@ object Rutas {
     const val SERVICIOS = "servicios"
     const val FORM_SERVICIO = "form_servicio?id={id}"
     const val AJUSTES = "ajustes"
+    const val HORARIO = "horario_atencion"
+
+    // Administrador
+    const val ADMIN_HOME = "admin_home"
 
     fun fichaMascota(id: Int) = "ficha_mascota/$id"
     fun formMascota(id: Int? = null) = if (id == null) "form_mascota" else "form_mascota?id=$id"

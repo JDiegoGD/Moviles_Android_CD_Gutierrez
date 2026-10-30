@@ -51,6 +51,8 @@ fun PedirCitaScreen(
     val fecha by vm.fecha.collectAsState()
     val hora by vm.hora.collectAsState()
     val ocupadas by vm.horasOcupadas.collectAsState()
+    val horas by vm.horasDelDia.collectAsState()
+    val horario by vm.horario.collectAsState()
     val puedeConfirmar by vm.puedeConfirmar.collectAsState()
     val acepta by vm.aceptaCitas.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
@@ -130,11 +132,16 @@ fun PedirCitaScreen(
 
             Titulo("Fecha")
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                vm.dias.forEach { d -> FechaChip(d, d == fecha, { vm.elegirFecha(d) }) }
+                vm.dias.forEach { d -> FechaChip(d, d == fecha, { vm.elegirFecha(d) }, habilitada = Horarios.estaAbierto(horario, d)) }
             }
 
             Titulo("Hora")
-            Horarios.todos.chunked(4).forEach { fila ->
+            Text(
+                Horarios.resumen(Horarios.delDia(horario, fecha)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            horas.chunked(4).forEach { fila ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     fila.forEach { h ->
                         HoraChip(

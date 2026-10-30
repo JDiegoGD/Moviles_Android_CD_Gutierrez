@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
 import com.gutierrez.huellitasvet.model.Formato
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
 import com.gutierrez.huellitasvet.ui.components.MascotaAvatar
@@ -83,7 +84,7 @@ fun AtenderCitaScreen(vm: AtenderCitaViewModel, onBack: () -> Unit) {
                     MascotaAvatar(m.especie, tamano = 60.dp)
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text("${m.nombre} · ${etiquetaEspecie(m.especie)} ${m.raza}", fontWeight = FontWeight.Bold)
-                        Text("Dueño: ${d.mascota.dueno.nombre}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Dueño: ${d.mascota.dueno.nombreCompleto}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(
                             "${d.servicio.nombre} · ${Formato.fechaHora(d.cita.fecha, d.cita.hora)}",
                             style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary

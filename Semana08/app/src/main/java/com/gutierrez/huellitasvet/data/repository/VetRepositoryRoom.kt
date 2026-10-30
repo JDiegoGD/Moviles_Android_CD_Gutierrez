@@ -3,6 +3,7 @@ package com.gutierrez.huellitasvet.data.repository
 import androidx.room.withTransaction
 import com.gutierrez.huellitasvet.data.local.VetDatabase
 import com.gutierrez.huellitasvet.data.local.entity.Cita
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
@@ -11,6 +12,7 @@ import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
+import com.gutierrez.huellitasvet.model.Rol
 import kotlinx.coroutines.flow.Flow
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -21,9 +23,34 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override suspend fun obtenerUsuario(id: Int): Usuario? = db.usuarioDao().obtener(id)
 
-    override suspend fun registrarUsuario(usuario: Usuario): Long =
-        if (db.usuarioDao().existeCorreo(usuario.correo) > 0) -1L
-        else db.usuarioDao().insertar(usuario)
+    override suspend fun registrarUsuario(usuario: Usuario): Long {
+        if (db.usuarioDao().existeCorreo(usuario.correo) > 0) return -1L
+        if (usuario.rol == Rol.ADMINISTRADOR.name && !usuario.codigoAdmin.isNullOrBlank()) {
+            if (db.usuarioDao().existeCodigoAdmin(usuario.codigoAdmin) > 0) return -1L
+        }
+        return db.usuarioDao().insertar(usuario)
+    }
+
+    override fun observarUsuarios(): Flow<List<Usuario>> = db.usuarioDao().observarTodos()
+
+    override suspend fun eliminarUsuario(id: Int) {
+        db.withTransaction {
+            val dao = db.usuarioDao()
+            dao.eliminarVacunasDeDueno(id)
+            dao.eliminarCitasDeDueno(id)
+            dao.eliminarMascotasDeDueno(id)
+            dao.eliminarUsuario(id)
+        }
+    }
+
+    override fun observarCantidadUsuariosPorRol(rol: String): Flow<Int> =
+        db.usuarioDao().observarCantidadPorRol(rol)
+
+    override suspend fun existeCorreo(correo: String): Int =
+        db.usuarioDao().existeCorreo(correo)
+
+    override suspend fun existeCodigoAdmin(codigo: String): Int =
+        db.usuarioDao().existeCodigoAdmin(codigo)
 
     // ---------- Servicios ----------
     override fun observarServicios(): Flow<List<Servicio>> = db.servicioDao().observarTodos()
@@ -85,6 +112,10 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
         db.citaDao().observarHorasOcupadas(fecha)
+
+    override fun observarHorario(): Flow<List<HorarioAtencion>> = db.horarioDao().observarTodos()
+
+    override suspend fun guardarHorario(horario: HorarioAtencion) = db.horarioDao().guardar(horario)
 
     override fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>> =
         db.citaDao().observarDiasConCitas(inicio, fin)

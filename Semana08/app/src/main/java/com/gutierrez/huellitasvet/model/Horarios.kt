@@ -1,15 +1,49 @@
 package com.gutierrez.huellitasvet.model
 
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Locale
 
-/** Genera los 18 horarios del dia: 09:00, 09:30 ... 17:30. */
+/** Reglas del horario de atencion: genera las horas reservables de cada dia. */
 object Horarios {
-    val todos: List<String> = (0 until 18).map { i ->
-        val minutos = 9 * 60 + i * 30
+    val nombresDias = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+
+    fun aMinutos(hora: String): Int = hora.substring(0, 2).toInt() * 60 + hora.substring(3, 5).toInt()
+
+    fun aTexto(minutos: Int): String =
         String.format(Locale.US, "%02d:%02d", minutos / 60, minutos % 60)
+
+    /** Busca el horario que le toca a una fecha (lunes = 1 ... domingo = 7). */
+    fun delDia(lista: List<HorarioAtencion>, fecha: LocalDate): HorarioAtencion? =
+        lista.firstOrNull { it.diaSemana == fecha.dayOfWeek.value }
+
+    /** true si la clinica atiende ese dia. Mientras carga (lista vacia) no bloquea nada. */
+    fun estaAbierto(lista: List<HorarioAtencion>, fecha: LocalDate): Boolean =
+        lista.isEmpty() || delDia(lista, fecha)?.abierto == true
+
+    /** Horas reservables: cada 30 min entre apertura y cierre, sin la hora de descanso. */
+    fun horasDe(h: HorarioAtencion?): List<String> {
+        if (h == null || !h.abierto) return emptyList()
+        val horas = mutableListOf<String>()
+        var m = aMinutos(h.apertura)
+        val fin = aMinutos(h.cierre) - 30 // la ultima cita empieza 30 min antes de cerrar
+        val ini = aMinutos(h.descansoInicio)
+        val finDescanso = aMinutos(h.descansoFin)
+        while (m <= fin) {
+            val enDescanso = m >= ini && m < finDescanso
+            if (!enDescanso) horas.add(aTexto(m))
+            m += 30
+        }
+        return horas
+    }
+
+    /** Texto corto para mostrar el horario de un dia. */
+    fun resumen(h: HorarioAtencion?): String {
+        if (h == null || !h.abierto) return "La clínica no atiende este día"
+        val base = "Atención: ${h.apertura} – ${h.cierre}"
+        return if (h.descansoInicio != h.descansoFin) base + " · Descanso ${h.descansoInicio} – ${h.descansoFin}" else base
     }
 }
 

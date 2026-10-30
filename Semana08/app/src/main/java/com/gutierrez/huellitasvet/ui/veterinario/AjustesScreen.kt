@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
 import com.gutierrez.huellitasvet.ui.components.FilaSwitch
 import com.gutierrez.huellitasvet.ui.components.VetButton
@@ -44,6 +45,7 @@ fun AjustesScreen(
     onOscuro: (Boolean) -> Unit,
     onNotificaciones: (Boolean) -> Unit,
     onAceptarCitas: (Boolean) -> Unit,
+    onHorario: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -65,10 +67,30 @@ fun AjustesScreen(
                         contentScale = ContentScale.Crop
                     )
                     Column {
-                        Text(usuario.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        Text(usuario.nombreCompleto, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Text(usuario.correo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("Perfil activo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
+                }
+            }
+
+            // Acceso al horario de atencion
+            Surface(
+                onClick = onHorario,
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Horario de atención", fontWeight = FontWeight.Bold)
+                        Text(
+                            "Días y horas en que los dueños pueden pedir cita",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
                 }
             }
 

@@ -18,7 +18,7 @@ import java.time.LocalDate
 /** Registrar/editar/eliminar mascota y consultar su historial clinico. */
 class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
 
-    // Errores por campo: "nombre", "especie", "sexo", "anio", "peso", "fecha", "proximaDosis"
+    // Errores por campo: "nombre", "especie", "raza", "sexo", "anio", "peso", "fecha", "proximaDosis"
     private val _errores = MutableStateFlow<Map<String, String>>(emptyMap())
     val errores: StateFlow<Map<String, String>> = _errores.asStateFlow()
 
@@ -43,12 +43,13 @@ class MascotaViewModel(private val repo: VetRepository) : ViewModel() {
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         }
 
-    /** Reglas: nombre >= 2, especie y sexo elegidos, año entre 1990 y el actual, peso > 0. */
+    /** Reglas: nombre >= 2, especie y raza elegidas, sexo elegido, año entre 1990 y el actual, peso > 0. */
     private fun validar(m: Mascota): Map<String, String> {
         val errores = mutableMapOf<String, String>()
         val anioActual = LocalDate.now().year
         if (m.nombre.trim().length < 2) errores["nombre"] = "Mínimo 2 caracteres"
         if (m.especie.isBlank()) errores["especie"] = "Elige una especie"
+        if (m.raza.isBlank()) errores["raza"] = "Selecciona una raza"
         if (m.sexo.isBlank()) errores["sexo"] = "Elige el sexo"
         if (m.anioNacimiento !in 1990..anioActual) errores["anio"] = "Entre 1990 y $anioActual"
         if (m.peso <= 0.0) errores["peso"] = "Debe ser mayor que 0"

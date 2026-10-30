@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
 import com.gutierrez.huellitasvet.model.Especie
 import com.gutierrez.huellitasvet.model.Formato
 import com.gutierrez.huellitasvet.ui.components.AppTopBarScroll
@@ -99,7 +100,7 @@ fun PacientesScreen(vm: PacientesViewModel, onVerMascota: (Int) -> Unit) {
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    "Dueño: ${p.dueno.nombre}", style = MaterialTheme.typography.bodySmall,
+                                    "Dueño: ${p.dueno.nombreCompleto}", style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

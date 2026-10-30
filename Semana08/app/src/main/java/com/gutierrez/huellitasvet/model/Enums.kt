@@ -1,6 +1,6 @@
 package com.gutierrez.huellitasvet.model
 
-enum class Rol { CLIENTE, ADMIN }
+enum class Rol { CLIENTE, ADMIN, ADMINISTRADOR }
 
 enum class EstadoCita { PENDIENTE, CONFIRMADA, ATENDIDA, CANCELADA }
 

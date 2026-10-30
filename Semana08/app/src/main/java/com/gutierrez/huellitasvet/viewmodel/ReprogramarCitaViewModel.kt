@@ -3,7 +3,9 @@ package com.gutierrez.huellitasvet.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import com.gutierrez.huellitasvet.data.repository.VetRepository
+import com.gutierrez.huellitasvet.model.Horarios
 import com.gutierrez.huellitasvet.model.EstadoCita
 import com.gutierrez.huellitasvet.model.Formato
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,6 +47,15 @@ class ReprogramarCitaViewModel(
         .flatMapLatest { repo.observarHorasOcupadas(it.toString()) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /** Horario de atencion que configuro el veterinario. */
+    val horario: StateFlow<List<HorarioAtencion>> = repo.observarHorario()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Horas que se pueden reservar en la fecha elegida (segun el horario de atencion). */
+    val horasDelDia: StateFlow<List<String>> = combine(_fecha, horario) { f, lista ->
+        Horarios.horasDe(Horarios.delDia(lista, f))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val puedeConfirmar: StateFlow<Boolean> = combine(_hora, mensaje) { h, _ ->
         h != null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
@@ -80,6 +91,11 @@ class ReprogramarCitaViewModel(
             }
             if (horaPasada(f, h)) {
                 _mensaje.value = "Esa hora ya pasó. Elige otra."
+                _hora.value = null
+                return@launch
+            }
+            if (h !in horasDelDia.value) {
+                _mensaje.value = "Esa hora está fuera del horario de atención."
                 _hora.value = null
                 return@launch
             }

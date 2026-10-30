@@ -44,6 +44,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gutierrez.huellitasvet.VetApp
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
 import com.gutierrez.huellitasvet.model.EstadoCita
 import com.gutierrez.huellitasvet.model.Rol
 import com.gutierrez.huellitasvet.ui.dueno.LoginScreen
@@ -69,13 +70,17 @@ import com.gutierrez.huellitasvet.ui.veterinario.ServiciosScreen
 import com.gutierrez.huellitasvet.viewmodel.AgendaViewModel
 import com.gutierrez.huellitasvet.viewmodel.PanelViewModel
 import com.gutierrez.huellitasvet.viewmodel.ServiciosViewModel
+import com.gutierrez.huellitasvet.ui.veterinario.HorarioAtencionScreen
+import com.gutierrez.huellitasvet.viewmodel.HorarioViewModel
 import com.gutierrez.huellitasvet.ui.veterinario.AtenderCitaScreen
-import com.gutierrez.huellitasvet.ui.veterinario.PacientesScreen
 import com.gutierrez.huellitasvet.viewmodel.AtenderCitaViewModel
+import com.gutierrez.huellitasvet.ui.veterinario.PacientesScreen
 import com.gutierrez.huellitasvet.viewmodel.PacientesViewModel
 import com.gutierrez.huellitasvet.ui.dueno.PerfilScreen
 import com.gutierrez.huellitasvet.ui.veterinario.AjustesScreen
 import com.gutierrez.huellitasvet.ui.veterinario.FormularioServicioScreen
+import com.gutierrez.huellitasvet.ui.administrador.AdminScreen
+import com.gutierrez.huellitasvet.viewmodel.AdminViewModel
 
 /** Una pestaña de la barra de navegacion inferior. */
 private data class Tab(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -92,7 +97,11 @@ fun NavVet() {
     )
     val usuario by sesionVm.usuarioActual.collectAsState()
     val oscuro by sesionVm.modoOscuro.collectAsState()
-    val rolTema = if (usuario?.rol == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE
+    val rolTema = when (usuario?.rol) {
+        Rol.ADMIN.name -> Rol.ADMIN
+        Rol.ADMINISTRADOR.name -> Rol.ADMINISTRADOR
+        else -> Rol.CLIENTE
+    }
     val ruta = nav.currentBackStackEntryAsState().value?.destination?.route
 
     // Numeros para los badges de la barra inferior (citas proximas del dueño y pendientes del veterinario)
@@ -106,7 +115,7 @@ fun NavVet() {
     val pendientesVet by remember { repo.observarCantidadPorEstado(EstadoCita.PENDIENTE) }
         .collectAsState(initial = 0)
 
-    // Barra inferior: 4 items para el dueño y 5 para el veterinario
+    // Barra inferior: 4 items para el dueño y 5 para el veterinario (el admin no tiene barra inferior)
     val tabsDueno: List<Tab> = listOf(
         Tab(Rutas.INICIO, "Inicio", Icons.Filled.Home),
         Tab(Rutas.MASCOTAS, "Mascotas", Icons.Filled.Pets),
@@ -130,7 +139,11 @@ fun NavVet() {
 
     /** Va a la pantalla principal del perfil y limpia la pila de navegacion. */
     fun irAHome(rol: Rol) {
-        val destino = if (rol == Rol.CLIENTE) Rutas.INICIO else Rutas.PANEL
+        val destino = when (rol) {
+            Rol.CLIENTE -> Rutas.INICIO
+            Rol.ADMIN -> Rutas.PANEL
+            Rol.ADMINISTRADOR -> Rutas.ADMIN_HOME
+        }
         nav.navigate(destino) {
             popUpTo(nav.graph.id) { inclusive = true }
             launchSingleTop = true
@@ -225,7 +238,7 @@ fun NavVet() {
                         factory = VetViewModelFactory { InicioViewModel(repo, u.id) }
                     )
                     InicioScreen(
-                        nombre = u.nombre,
+                        nombre = u.nombreCompleto,
                         vm = vm,
                         onVerMascota = { id ->
                             nav.navigate(Rutas.fichaMascota(id))
@@ -270,7 +283,7 @@ fun NavVet() {
                             nav.navigate(Rutas.pedirCita(mascotaId))
                         },
                         onEditar = { mascotaId -> nav.navigate(Rutas.formMascota(mascotaId)) },
-                        soloLectura = usuario?.rol == Rol.ADMIN.name
+                        soloLectura = usuario?.rol == Rol.ADMIN.name || usuario?.rol == Rol.ADMINISTRADOR.name
                     )
                 }
                 composable(
@@ -362,7 +375,6 @@ fun NavVet() {
                         notificaciones = notificaciones,
                         onOscuro = { sesionVm.cambiarModoOscuro(it) },
                         onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
-                        onCambiarPerfil = { sesionVm.cambiarPerfil { rol -> irAHome(rol) } },
                         onCerrarSesion = { salir() }
                     )
                 }
@@ -447,6 +459,26 @@ fun NavVet() {
                         onOscuro = { sesionVm.cambiarModoOscuro(it) },
                         onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
                         onAceptarCitas = { sesionVm.cambiarAceptarCitas(it) },
+                        onHorario = { nav.navigate(Rutas.HORARIO) },
+                        onCerrarSesion = { salir() }
+                    )
+                }
+                composable(Rutas.HORARIO) {
+                    val vm: HorarioViewModel = viewModel(
+                        factory = VetViewModelFactory { HorarioViewModel(repo) }
+                    )
+                    HorarioAtencionScreen(vm, onBack = { nav.popBackStack() })
+                }
+
+                // ---------- Flujo del administrador ----------
+                composable(Rutas.ADMIN_HOME) {
+                    val u = usuario ?: return@composable
+                    val vm: AdminViewModel = viewModel(
+                        factory = VetViewModelFactory { AdminViewModel(repo) }
+                    )
+                    AdminScreen(
+                        usuario = u,
+                        vm = vm,
                         onCerrarSesion = { salir() }
                     )
                 }

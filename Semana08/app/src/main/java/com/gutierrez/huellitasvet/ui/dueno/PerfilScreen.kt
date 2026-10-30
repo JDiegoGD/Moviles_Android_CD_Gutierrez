@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -34,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.nombreCompleto
+import com.gutierrez.huellitasvet.model.Rol
 import com.gutierrez.huellitasvet.ui.components.AppTopBar
 import com.gutierrez.huellitasvet.ui.components.FilaSwitch
 import com.gutierrez.huellitasvet.ui.theme.ColorCancelada
@@ -48,7 +49,6 @@ fun PerfilScreen(
     notificaciones: Boolean,
     onOscuro: (Boolean) -> Unit,
     onNotificaciones: (Boolean) -> Unit,
-    onCambiarPerfil: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -76,11 +76,16 @@ fun PerfilScreen(
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(usuario.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        Text(usuario.nombreCompleto, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Text(usuario.correo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer) {
+                            val rolTexto = when (usuario.rol) {
+                                Rol.ADMIN.name -> "Veterinario"
+                                Rol.ADMINISTRADOR.name -> "Administrador"
+                                else -> "Dueño"
+                            }
                             Text(
-                                if (usuario.rol == "ADMIN") "Veterinario" else "Dueño",
+                                rolTexto,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold
@@ -95,27 +100,6 @@ fun PerfilScreen(
                 Contador("Mascotas", mascotas, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
                 Contador("Próximas", proximas, Color(0xFFFEF3C7), Color(0xFFB45309), Modifier.weight(1f))
                 Contador("Atenciones", atenciones, Color(0xFFDBEAFE), Color(0xFF1D4ED8), Modifier.weight(1f))
-            }
-
-            // Cambiar de perfil
-            Surface(
-                onClick = onCambiarPerfil,
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Icon(Icons.Filled.SwapHoriz, null, tint = MaterialTheme.colorScheme.onPrimary)
-                    Column(Modifier.weight(1f)) {
-                        Text("Cambiar de perfil", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
-                        Text(
-                            "Cambia tu perfil de Dueño / Veterinario",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
-                        )
-                    }
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onPrimary)
-                }
             }
 
             Text("Preferencias", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
