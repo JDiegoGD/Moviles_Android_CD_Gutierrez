@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380636419742",
+    "project_id": "appfirebased-a0389",
+    "storage_bucket": "appfirebased-a0389.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380636419742:android:2d775c920dd2a950c90d8f",
+        "android_client_info": {
+          "package_name": "com.gutierrez.authfirebaseapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBULFH0oacU4OWEct3IfqOve1p80Qa8RIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
