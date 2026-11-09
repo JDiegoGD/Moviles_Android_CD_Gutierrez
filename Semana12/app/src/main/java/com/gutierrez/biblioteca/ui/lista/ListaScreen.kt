@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -41,6 +42,7 @@ fun ListaScreen(
     viewModel: ListaViewModel,
     onItemClick: (Int) -> Unit,
     onVerFavoritos: () -> Unit,
+    onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -55,6 +57,7 @@ fun ListaScreen(
         onItemClick = onItemClick,
         onAlternarFavorito = viewModel::alternarFavorito,
         onVerFavoritos = onVerFavoritos,
+        onCerrarSesion = onCerrarSesion,
         modifier = modifier
     )
 }
@@ -71,6 +74,7 @@ fun ListaContenido(
     onItemClick: (Int) -> Unit,
     onAlternarFavorito: (Int) -> Unit,
     onVerFavoritos: () -> Unit,
+    onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -83,6 +87,12 @@ fun ListaContenido(
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = "Ver favoritos"
+                        )
+                    }
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Cerrar sesión"
                         )
                     }
                 }
@@ -172,7 +182,8 @@ private fun ListaContenidoPreview() {
             onReintentar = {},
             onItemClick = {},
             onAlternarFavorito = {},
-            onVerFavoritos = {}
+            onVerFavoritos = {},
+            onCerrarSesion = {}
         )
     }
 }

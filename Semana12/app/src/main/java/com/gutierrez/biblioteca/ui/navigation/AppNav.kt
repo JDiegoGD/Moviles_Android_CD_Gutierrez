@@ -15,9 +15,12 @@ import com.gutierrez.biblioteca.ui.favoritos.FavoritosScreen
 import com.gutierrez.biblioteca.ui.favoritos.FavoritosViewModel
 import com.gutierrez.biblioteca.ui.lista.ListaScreen
 import com.gutierrez.biblioteca.ui.lista.ListaViewModel
+import com.gutierrez.biblioteca.ui.login.LoginScreen
+import com.gutierrez.biblioteca.ui.login.LoginViewModel
 
-/** Rutas de la app. Las siguientes pantallas (login, admin) se agregan aqui. */
+/** Rutas de la app. La siguiente pantalla (admin) se agrega aqui. */
 object Rutas {
+    const val LOGIN = "login"
     const val LISTA = "lista"
     const val DETALLE = "detalle/{id}"
     const val FAVORITOS = "favoritos"
@@ -31,15 +34,34 @@ fun AppNav(
     container: AppContainer,
     navController: NavHostController = rememberNavController()
 ) {
-    NavHost(navController = navController, startDestination = Rutas.LISTA) {
+    NavHost(navController = navController, startDestination = Rutas.LOGIN) {
+        composable(Rutas.LOGIN) {
+            val viewModel: LoginViewModel = viewModel(
+                factory = LoginViewModel.factory(container.authRepository)
+            )
+            LoginScreen(
+                viewModel = viewModel,
+                onIngreso = {
+                    navController.navigate(Rutas.LISTA) {
+                        popUpTo(Rutas.LOGIN) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Rutas.LISTA) {
             val viewModel: ListaViewModel = viewModel(
-                factory = ListaViewModel.factory(container.itemRepository)
+                factory = ListaViewModel.factory(container.itemRepository, container.authRepository)
             )
             ListaScreen(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
-                onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) }
+                onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) },
+                onCerrarSesion = {
+                    viewModel.cerrarSesion()
+                    navController.navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.LISTA) { inclusive = true }
+                    }
+                }
             )
         }
         composable(

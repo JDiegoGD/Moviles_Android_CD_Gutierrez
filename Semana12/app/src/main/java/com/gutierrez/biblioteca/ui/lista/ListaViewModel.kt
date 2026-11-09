@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.gutierrez.biblioteca.data.auth.AuthRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
  * repositorio que la actualice desde la API; la pantalla solo dibuja el estado.
  */
 class ListaViewModel(
-    private val repository: ItemRepository
+    private val repository: ItemRepository,
+    private val auth: AuthRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
@@ -48,6 +50,8 @@ class ListaViewModel(
     }
 
     fun reintentar() = cargar()
+
+    fun cerrarSesion() = auth.cerrarSesion()
 
     /** Room avisa del cambio y la lista se actualiza sola. */
     fun alternarFavorito(id: Int) {
@@ -88,8 +92,8 @@ class ListaViewModel(
     }
 
     companion object {
-        fun factory(repository: ItemRepository) = viewModelFactory {
-            initializer { ListaViewModel(repository) }
+        fun factory(repository: ItemRepository, auth: AuthRepository) = viewModelFactory {
+            initializer { ListaViewModel(repository, auth) }
         }
     }
 }
