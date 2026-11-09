@@ -14,6 +14,9 @@ interface AuthRepository {
     suspend fun ingresar(correo: String, contrasena: String): Result<Sesion>
 
     fun cerrarSesion()
+
+    /** Sesion en memoria (null si no se ha ingresado); sirve para decidir que ve cada rol. */
+    fun sesionActual(): Sesion?
 }
 
 /** Error de autenticacion con un mensaje pensado para el usuario. */

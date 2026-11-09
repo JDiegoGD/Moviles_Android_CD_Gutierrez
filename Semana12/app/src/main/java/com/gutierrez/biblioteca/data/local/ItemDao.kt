@@ -36,6 +36,7 @@ interface ItemDao {
     @Query("UPDATE items SET esFavorito = NOT esFavorito WHERE id = :id")
     suspend fun alternarFavorito(id: Int)
 
-    @Query("DELETE FROM items")
-    suspend fun borrarTodos()
+    /** Limpia la cache: borra los libros descargados pero conserva los favoritos. */
+    @Query("DELETE FROM items WHERE esFavorito = 0")
+    suspend fun borrarNoFavoritos()
 }

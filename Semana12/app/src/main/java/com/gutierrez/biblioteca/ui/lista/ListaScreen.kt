@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -42,6 +44,7 @@ fun ListaScreen(
     viewModel: ListaViewModel,
     onItemClick: (Int) -> Unit,
     onVerFavoritos: () -> Unit,
+    onVerAdmin: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -56,7 +59,9 @@ fun ListaScreen(
         onReintentar = viewModel::reintentar,
         onItemClick = onItemClick,
         onAlternarFavorito = viewModel::alternarFavorito,
+        esAdmin = viewModel.esAdmin,
         onVerFavoritos = onVerFavoritos,
+        onVerAdmin = onVerAdmin,
         onCerrarSesion = onCerrarSesion,
         modifier = modifier
     )
@@ -73,7 +78,9 @@ fun ListaContenido(
     onReintentar: () -> Unit,
     onItemClick: (Int) -> Unit,
     onAlternarFavorito: (Int) -> Unit,
+    esAdmin: Boolean,
     onVerFavoritos: () -> Unit,
+    onVerAdmin: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,6 +90,14 @@ fun ListaContenido(
             TopAppBar(
                 title = { Text("Biblioteca") },
                 actions = {
+                    if (esAdmin) {
+                        IconButton(onClick = onVerAdmin) {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = "Panel Admin"
+                            )
+                        }
+                    }
                     IconButton(onClick = onVerFavoritos) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
@@ -111,7 +126,7 @@ fun ListaContenido(
                 when (estado) {
                     is UiState.Cargando -> Cargando()
                     is UiState.Error -> ErrorView(mensaje = estado.mensaje, onReintentar = onReintentar)
-                    is UiState.Exito -> ListaDeItems(estado.datos, onItemClick, onAlternarFavorito)
+                    is UiState.Exito -> ListaDeItems(estado.datos, onItemClick, onAlternarFavorito, onReintentar)
                 }
             }
         }
@@ -142,11 +157,17 @@ private fun FiltroCarreras(
 private fun ListaDeItems(
     items: List<Item>,
     onItemClick: (Int) -> Unit,
-    onAlternarFavorito: (Int) -> Unit
+    onAlternarFavorito: (Int) -> Unit,
+    onActualizar: () -> Unit
 ) {
     if (items.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No hay libros en esta carrera.")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("No hay libros en esta carrera.")
+                Button(onClick = onActualizar, modifier = Modifier.padding(top = 12.dp)) {
+                    Text("Actualizar")
+                }
+            }
         }
         return
     }
@@ -182,7 +203,9 @@ private fun ListaContenidoPreview() {
             onReintentar = {},
             onItemClick = {},
             onAlternarFavorito = {},
+            esAdmin = true,
             onVerFavoritos = {},
+            onVerAdmin = {},
             onCerrarSesion = {}
         )
     }

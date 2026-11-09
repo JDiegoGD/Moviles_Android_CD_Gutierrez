@@ -23,10 +23,13 @@ class FirebaseAuthRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : AuthRepository {
 
+    @Volatile
+    private var sesion: Sesion? = null
+
     override suspend fun restaurarSesion(): Sesion? {
         val usuario = auth.currentUser ?: return null
         return try {
-            armarSesion(usuario)
+            armarSesion(usuario).also { sesion = it }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -38,7 +41,7 @@ class FirebaseAuthRepository(
         try {
             val usuario = auth.signInWithEmailAndPassword(correo.trim(), contrasena).await().user
                 ?: throw AuthError("No se pudo iniciar sesión.")
-            Result.success(armarSesion(usuario))
+            Result.success(armarSesion(usuario).also { sesion = it })
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -48,7 +51,10 @@ class FirebaseAuthRepository(
 
     override fun cerrarSesion() {
         auth.signOut()
+        sesion = null
     }
+
+    override fun sesionActual(): Sesion? = sesion
 
     private suspend fun armarSesion(usuario: FirebaseUser): Sesion {
         val documento = firestore.collection("usuarios").document(usuario.uid).get().await()

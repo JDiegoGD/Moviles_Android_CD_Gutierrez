@@ -25,6 +25,18 @@ interface ItemRepository {
     /** Marca o desmarca un libro como favorito en Room. */
     suspend fun alternarFavorito(id: Int)
 
+    /** Total de libros guardados en Room (panel Admin). */
+    suspend fun contarLibros(): Int
+
+    /** Total de favoritos guardados en Room (panel Admin). */
+    suspend fun contarFavoritos(): Int
+
+    /** Refresca todas las carreras; falla si alguna no se pudo actualizar (panel Admin). */
+    suspend fun sincronizarTodo(): Result<Unit>
+
+    /** Borra los libros guardados salvo los favoritos (panel Admin). */
+    suspend fun limpiarCache()
+
     /** Detalle de un libro (segundo endpoint); si no hay red usa la copia guardada. */
     suspend fun obtenerDetalle(id: Int): Result<Item>
 }

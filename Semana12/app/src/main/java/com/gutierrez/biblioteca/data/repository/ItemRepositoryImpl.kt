@@ -24,6 +24,20 @@ class ItemRepositoryImpl(
 
     override suspend fun alternarFavorito(id: Int) = dao.alternarFavorito(id)
 
+    override suspend fun contarLibros(): Int = dao.contar()
+
+    override suspend fun contarFavoritos(): Int = dao.contarFavoritos()
+
+    override suspend fun sincronizarTodo(): Result<Unit> {
+        var fallo: Throwable? = null
+        for (carrera in Carrera.entries) {
+            refrescar(carrera).onFailure { fallo = it }
+        }
+        return fallo?.let { Result.failure(it) } ?: Result.success(Unit)
+    }
+
+    override suspend fun limpiarCache() = dao.borrarNoFavoritos()
+
     override suspend fun refrescar(carrera: Carrera): Result<Unit> = llamar {
         val remotos = api.listarPorCategoria(carrera.slug).products
         // @Upsert reemplaza la fila completa: se conservan los favoritos ya marcados.

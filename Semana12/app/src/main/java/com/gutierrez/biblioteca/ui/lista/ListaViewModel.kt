@@ -8,6 +8,7 @@ import com.gutierrez.biblioteca.data.auth.AuthRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Carrera
 import com.gutierrez.biblioteca.domain.model.Item
+import com.gutierrez.biblioteca.domain.model.Rol
 import com.gutierrez.biblioteca.ui.UiState
 import com.gutierrez.biblioteca.ui.avisoDatosGuardados
 import com.gutierrez.biblioteca.ui.mensajeDeError
@@ -36,6 +37,9 @@ class ListaViewModel(
     /** Aviso para el usuario (por ejemplo, sin conexion); null cuando no hay nada que avisar. */
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
+    /** El acceso al panel Admin solo se muestra a quien ingreso con el rol ADMIN. */
+    val esAdmin: Boolean = auth.sesionActual()?.rol == Rol.ADMIN
 
     private var trabajo: Job? = null
 

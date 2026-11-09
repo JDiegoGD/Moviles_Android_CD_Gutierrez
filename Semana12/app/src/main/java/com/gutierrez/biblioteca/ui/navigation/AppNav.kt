@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gutierrez.biblioteca.AppContainer
+import com.gutierrez.biblioteca.ui.admin.AdminScreen
+import com.gutierrez.biblioteca.ui.admin.AdminViewModel
 import com.gutierrez.biblioteca.ui.detalle.DetalleScreen
 import com.gutierrez.biblioteca.ui.detalle.DetalleViewModel
 import com.gutierrez.biblioteca.ui.favoritos.FavoritosScreen
@@ -18,12 +20,13 @@ import com.gutierrez.biblioteca.ui.lista.ListaViewModel
 import com.gutierrez.biblioteca.ui.login.LoginScreen
 import com.gutierrez.biblioteca.ui.login.LoginViewModel
 
-/** Rutas de la app. La siguiente pantalla (admin) se agrega aqui. */
+/** Rutas de la app. */
 object Rutas {
     const val LOGIN = "login"
     const val LISTA = "lista"
     const val DETALLE = "detalle/{id}"
     const val FAVORITOS = "favoritos"
+    const val ADMIN = "admin"
 
     fun detalle(id: Int) = "detalle/$id"
 }
@@ -56,6 +59,7 @@ fun AppNav(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) },
+                onVerAdmin = { navController.navigate(Rutas.ADMIN) },
                 onCerrarSesion = {
                     viewModel.cerrarSesion()
                     navController.navigate(Rutas.LOGIN) {
@@ -84,6 +88,15 @@ fun AppNav(
             FavoritosScreen(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable(Rutas.ADMIN) {
+            val viewModel: AdminViewModel = viewModel(
+                factory = AdminViewModel.factory(container.itemRepository, container.authRepository)
+            )
+            AdminScreen(
+                viewModel = viewModel,
                 onVolver = { navController.popBackStack() }
             )
         }
