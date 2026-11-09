@@ -93,7 +93,11 @@ fun AppNav(
         }
         composable(Rutas.ADMIN) {
             val viewModel: AdminViewModel = viewModel(
-                factory = AdminViewModel.factory(container.itemRepository, container.authRepository)
+                factory = AdminViewModel.factory(
+                    container.itemRepository,
+                    container.authRepository,
+                    container.notificador
+                )
             )
             AdminScreen(
                 viewModel = viewModel,

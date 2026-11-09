@@ -1,5 +1,10 @@
 package com.gutierrez.biblioteca.ui.admin
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +32,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gutierrez.biblioteca.ui.components.ErrorView
 import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
@@ -41,9 +48,27 @@ fun AdminScreen(
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    // Android 13+ pide permiso para notificar; se sincroniza aunque lo nieguen (sin aviso).
+    val pedirPermiso = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { viewModel.sincronizar() }
+
+    val alSincronizar: () -> Unit = {
+        val necesitaPermiso = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        if (necesitaPermiso) {
+            pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.sincronizar()
+        }
+    }
+
     AdminContenido(
         estado = estado,
-        onSincronizar = viewModel::sincronizar,
+        onSincronizar = alSincronizar,
         onLimpiarCache = viewModel::limpiarCache,
         onVolver = onVolver,
         modifier = modifier

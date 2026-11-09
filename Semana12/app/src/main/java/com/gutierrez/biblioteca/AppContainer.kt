@@ -7,6 +7,8 @@ import com.gutierrez.biblioteca.data.local.AppDatabase
 import com.gutierrez.biblioteca.data.remote.RetrofitClient
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepositoryImpl
+import com.gutierrez.biblioteca.notification.Notificador
+import com.gutierrez.biblioteca.notification.NotificadorAndroid
 
 /**
  * Contenedor de dependencias manual: crea la API, la base de datos y los
@@ -18,6 +20,8 @@ class AppContainer(context: Context) {
     val database: AppDatabase by lazy { AppDatabase.crear(context) }
 
     val authRepository: AuthRepository by lazy { FirebaseAuthRepository() }
+
+    val notificador: Notificador by lazy { NotificadorAndroid(context.applicationContext) }
 
     val itemRepository: ItemRepository by lazy {
         ItemRepositoryImpl(api = RetrofitClient.api, dao = database.itemDao())

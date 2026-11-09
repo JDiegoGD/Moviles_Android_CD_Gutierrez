@@ -5,6 +5,9 @@
     <!-- Necesario para consumir dummyjson.com y para Firebase -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Android 13+: permiso para mostrar notificaciones (se pide al sincronizar) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

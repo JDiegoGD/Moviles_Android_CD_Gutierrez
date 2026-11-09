@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.gutierrez.biblioteca.data.auth.AuthRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Rol
+import com.gutierrez.biblioteca.notification.Notificador
 import com.gutierrez.biblioteca.ui.mensajeDeError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,8 @@ data class AdminUiState(
 
 class AdminViewModel(
     private val repository: ItemRepository,
-    auth: AuthRepository
+    auth: AuthRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(
@@ -40,10 +42,12 @@ class AdminViewModel(
     }
 
     fun sincronizar() = ejecutar {
-        repository.sincronizarTodo().fold(
+        val mensaje = repository.sincronizarTodo().fold(
             onSuccess = { "Sincronización completa de todas las carreras." },
             onFailure = { "No se pudo sincronizar todo. " + mensajeDeError(it) }
         )
+        notificador.mostrar("Biblioteca Tecsup", mensaje)
+        mensaje
     }
 
     fun limpiarCache() = ejecutar {
@@ -70,8 +74,12 @@ class AdminViewModel(
     }
 
     companion object {
-        fun factory(repository: ItemRepository, auth: AuthRepository) = viewModelFactory {
-            initializer { AdminViewModel(repository, auth) }
+        fun factory(
+            repository: ItemRepository,
+            auth: AuthRepository,
+            notificador: Notificador
+        ) = viewModelFactory {
+            initializer { AdminViewModel(repository, auth, notificador) }
         }
     }
 }
