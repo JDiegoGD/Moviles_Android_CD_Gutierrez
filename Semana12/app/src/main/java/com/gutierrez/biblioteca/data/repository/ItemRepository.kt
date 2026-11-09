@@ -1,6 +1,6 @@
 package com.gutierrez.biblioteca.data.repository
 
-import com.gutierrez.biblioteca.domain.model.Carrera
+import com.gutierrez.biblioteca.domain.model.Categoria
 import com.gutierrez.biblioteca.domain.model.Item
 import kotlinx.coroutines.flow.Flow
 
@@ -13,30 +13,30 @@ import kotlinx.coroutines.flow.Flow
  */
 interface ItemRepository {
 
-    /** Libros de una carrera guardados en Room; se vuelve a emitir cuando cambian. */
-    fun observarPorCarrera(carrera: Carrera): Flow<List<Item>>
+    /** Productos de una categoria guardados en Room; se vuelve a emitir cuando cambian. */
+    fun observarPorCategoria(categoria: Categoria): Flow<List<Item>>
 
-    /** Descarga los libros de la carrera y los guarda en Room (conserva los favoritos). */
-    suspend fun refrescar(carrera: Carrera): Result<Unit>
+    /** Descarga los productos de la categoria y los guarda en Room (conserva los favoritos). */
+    suspend fun refrescar(categoria: Categoria): Result<Unit>
 
-    /** Libros marcados como favoritos (de todas las carreras); se vuelve a emitir al cambiar. */
+    /** Productos marcados como favoritos (de todas las categorías); se vuelve a emitir al cambiar. */
     fun observarFavoritos(): Flow<List<Item>>
 
-    /** Marca o desmarca un libro como favorito en Room. */
+    /** Marca o desmarca un producto como favorito en Room. */
     suspend fun alternarFavorito(id: Int)
 
-    /** Total de libros guardados en Room (panel Admin). */
-    suspend fun contarLibros(): Int
+    /** Total de productos guardados en Room (panel Admin). */
+    suspend fun contarProductos(): Int
 
     /** Total de favoritos guardados en Room (panel Admin). */
     suspend fun contarFavoritos(): Int
 
-    /** Refresca todas las carreras; falla si alguna no se pudo actualizar (panel Admin). */
+    /** Refresca todas las categorías; falla si alguna no se pudo actualizar (panel Admin). */
     suspend fun sincronizarTodo(): Result<Unit>
 
-    /** Borra los libros guardados salvo los favoritos (panel Admin). */
+    /** Borra los productos guardados salvo los favoritos (panel Admin). */
     suspend fun limpiarCache()
 
-    /** Detalle de un libro (segundo endpoint); si no hay red usa la copia guardada. */
+    /** Detalle de un producto (segundo endpoint); si no hay red usa la copia guardada. */
     suspend fun obtenerDetalle(id: Int): Result<Item>
 }

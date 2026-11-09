@@ -8,14 +8,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -89,9 +98,10 @@ fun AdminContenido(
 
     Scaffold(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Panel Admin") },
+                title = { Text("Panel Admin", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(
@@ -115,8 +125,20 @@ fun AdminContenido(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Estadistica(titulo = "Libros guardados", valor = estado.totalLibros)
-                Estadistica(titulo = "Favoritos", valor = estado.totalFavoritos)
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Estadistica(
+                        titulo = "Productos guardados",
+                        valor = estado.totalProductos,
+                        icono = Icons.Filled.ShoppingCart,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Estadistica(
+                        titulo = "Favoritos",
+                        valor = estado.totalFavoritos,
+                        icono = Icons.Filled.Favorite,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
                 if (estado.ocupado) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -124,9 +146,9 @@ fun AdminContenido(
                 Button(
                     onClick = onSincronizar,
                     enabled = !estado.ocupado,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
-                    Text("Sincronizar todas las carreras")
+                    Text("Sincronizar todas las categorías")
                 }
                 OutlinedButton(
                     onClick = { confirmarLimpieza = true },
@@ -144,7 +166,7 @@ fun AdminContenido(
         AlertDialog(
             onDismissRequest = { confirmarLimpieza = false },
             title = { Text("Limpiar caché") },
-            text = { Text("Se borrarán los libros descargados. Los favoritos se conservan.") },
+            text = { Text("Se borrarán los productos descargados. Los favoritos se conservan.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmarLimpieza = false
@@ -159,11 +181,35 @@ fun AdminContenido(
 }
 
 @Composable
-private fun Estadistica(titulo: String, valor: Int) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun Estadistica(
+    titulo: String,
+    valor: Int,
+    icono: ImageVector,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = titulo, style = MaterialTheme.typography.titleSmall)
-            Text(text = valor.toString(), style = MaterialTheme.typography.headlineMedium)
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = valor.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }
@@ -173,7 +219,7 @@ private fun Estadistica(titulo: String, valor: Int) {
 private fun AdminContenidoPreview() {
     BibliotecaTheme {
         AdminContenido(
-            estado = AdminUiState(permitido = true, totalLibros = 120, totalFavoritos = 7),
+            estado = AdminUiState(permitido = true, totalProductos = 120, totalFavoritos = 7),
             onSincronizar = {},
             onLimpiarCache = {},
             onVolver = {}

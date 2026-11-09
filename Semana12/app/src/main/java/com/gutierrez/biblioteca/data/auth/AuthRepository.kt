@@ -13,6 +13,12 @@ interface AuthRepository {
     /** Ingresa con correo y contrasena. El error trae un mensaje listo para mostrar. */
     suspend fun ingresar(correo: String, contrasena: String): Result<Sesion>
 
+    /**
+     * Crea una cuenta nueva. Siempre con rol USUARIO: los ADMIN se asignan a mano
+     * desde la consola de Firebase, nunca desde la app.
+     */
+    suspend fun registrar(correo: String, contrasena: String): Result<Sesion>
+
     fun cerrarSesion()
 
     /** Sesion en memoria (null si no se ha ingresado); sirve para decidir que ve cada rol. */

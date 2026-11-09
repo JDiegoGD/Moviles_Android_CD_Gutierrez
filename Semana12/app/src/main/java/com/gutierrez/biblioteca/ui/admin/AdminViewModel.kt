@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 /** Estado del panel Admin. permitido es false si quien llego aqui no tiene el rol ADMIN. */
 data class AdminUiState(
     val permitido: Boolean,
-    val totalLibros: Int = 0,
+    val totalProductos: Int = 0,
     val totalFavoritos: Int = 0,
     val ocupado: Boolean = false,
     val mensaje: String? = null
@@ -43,10 +43,10 @@ class AdminViewModel(
 
     fun sincronizar() = ejecutar {
         val mensaje = repository.sincronizarTodo().fold(
-            onSuccess = { "Sincronización completa de todas las carreras." },
+            onSuccess = { "Sincronización completa de todas las categorías." },
             onFailure = { "No se pudo sincronizar todo. " + mensajeDeError(it) }
         )
-        notificador.mostrar("Biblioteca Tecsup", mensaje)
+        notificador.mostrar("Catálogo de Productos", mensaje)
         mensaje
     }
 
@@ -68,9 +68,9 @@ class AdminViewModel(
     }
 
     private suspend fun leerTotales() {
-        val libros = repository.contarLibros()
+        val productos = repository.contarProductos()
         val favoritos = repository.contarFavoritos()
-        _estado.update { it.copy(totalLibros = libros, totalFavoritos = favoritos) }
+        _estado.update { it.copy(totalProductos = productos, totalFavoritos = favoritos) }
     }
 
     companion object {

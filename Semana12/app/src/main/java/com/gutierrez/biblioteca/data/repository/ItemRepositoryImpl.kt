@@ -4,7 +4,7 @@ import com.gutierrez.biblioteca.data.local.ItemDao
 import com.gutierrez.biblioteca.data.mapper.toEntity
 import com.gutierrez.biblioteca.data.mapper.toItem
 import com.gutierrez.biblioteca.data.remote.ApiService
-import com.gutierrez.biblioteca.domain.model.Carrera
+import com.gutierrez.biblioteca.domain.model.Categoria
 import com.gutierrez.biblioteca.domain.model.Item
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -16,34 +16,34 @@ class ItemRepositoryImpl(
     private val dao: ItemDao
 ) : ItemRepository {
 
-    override fun observarPorCarrera(carrera: Carrera): Flow<List<Item>> =
-        dao.porCarrera(carrera.name).map { entidades -> entidades.map { it.toItem() } }
+    override fun observarPorCategoria(categoria: Categoria): Flow<List<Item>> =
+        dao.porCategoria(categoria.name).map { entidades -> entidades.map { it.toItem() } }
 
     override fun observarFavoritos(): Flow<List<Item>> =
         dao.favoritos().map { entidades -> entidades.map { it.toItem() } }
 
     override suspend fun alternarFavorito(id: Int) = dao.alternarFavorito(id)
 
-    override suspend fun contarLibros(): Int = dao.contar()
+    override suspend fun contarProductos(): Int = dao.contar()
 
     override suspend fun contarFavoritos(): Int = dao.contarFavoritos()
 
     override suspend fun sincronizarTodo(): Result<Unit> {
         var fallo: Throwable? = null
-        for (carrera in Carrera.entries) {
-            refrescar(carrera).onFailure { fallo = it }
+        for (categoria in Categoria.entries) {
+            refrescar(categoria).onFailure { fallo = it }
         }
         return fallo?.let { Result.failure(it) } ?: Result.success(Unit)
     }
 
     override suspend fun limpiarCache() = dao.borrarNoFavoritos()
 
-    override suspend fun refrescar(carrera: Carrera): Result<Unit> = llamar {
-        val remotos = api.listarPorCategoria(carrera.slug).products
+    override suspend fun refrescar(categoria: Categoria): Result<Unit> = llamar {
+        val remotos = api.listarPorCategoria(categoria.slug).products
         // @Upsert reemplaza la fila completa: se conservan los favoritos ya marcados.
         val favoritos = dao.idsFavoritos().toSet()
         dao.guardarTodos(
-            remotos.map { it.toEntity(carrera).copy(esFavorito = it.id in favoritos) }
+            remotos.map { it.toEntity(categoria).copy(esFavorito = it.id in favoritos) }
         )
     }
 

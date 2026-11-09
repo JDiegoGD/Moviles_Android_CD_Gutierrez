@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.gutierrez.biblioteca.data.auth.AuthRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepository
-import com.gutierrez.biblioteca.domain.model.Carrera
+import com.gutierrez.biblioteca.domain.model.Categoria
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.domain.model.Rol
 import com.gutierrez.biblioteca.ui.UiState
@@ -31,8 +31,8 @@ class ListaViewModel(
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
 
-    private val _carreraSeleccionada = MutableStateFlow(Carrera.entries.first())
-    val carreraSeleccionada: StateFlow<Carrera> = _carreraSeleccionada.asStateFlow()
+    private val _categoriaSeleccionada = MutableStateFlow(Categoria.entries.first())
+    val categoriaSeleccionada: StateFlow<Categoria> = _categoriaSeleccionada.asStateFlow()
 
     /** Aviso para el usuario (por ejemplo, sin conexion); null cuando no hay nada que avisar. */
     private val _aviso = MutableStateFlow<String?>(null)
@@ -47,9 +47,9 @@ class ListaViewModel(
         cargar()
     }
 
-    fun seleccionar(carrera: Carrera) {
-        if (carrera == _carreraSeleccionada.value) return
-        _carreraSeleccionada.value = carrera
+    fun seleccionar(categoria: Categoria) {
+        if (categoria == _categoriaSeleccionada.value) return
+        _categoriaSeleccionada.value = categoria
         cargar()
     }
 
@@ -63,8 +63,8 @@ class ListaViewModel(
     }
 
     private fun cargar() {
-        trabajo?.cancel() // al cambiar de carrera se descarta la carga y la observacion anteriores
-        val carrera = _carreraSeleccionada.value
+        trabajo?.cancel() // al cambiar de categoria se descarta la carga y la observacion anteriores
+        val categoria = _categoriaSeleccionada.value
         _estado.value = UiState.Cargando
         _aviso.value = null
         trabajo = viewModelScope.launch {
@@ -72,14 +72,14 @@ class ListaViewModel(
 
             // Lo que haya en Room se muestra de inmediato y se actualiza solo cuando cambia.
             launch {
-                repository.observarPorCarrera(carrera).collect { items ->
+                repository.observarPorCategoria(categoria).collect { items ->
                     if (items.isNotEmpty() || termino) _estado.value = UiState.Exito(items)
                 }
             }
 
-            val resultado = repository.refrescar(carrera)
+            val resultado = repository.refrescar(categoria)
             termino = true
-            val guardados = repository.observarPorCarrera(carrera).first()
+            val guardados = repository.observarPorCategoria(categoria).first()
             _estado.value = resultado.fold(
                 onSuccess = { UiState.Exito(guardados) },
                 onFailure = {

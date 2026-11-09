@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-/** Corazon para marcar o desmarcar un favorito; lo comparten la lista, el detalle y Favoritos. */
+/** Corazon para marcar o desmarcar un favorito en barras superiores (detalle). */
 @Composable
 fun BotonFavorito(
     esFavorito: Boolean,
@@ -20,7 +20,7 @@ fun BotonFavorito(
         Icon(
             imageVector = if (esFavorito) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
             contentDescription = if (esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
-            tint = if (esFavorito) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+            tint = if (esFavorito) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

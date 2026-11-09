@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
-    @Query("SELECT * FROM items WHERE carrera = :carrera ORDER BY titulo")
-    fun porCarrera(carrera: String): Flow<List<ItemEntity>>
+    @Query("SELECT * FROM items WHERE categoria = :categoria ORDER BY titulo")
+    fun porCategoria(categoria: String): Flow<List<ItemEntity>>
 
     @Query("SELECT * FROM items WHERE esFavorito = 1 ORDER BY titulo")
     fun favoritos(): Flow<List<ItemEntity>>
@@ -36,7 +36,7 @@ interface ItemDao {
     @Query("UPDATE items SET esFavorito = NOT esFavorito WHERE id = :id")
     suspend fun alternarFavorito(id: Int)
 
-    /** Limpia la cache: borra los libros descargados pero conserva los favoritos. */
+    /** Limpia la cache: borra los productos descargados pero conserva los favoritos. */
     @Query("DELETE FROM items WHERE esFavorito = 0")
     suspend fun borrarNoFavoritos()
 }

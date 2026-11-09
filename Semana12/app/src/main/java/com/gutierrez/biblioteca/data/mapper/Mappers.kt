@@ -2,7 +2,7 @@ package com.gutierrez.biblioteca.data.mapper
 
 import com.gutierrez.biblioteca.data.local.ItemEntity
 import com.gutierrez.biblioteca.data.remote.dto.ItemDto
-import com.gutierrez.biblioteca.domain.model.Carrera
+import com.gutierrez.biblioteca.domain.model.Categoria
 import com.gutierrez.biblioteca.domain.model.Item
 
 /** Conversiones Dto (API) -> Entity (Room) -> modelo de dominio (UI). */
@@ -17,9 +17,9 @@ fun ItemDto.toItem(): Item = Item(
     valoracion = rating
 )
 
-fun Item.toEntity(carrera: Carrera): ItemEntity = ItemEntity(
+fun Item.toEntity(categoria: Categoria): ItemEntity = ItemEntity(
     id = id,
-    carrera = carrera.name,
+    categoria = categoria.name,
     titulo = titulo,
     subtitulo = subtitulo,
     imagenUrl = imagenUrl,
@@ -29,7 +29,7 @@ fun Item.toEntity(carrera: Carrera): ItemEntity = ItemEntity(
     esFavorito = esFavorito
 )
 
-fun ItemDto.toEntity(carrera: Carrera): ItemEntity = toItem().toEntity(carrera)
+fun ItemDto.toEntity(categoria: Categoria): ItemEntity = toItem().toEntity(categoria)
 
 fun ItemEntity.toItem(): Item = Item(
     id = id,

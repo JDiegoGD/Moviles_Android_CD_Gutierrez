@@ -19,10 +19,13 @@ import com.gutierrez.biblioteca.ui.lista.ListaScreen
 import com.gutierrez.biblioteca.ui.lista.ListaViewModel
 import com.gutierrez.biblioteca.ui.login.LoginScreen
 import com.gutierrez.biblioteca.ui.login.LoginViewModel
+import com.gutierrez.biblioteca.ui.registro.RegistroScreen
+import com.gutierrez.biblioteca.ui.registro.RegistroViewModel
 
 /** Rutas de la app. */
 object Rutas {
     const val LOGIN = "login"
+    const val REGISTRO = "registro"
     const val LISTA = "lista"
     const val DETALLE = "detalle/{id}"
     const val FAVORITOS = "favoritos"
@@ -48,7 +51,22 @@ fun AppNav(
                     navController.navigate(Rutas.LISTA) {
                         popUpTo(Rutas.LOGIN) { inclusive = true }
                     }
-                }
+                },
+                onRegistrar = { navController.navigate(Rutas.REGISTRO) }
+            )
+        }
+        composable(Rutas.REGISTRO) {
+            val viewModel: RegistroViewModel = viewModel(
+                factory = RegistroViewModel.factory(container.authRepository)
+            )
+            RegistroScreen(
+                viewModel = viewModel,
+                onRegistrado = {
+                    navController.navigate(Rutas.LISTA) {
+                        popUpTo(Rutas.LOGIN) { inclusive = true }
+                    }
+                },
+                onVolver = { navController.popBackStack() }
             )
         }
         composable(Rutas.LISTA) {
@@ -88,7 +106,13 @@ fun AppNav(
             FavoritosScreen(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
-                onVolver = { navController.popBackStack() }
+                onVolver = { navController.popBackStack() },
+                onCerrarSesion = {
+                    container.authRepository.cerrarSesion()
+                    navController.navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.LISTA) { inclusive = true }
+                    }
+                }
             )
         }
         composable(Rutas.ADMIN) {

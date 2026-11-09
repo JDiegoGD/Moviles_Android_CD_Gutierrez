@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /** Base de datos Room de la app. Si cambia la tabla, hay que subir version. */
-@Database(entities = [ItemEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ItemEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
@@ -16,6 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun crear(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, NOMBRE)
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
     }
 }

@@ -64,7 +64,7 @@ class NotificadorAndroid(
             "Sincronización",
             NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
-            description = "Avisos cuando se sincronizan los libros de la biblioteca"
+            description = "Avisos cuando se sincronizan los productos del catálogo"
         }
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
     }

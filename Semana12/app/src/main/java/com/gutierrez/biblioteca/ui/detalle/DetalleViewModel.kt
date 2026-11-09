@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** Carga el detalle de un libro (segundo endpoint) y expone su estado. */
+/** Carga el detalle de un producto (segundo endpoint) y expone su estado. */
 class DetalleViewModel(
     private val repository: ItemRepository,
     private val id: Int
