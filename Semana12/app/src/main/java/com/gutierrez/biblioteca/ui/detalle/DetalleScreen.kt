@@ -23,8 +23,8 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -43,7 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
-import com.gutierrez.biblioteca.ui.components.Cargando
+import com.gutierrez.biblioteca.ui.components.DetalleEsqueleto
 import com.gutierrez.biblioteca.ui.components.ErrorView
 import com.gutierrez.biblioteca.ui.components.formatearPrecio
 import com.gutierrez.biblioteca.ui.theme.BibliotecaTheme
@@ -62,6 +62,7 @@ fun DetalleScreen(
         onVolver = onVolver,
         onReintentar = viewModel::reintentar,
         onAlternarFavorito = viewModel::alternarFavorito,
+        onAgregarAlCarrito = viewModel::agregarAlCarrito,
         modifier = modifier
     )
 }
@@ -74,6 +75,7 @@ fun DetalleContenido(
     onVolver: () -> Unit,
     onReintentar: () -> Unit,
     onAlternarFavorito: () -> Unit,
+    onAgregarAlCarrito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -95,25 +97,50 @@ fun DetalleContenido(
         bottomBar = {
             if (estado is UiState.Exito) {
                 Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
-                    Button(
-                        onClick = onAlternarFavorito,
-                        shape = RoundedCornerShape(16.dp),
+                    Row(
                         modifier = Modifier
                             .navigationBarsPadding()
                             .fillMaxWidth()
-                            .padding(16.dp)
-                            .height(52.dp)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = if (estado.datos.esFavorito) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = if (estado.datos.esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        Button(
+                            onClick = onAlternarFavorito,
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (estado.datos.esFavorito) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Favorito",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                        Button(
+                            onClick = onAgregarAlCarrito,
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier
+                                .weight(1.2f)
+                                .height(52.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Agregar al carrito",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -121,7 +148,7 @@ fun DetalleContenido(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             when (estado) {
-                is UiState.Cargando -> Cargando()
+                is UiState.Cargando -> DetalleEsqueleto()
                 is UiState.Error -> ErrorView(mensaje = estado.mensaje, onReintentar = onReintentar)
                 is UiState.Exito -> DetalleDeItem(estado.datos)
             }
@@ -250,7 +277,8 @@ private fun DetalleContenidoPreview() {
             ),
             onVolver = {},
             onReintentar = {},
-            onAlternarFavorito = {}
+            onAlternarFavorito = {},
+            onAgregarAlCarrito = {}
         )
     }
 }
