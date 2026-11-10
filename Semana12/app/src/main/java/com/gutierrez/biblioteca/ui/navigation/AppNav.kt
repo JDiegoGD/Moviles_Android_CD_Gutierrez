@@ -11,6 +11,8 @@ import androidx.navigation.navArgument
 import com.gutierrez.biblioteca.AppContainer
 import com.gutierrez.biblioteca.ui.admin.AdminScreen
 import com.gutierrez.biblioteca.ui.admin.AdminViewModel
+import com.gutierrez.biblioteca.ui.carrito.CarritoScreen
+import com.gutierrez.biblioteca.ui.carrito.CarritoViewModel
 import com.gutierrez.biblioteca.ui.detalle.DetalleScreen
 import com.gutierrez.biblioteca.ui.detalle.DetalleViewModel
 import com.gutierrez.biblioteca.ui.favoritos.FavoritosScreen
@@ -29,6 +31,7 @@ object Rutas {
     const val LISTA = "lista"
     const val DETALLE = "detalle/{id}"
     const val FAVORITOS = "favoritos"
+    const val CARRITO = "carrito"
     const val ADMIN = "admin"
 
     fun detalle(id: Int) = "detalle/$id"
@@ -71,12 +74,17 @@ fun AppNav(
         }
         composable(Rutas.LISTA) {
             val viewModel: ListaViewModel = viewModel(
-                factory = ListaViewModel.factory(container.itemRepository, container.authRepository)
+                factory = ListaViewModel.factory(
+                    container.itemRepository,
+                    container.carritoRepository,
+                    container.authRepository
+                )
             )
             ListaScreen(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) },
+                onVerCarrito = { navController.navigate(Rutas.CARRITO) },
                 onVerAdmin = { navController.navigate(Rutas.ADMIN) },
                 onCerrarSesion = {
                     viewModel.cerrarSesion()
@@ -92,7 +100,11 @@ fun AppNav(
         ) { entrada ->
             val id = entrada.arguments?.getInt("id") ?: return@composable
             val viewModel: DetalleViewModel = viewModel(
-                factory = DetalleViewModel.factory(container.itemRepository, id)
+                factory = DetalleViewModel.factory(
+                    container.itemRepository,
+                    container.carritoRepository,
+                    id
+                )
             )
             DetalleScreen(
                 viewModel = viewModel,
@@ -101,12 +113,36 @@ fun AppNav(
         }
         composable(Rutas.FAVORITOS) {
             val viewModel: FavoritosViewModel = viewModel(
-                factory = FavoritosViewModel.factory(container.itemRepository)
+                factory = FavoritosViewModel.factory(
+                    container.itemRepository,
+                    container.carritoRepository
+                )
             )
             FavoritosScreen(
                 viewModel = viewModel,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVolver = { navController.popBackStack() },
+                onVerCarrito = { navController.navigate(Rutas.CARRITO) },
+                onCerrarSesion = {
+                    container.authRepository.cerrarSesion()
+                    navController.navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.LISTA) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Rutas.CARRITO) {
+            val viewModel: CarritoViewModel = viewModel(
+                factory = CarritoViewModel.factory(container.carritoRepository)
+            )
+            CarritoScreen(
+                viewModel = viewModel,
+                onInicio = {
+                    navController.navigate(Rutas.LISTA) {
+                        popUpTo(Rutas.LISTA) { inclusive = true }
+                    }
+                },
+                onFavoritos = { navController.navigate(Rutas.FAVORITOS) },
                 onCerrarSesion = {
                     container.authRepository.cerrarSesion()
                     navController.navigate(Rutas.LOGIN) {

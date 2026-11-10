@@ -38,15 +38,19 @@ fun FavoritosScreen(
     viewModel: FavoritosViewModel,
     onItemClick: (Int) -> Unit,
     onVolver: () -> Unit,
+    onVerCarrito: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val cantidadCarrito by viewModel.cantidadCarrito.collectAsStateWithLifecycle()
     FavoritosContenido(
         estado = estado,
+        cantidadCarrito = cantidadCarrito,
         onItemClick = onItemClick,
         onQuitarFavorito = viewModel::quitarFavorito,
         onVolver = onVolver,
+        onVerCarrito = onVerCarrito,
         onCerrarSesion = onCerrarSesion,
         modifier = modifier
     )
@@ -57,9 +61,11 @@ fun FavoritosScreen(
 @Composable
 fun FavoritosContenido(
     estado: UiState<List<Item>>,
+    cantidadCarrito: Int,
     onItemClick: (Int) -> Unit,
     onQuitarFavorito: (Int) -> Unit,
     onVolver: () -> Unit,
+    onVerCarrito: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -74,8 +80,10 @@ fun FavoritosContenido(
         bottomBar = {
             BarraInferior(
                 seleccionada = Pestana.FAVORITOS,
+                cantidadCarrito = cantidadCarrito,
                 onInicio = onVolver,
                 onFavoritos = {},
+                onCarrito = onVerCarrito,
                 onSalir = onCerrarSesion
             )
         }
@@ -129,9 +137,11 @@ private fun FavoritosContenidoPreview() {
             estado = UiState.Exito(
                 listOf(Item(1, "Essence Mascara Lash Princess", "Essence", null, esFavorito = true))
             ),
+            cantidadCarrito = 2,
             onItemClick = {},
             onQuitarFavorito = {},
             onVolver = {},
+            onVerCarrito = {},
             onCerrarSesion = {}
         )
     }

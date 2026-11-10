@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /** Base de datos Room de la app. Si cambia la tabla, hay que subir version. */
-@Database(entities = [ItemEntity::class], version = 2, exportSchema = false)
+@Database(entities = [ItemEntity::class, CarritoEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
+    abstract fun carritoDao(): CarritoDao
 
     companion object {
         private const val NOMBRE = "biblioteca.db"
