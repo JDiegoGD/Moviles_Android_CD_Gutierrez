@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -108,8 +109,9 @@ fun DetalleContenido(
                         Button(
                             onClick = onAlternarFavorito,
                             shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp),
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(0.8f)
                                 .height(52.dp)
                         ) {
                             Icon(
@@ -119,15 +121,18 @@ fun DetalleContenido(
                             )
                             Text(
                                 text = "Favorito",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(start = 4.dp)
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.padding(start = 6.dp)
                             )
                         }
                         Button(
                             onClick = onAgregarAlCarrito,
                             shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp),
                             modifier = Modifier
-                                .weight(1.2f)
+                                .weight(1.3f)
                                 .height(52.dp)
                         ) {
                             Icon(
@@ -137,8 +142,10 @@ fun DetalleContenido(
                             )
                             Text(
                                 text = "Agregar al carrito",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(start = 4.dp)
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.padding(start = 6.dp)
                             )
                         }
                     }
