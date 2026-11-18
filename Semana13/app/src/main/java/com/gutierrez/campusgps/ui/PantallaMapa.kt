@@ -20,12 +20,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gutierrez.campusgps.model.UbicacionUi
 import com.gutierrez.campusgps.viewmodel.MapaViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    // TODO Paso 2: registrar RequestMultiplePermissions y comprobar FINE o COARSE.
+
+    val contexto = LocalContext.current
+
+    val lanzadorPermisos = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        val concedido =
+            resultado[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                    resultado[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        if (concedido) {
+            vm.buscar()
+        } else {
+            vm.permisoDenegado()
+        }
+    }
+
+    val alPulsarUbicacion: () -> Unit = {
+        val permisoPreciso = ContextCompat.checkSelfPermission(
+            contexto,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val permisoAproximado = ContextCompat.checkSelfPermission(
+            contexto,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (permisoPreciso || permisoAproximado) {
+            vm.buscar()
+        } else {
+            lanzadorPermisos.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
     // Si hay permiso: vm.buscar(); si se deniega: vm.permisoDenegado().
     // TODO Pasos 3 a 7: observar lugares, seleccionado y masCercano, e integrar mapa/lista.
 
@@ -46,7 +91,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
-                onClick = { vm.buscar() }, // Se sustituye por el flujo de permisos en el paso 2.
+                onClick = alPulsarUbicacion, // Se sustituye por el flujo de permisos en el paso 2.
                 enabled = estado != UbicacionUi.Buscando
             ) {
                 Text("Obtener mi ubicación")
