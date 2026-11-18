@@ -40,13 +40,15 @@ fun BarraInferior(navController: NavController) {
                 selected = seleccionada,
                 onClick = {
                     if (!seleccionada) {
-                        navController.navigate(pestana.ruta) {
-                            // Vuelve a la pantalla inicial de la pila para no apilar pestañas
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (pestana.ruta == Screen.Inicio.route) {
+                            // Inicio: quita todas las pantallas que estén encima y vuelve a Inicio
+                            navController.popBackStack(Screen.Inicio.route, inclusive = false)
+                        } else {
+                            navController.navigate(pestana.ruta) {
+                                // Deja siempre Inicio como base para no apilar pestañas
+                                popUpTo(Screen.Inicio.route)
+                                launchSingleTop = true   // evita abrir dos veces la misma pestaña
                             }
-                            launchSingleTop = true   // evita abrir dos veces la misma pestaña
-                            restoreState = true      // recupera el estado al volver a una pestaña
                         }
                     }
                 },

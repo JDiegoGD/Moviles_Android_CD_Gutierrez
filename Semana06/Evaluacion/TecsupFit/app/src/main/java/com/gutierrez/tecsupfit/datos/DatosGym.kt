@@ -1,6 +1,7 @@
 package com.gutierrez.tecsupfit.datos
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 
 // ───── Modelos ─────
 
@@ -47,7 +48,18 @@ object DatosGym {
         Clase(4, "Pilates", "Miércoles", listOf("8:00 am", "5:00 pm"),
             "Sala 2", 50, 12, 15,
             "Fortalecimiento del core, postura y flexibilidad."),
+        Clase(5, "Boxeo", "Hoy", listOf("5:00 pm", "6:00 pm"),
+            "Sala 4", 45, 1, 10,
+            "Técnicas de boxeo y acondicionamiento físico."),
+        Clase(6, "Zumba", "Jueves", listOf("7:00 pm", "8:00 pm"),
+            "Sala 1", 50, 15, 20,
+            "Baile y cardio ritmos latinos.")
     )
+
+    // Estado observable con los cupos restantes de cada clase por ID
+    val cupos = mutableStateMapOf<Int, Int>().apply {
+        clases.forEach { put(it.id, it.cuposDisponibles) }
+    }
 
     val reservas = mutableStateListOf(
         Reserva("Yoga funcional", "Ayer", "7:00 am", EstadoReserva.COMPLETADA)
@@ -70,7 +82,25 @@ object DatosGym {
     fun filtrarClases(filtro: String): List<Clase> =
         if (filtro == "Hoy") clases.filter { it.dia == "Hoy" } else clases
 
-    fun reservar(clase: Clase, hora: String) {
+    // Devuelve los cupos restantes de una clase por su ID (0 si no existe)
+    fun cuposRestantes(claseId: Int): Int = cupos[claseId] ?: 0
+
+    // Devuelve true si la clase no tiene cupos disponibles
+    fun estaLlena(claseId: Int): Boolean = cuposRestantes(claseId) <= 0
+
+    // Devuelve true si ya existe una reserva CONFIRMADA con el mismo nombre de clase y la misma hora
+    fun yaReservada(clase: Clase, hora: String): Boolean {
+        return reservas.any { it.clase == clase.nombre && it.hora == hora && it.estado == EstadoReserva.CONFIRMADA }
+    }
+
+    // Realiza la reserva descontando cupo si hay disponibilidad y no ha sido reservada en esa hora; retorna Boolean
+    fun reservar(clase: Clase, hora: String): Boolean {
+        if (estaLlena(clase.id) || yaReservada(clase, hora)) {
+            return false
+        }
+        val cuposActuales = cuposRestantes(clase.id)
+        cupos[clase.id] = cuposActuales - 1
         reservas.add(0, Reserva(clase.nombre, clase.dia, hora, EstadoReserva.CONFIRMADA))
+        return true
     }
 }
