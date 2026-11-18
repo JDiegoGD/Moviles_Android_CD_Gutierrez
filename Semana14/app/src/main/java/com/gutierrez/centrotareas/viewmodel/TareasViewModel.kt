@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gutierrez.centrotareas.model.data.TareasRepository
 import com.gutierrez.centrotareas.model.CargaUi
+import com.gutierrez.centrotareas.model.MedicionCarga
 import com.gutierrez.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -90,8 +91,15 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
+    private val _mediciones = MutableStateFlow<List<MedicionCarga>>(emptyList())
+    val mediciones: StateFlow<List<MedicionCarga>> = _mediciones.asStateFlow()
+
     fun cambiarSimularError(valor: Boolean) {
         _simularError.value = valor
+    }
+
+    fun limpiarComparacion() {
+        _mediciones.value = emptyList()
     }
 
     fun cargarUnaPorUna() {
@@ -106,6 +114,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 val pedidos = repo.cargarPedidos(provocarError)
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, milisegundos)
+                val nuevaMedicion = MedicionCarga(
+                    id = _mediciones.value.size + 1,
+                    modo = "Una por una",
+                    milisegundos = milisegundos
+                )
+                _mediciones.value = _mediciones.value + nuevaMedicion
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -129,6 +143,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 }
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, milisegundos)
+                val nuevaMedicion = MedicionCarga(
+                    id = _mediciones.value.size + 1,
+                    modo = "A la vez",
+                    milisegundos = milisegundos
+                )
+                _mediciones.value = _mediciones.value + nuevaMedicion
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

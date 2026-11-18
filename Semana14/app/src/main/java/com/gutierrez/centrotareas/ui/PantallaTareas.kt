@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import com.gutierrez.centrotareas.model.CargaUi
 import com.gutierrez.centrotareas.model.PrimosUi
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +27,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
+    val mediciones by viewModel.mediciones.collectAsState()
     var numero by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableStateOf(0) }
 
@@ -230,6 +232,63 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             }
                         }
                     }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Text(
+                    "Comparación de tiempos",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                if (mediciones.isEmpty()) {
+                    Text(
+                        "Realiza una carga para comparar los tiempos",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("#", fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.2f))
+                                Text("Modo", fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.5f))
+                                Text("Tiempo", fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.3f), textAlign = TextAlign.End)
+                            }
+                            HorizontalDivider()
+                            mediciones.forEach { medicion ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("${medicion.id}", modifier = Modifier.weight(0.2f))
+                                    Text(medicion.modo, modifier = Modifier.weight(0.5f))
+                                    Text("${medicion.milisegundos} ms", modifier = Modifier.weight(0.3f), textAlign = TextAlign.End)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = { viewModel.limpiarComparacion() },
+                    enabled = mediciones.isNotEmpty() && !cargando,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Limpiar comparación")
                 }
             }
         }

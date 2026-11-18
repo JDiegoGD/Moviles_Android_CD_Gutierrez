@@ -5,6 +5,12 @@ data class PrimosProgreso(
     val cantidad: Int
 )
 
+data class MedicionCarga(
+    val id: Int,
+    val modo: String,
+    val milisegundos: Long
+)
+
 sealed interface PrimosUi {
     data object Inicial : PrimosUi
     data class Calculando(val progreso: Float, val cantidad: Int) : PrimosUi

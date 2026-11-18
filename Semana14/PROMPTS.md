@@ -205,3 +205,92 @@ N = 500000 → 41538 primos.
 | Prompt que escribí                                                                                                                                         | Qué respondió Gemini                                                                                                                                                                             | Qué cambié o descarté                                                                                                         | Por qué                                                                                                                                                                                                 |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Solicité agregar progreso real al conteo de primos mediante Flow, calculado según los candidatos revisados, conservando la cancelación y el diseño actual. | Incorporó PrimosProgreso, adaptó el Repository para emitir avances y actualizó el ViewModel y la pantalla. Limitó las emisiones a cambios de porcentaje entero. | No he realizado correcciones adicionales. La propuesta guarda el porcentaje en los estados de primos.| El estado reúne la información necesaria para dibujar la pantalla. Limitar las emisiones reduce actualizaciones innecesarias y conservar el porcentaje permite identificar dónde se canceló el cálculo. |
+
+## PROMPT N°4
+```
+Actúa como desarrollador Android especializado en Kotlin, StateFlow,
+Jetpack Compose y arquitectura MVVM + Repository.
+
+Trabajo en CentroTareas, dentro de Semana14, con el paquete
+com.gutierrez.centrotareas y en la rama mejora-ia.
+
+La aplicación ya tiene:
+- Diseño Material 3 con paleta índigo y resultados lavanda.
+- Progreso de una tarea producido desde el Repository con Flow.
+- Conteo de primos con progreso y cancelación.
+- Cargas de perfil y pedidos, secuenciales y paralelas.
+- Simulación de errores y reintento.
+
+Objetivo:
+Acumular los tiempos de las cargas exitosas y mostrarlos en una tabla
+para comparar los modos Una por una y A la vez.
+
+Instrucciones:
+1. Revisa los modelos, TareasViewModel y la tarjeta Dos cargas
+   antes de implementar los cambios.
+2. Crea un modelo sencillo para una medición:
+   - Modo de carga.
+   - Tiempo transcurrido en milisegundos.
+   Utiliza nombres coherentes con el proyecto.
+3. En el ViewModel, guarda las mediciones en un MutableStateFlow
+   privado y expón un StateFlow<List<...>> de solo lectura.
+   Actualiza la lista de forma inmutable.
+4. Registra exactamente una medición cuando una carga termina
+   correctamente, tanto en cargarUnaPorUna() como en cargarALaVez().
+   Un reintento exitoso también debe registrar una medición.
+5. No registres mediciones al iniciar, al fallar ni al cancelar.
+   No agregues registros desde un Composable ni como consecuencia
+   de una recomposición.
+6. Conserva las mediciones durante la rotación mediante el ViewModel.
+   No agregues persistencia: pueden perderse al eliminarse el ViewModel
+   o terminar el proceso.
+7. Dentro de la tarjeta Dos cargas, debajo del estado actual,
+   muestra una sección “Comparación de tiempos” con:
+   - Número de ejecución.
+   - Modo.
+   - Tiempo en ms.
+   Las columnas deben mantener una alineación consistente.
+8. Si no existen mediciones, muestra:
+   “Realiza una carga para comparar los tiempos”.
+9. Agrega un botón “Limpiar comparación” y una función del ViewModel
+   que vacíe únicamente las mediciones.
+   Deshabilita el botón cuando la lista esté vacía o haya una carga activa.
+   No reinicies el resultado actual, el interruptor ni las otras tareas.
+10. Conserva el desplazamiento vertical de la pantalla.
+    No anides una LazyColumn sin altura limitada dentro del verticalScroll.
+    Mantén la tabla legible en pantallas pequeñas y con fuentes grandes.
+11. Conserva:
+    - Los modos secuencial y paralelo.
+    - La protección contra ejecuciones duplicadas.
+    - Simular error y Reintentar.
+    - La propagación de CancellationException.
+    - El nombre ficticio personalizado.
+    - El diseño índigo y lavanda existente.
+
+Restricciones:
+- Modifica únicamente archivos de Semana14.
+- No alteres la tarea con progreso ni el cálculo de primos.
+- No agregues DataStore, base de datos ni librerías de gráficos.
+- No cambies los tiempos simulados del Repository.
+- No uses GlobalScope, runBlocking ni Thread.sleep.
+- No realices commits ni cambies de rama.
+
+1. Resume la solución.
+2. Implementa los cambios.
+3. Enumera los archivos modificados.
+4. Explica dónde se registra cada medición y cómo evitas duplicados.
+5. Explica qué ocurre con la tabla al rotar o cerrar la aplicación.
+6. Indica qué comprobaciones ejecutaste y cuáles quedan pendientes.
+
+Criterios de Aceptación:
+- Dos cargas secuenciales y dos paralelas generan cuatro filas.
+- Las secuenciales se aproximan a 5000 ms y las paralelas a 3000 ms.
+- Una carga fallida no agrega filas.
+- Un reintento exitoso agrega exactamente una fila.
+- Rotar conserva las mediciones.
+- Limpiar comparación vacía la tabla sin borrar el resultado actual.
+- La pantalla sigue respondiendo durante las cargas.
+```
+| Prompt que escribí | Qué respondió Gemini | Qué cambié o descarté | Por qué |
+|---|---|---|---|
+| Solicité acumular los tiempos de las cargas exitosas y mostrarlos en una tabla, conservando las funciones y el diseño existentes. | Creó MedicionCarga, agregó una lista observable en el ViewModel y una tabla con número, modo y tiempo. Incorporó el botón Limpiar comparación y reportó una compilación exitosa. | No he realizado correcciones adicionales. En el emulador observé tres mediciones con tiempos cercanos a tres segundos en paralelo y cinco segundos en secuencia. | La tabla permite comparar ejecuciones anteriores. Registrar las mediciones en el ViewModel evita que una recomposición de la pantalla agregue filas. |
