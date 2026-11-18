@@ -9,12 +9,16 @@ import com.gutierrez.centrotareas.model.MedicionCarga
 import com.gutierrez.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
@@ -91,11 +95,18 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
+    private val _limitarTiempo = MutableStateFlow(false)
+    val limitarTiempo: StateFlow<Boolean> = _limitarTiempo.asStateFlow()
+
     private val _mediciones = MutableStateFlow<List<MedicionCarga>>(emptyList())
     val mediciones: StateFlow<List<MedicionCarga>> = _mediciones.asStateFlow()
 
     fun cambiarSimularError(valor: Boolean) {
         _simularError.value = valor
+    }
+
+    fun cambiarLimitarTiempo(valor: Boolean) {
+        _limitarTiempo.value = valor
     }
 
     fun limpiarComparacion() {
@@ -106,12 +117,22 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         if (_carga.value is CargaUi.Cargando) return
         _carga.value = CargaUi.Cargando
         val provocarError = _simularError.value
+        val limitarTiempo = _limitarTiempo.value
 
         viewModelScope.launch {
             try {
                 val inicio = System.currentTimeMillis()
-                val perfil = repo.cargarPerfil()
-                val pedidos = repo.cargarPedidos(provocarError)
+                val (perfil, pedidos) = if (limitarTiempo) {
+                    withTimeout(2000L) {
+                        val perfilRes = repo.cargarPerfil()
+                        val pedidosRes = repo.cargarPedidos(provocarError)
+                        Pair(perfilRes, pedidosRes)
+                    }
+                } else {
+                    val perfilRes = repo.cargarPerfil()
+                    val pedidosRes = repo.cargarPedidos(provocarError)
+                    Pair(perfilRes, pedidosRes)
+                }
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, milisegundos)
                 val nuevaMedicion = MedicionCarga(
@@ -120,6 +141,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     milisegundos = milisegundos
                 )
                 _mediciones.value = _mediciones.value + nuevaMedicion
+            } catch (e: TimeoutCancellationException) {
+                if (currentCoroutineContext().isActive) {
+                    _carga.value = CargaUi.Error("Tardó demasiado")
+                } else {
+                    throw e
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -132,14 +159,25 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         if (_carga.value is CargaUi.Cargando) return
         _carga.value = CargaUi.Cargando
         val provocarError = _simularError.value
+        val limitarTiempo = _limitarTiempo.value
 
         viewModelScope.launch {
             try {
                 val inicio = System.currentTimeMillis()
-                val (perfil, pedidos) = coroutineScope {
-                    val perfilPendiente = async { repo.cargarPerfil() }
-                    val pedidosPendientes = async { repo.cargarPedidos(provocarError) }
-                    Pair(perfilPendiente.await(), pedidosPendientes.await())
+                val (perfil, pedidos) = if (limitarTiempo) {
+                    withTimeout(2000L) {
+                        coroutineScope {
+                            val perfilPendiente = async { repo.cargarPerfil() }
+                            val pedidosPendientes = async { repo.cargarPedidos(provocarError) }
+                            Pair(perfilPendiente.await(), pedidosPendientes.await())
+                        }
+                    }
+                } else {
+                    coroutineScope {
+                        val perfilPendiente = async { repo.cargarPerfil() }
+                        val pedidosPendientes = async { repo.cargarPedidos(provocarError) }
+                        Pair(perfilPendiente.await(), pedidosPendientes.await())
+                    }
                 }
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, milisegundos)
@@ -149,6 +187,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     milisegundos = milisegundos
                 )
                 _mediciones.value = _mediciones.value + nuevaMedicion
+            } catch (e: TimeoutCancellationException) {
+                if (currentCoroutineContext().isActive) {
+                    _carga.value = CargaUi.Error("Tardó demasiado")
+                } else {
+                    throw e
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

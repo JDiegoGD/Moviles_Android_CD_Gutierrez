@@ -294,3 +294,102 @@ Criterios de Aceptación:
 | Prompt que escribí | Qué respondió Gemini | Qué cambié o descarté | Por qué |
 |---|---|---|---|
 | Solicité acumular los tiempos de las cargas exitosas y mostrarlos en una tabla, conservando las funciones y el diseño existentes. | Creó MedicionCarga, agregó una lista observable en el ViewModel y una tabla con número, modo y tiempo. Incorporó el botón Limpiar comparación y reportó una compilación exitosa. | No he realizado correcciones adicionales. En el emulador observé tres mediciones con tiempos cercanos a tres segundos en paralelo y cinco segundos en secuencia. | La tabla permite comparar ejecuciones anteriores. Registrar las mediciones en el ViewModel evita que una recomposición de la pantalla agregue filas. |
+
+## PROMPT N°5
+```
+Actúa como desarrollador Android especializado en Kotlin, corrutinas,
+manejo de cancelación y arquitectura MVVM + Repository.
+
+Trabajo en CentroTareas, dentro de Semana14, con el paquete
+com.gutierrez.centrotareas y en la rama mejora-ia.
+
+La aplicación ya tiene:
+- Diseño Material 3 con paleta índigo y resultados lavanda.
+- Tarea con progreso desde el Repository mediante Flow.
+- Conteo de primos con progreso y cancelación.
+- Cargas secuenciales y paralelas.
+- Simulación de errores y reintento manual.
+- Tabla de tiempos que registra únicamente cargas exitosas.
+
+Las cargas simuladas duran aproximadamente cinco segundos en modo
+secuencial y tres segundos en paralelo.
+
+Objetivo:
+Implementar la mejora “Tiempo máximo”: si una carga supera dos segundos,
+cancelarla y mostrar “Tardó demasiado”, sin bloquear la pantalla.
+
+
+1. Revisa el ViewModel, los modelos de estado y la tarjeta Dos cargas
+   antes de modificar el código.
+2. Agrega en el ViewModel un MutableStateFlow<Boolean> privado,
+   inicialmente false, para activar el límite de tiempo.
+   Expón su versión de solo lectura y una función para cambiarlo.
+3. Agrega a la tarjeta Dos cargas un Switch con la etiqueta visible
+   “Limitar a 2 segundos”.
+   Conserva el interruptor Simular error como un control independiente.
+   Deshabilita ambos interruptores durante una carga.
+4. Captura la configuración de los interruptores al iniciar cada operación,
+   para que se mantenga estable durante su ejecución.
+5. Cuando el límite esté activado, utiliza withTimeout(2000L) alrededor
+   de la operación completa:
+   - En modo secuencial, debe incluir perfil y pedidos.
+   - En modo paralelo, debe incluir coroutineScope, ambos async y await.
+   No asignes dos segundos independientes a cada llamada.
+6. Cuando el límite esté desactivado, conserva las cargas normales.
+   Evita duplicar innecesariamente la lógica de obtención de datos.
+   Mantén la orquestación en el ViewModel y las simulaciones en el Repository.
+7. Distingue el timeout de esta operación de una cancelación externa:
+   - Si vence su límite, publica CargaUi.Error("Tardó demasiado").
+   - Si el Job padre fue cancelado, propaga la cancelación.
+   - No conviertas otras CancellationException en errores de pantalla.
+   Si capturas TimeoutCancellationException, comprueba que el contexto
+   exterior siga activo antes de transformarla en un estado de error.
+   Ordena las capturas específicas antes de las generales.
+8. Al vencer el límite, ninguna carga hija debe continuar trabajando.
+   Conserva la concurrencia estructurada y no crees scopes independientes.
+9. Publica Exito y registra una medición en la tabla únicamente después
+   de que la operación completa haya terminado correctamente.
+   Un timeout no debe generar una fila ni mostrar un resultado parcial.
+10. Conserva Reintentar: debe volver a ejecutar A la vez con la configuración
+    actual de los interruptores.
+    Si el límite sigue activado, volverá a vencer.
+    Si se desactiva, la carga podrá finalizar normalmente.
+11. Mantén los botones de carga deshabilitados mientras el estado sea
+    Cargando y permite iniciar otra operación después del timeout.
+12. Conserva el estilo visual actual. Presenta “Tardó demasiado”
+    en el contenedor de error existente con el botón Reintentar.
+
+Restricciones
+- Modifica únicamente archivos de Semana14.
+- No cambies los tiempos simulados del Repository.
+- No modifiques los flujos de progreso ni el cálculo de primos.
+- Conserva el nombre ficticio personalizado.
+- No agregues todavía reintentos automáticos ni DataStore.
+- No uses GlobalScope, runBlocking ni Thread.sleep.
+- No agregues dependencias innecesarias.
+- No realices commits ni cambies de rama.
+
+Formato de Respuesta:
+1. Resume la solución.
+2. Implementa los cambios.
+3. Enumera los archivos modificados.
+4. Explica qué incluye el límite de dos segundos.
+5. Explica cómo distingues timeout y cancelación externa.
+6. Separa las comprobaciones ejecutadas de las pendientes.
+
+Criterios de Aceptación:
+- Límite desactivado: Una por una tarda aproximadamente cinco segundos
+  y A la vez aproximadamente tres; ambas registran su medición.
+- Límite activado: cualquiera de los modos muestra “Tardó demasiado”
+  después de aproximadamente dos segundos.
+- El timeout no añade filas a la tabla.
+- Tócame sigue respondiendo durante la espera.
+- Desactivar el límite y pulsar Reintentar permite obtener el resultado.
+- Con límite desactivado y Simular error activado, sigue apareciendo
+  el error “Sin conexión”.
+
+```
+
+| Prompt que escribí | Qué respondió Gemini | Qué cambié o descarté | Por qué |
+|---|---|---|---|
+| Solicité agregar un límite opcional de dos segundos con withTimeout a las cargas completas, conservando el reintento y la cancelación externa. | Agregó el estado limitarTiempo, un interruptor y el límite para ambos modos. Indicó que distingue el timeout de la cancelación externa y registra mediciones solo cuando hay éxito. Reportó una compilación exitosa. | No he realizado correcciones adicionales. En el emulador observé el mensaje «Tardó demasiado», con Reintentar disponible y sin mediciones en la tabla. | El límite permite detener las cargas que exceden el plazo. Mantenerlo opcional permite seguir comparando las ejecuciones normales de tres y cinco segundos. |

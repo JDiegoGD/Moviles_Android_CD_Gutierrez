@@ -27,6 +27,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
+    val limitarTiempo by viewModel.limitarTiempo.collectAsState()
     val mediciones by viewModel.mediciones.collectAsState()
     var numero by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableStateOf(0) }
@@ -170,6 +171,18 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     Switch(
                         checked = simularError,
                         onCheckedChange = { viewModel.cambiarSimularError(it) },
+                        enabled = !cargando
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Limitar a 2 segundos", fontWeight = FontWeight.Medium)
+                    Switch(
+                        checked = limitarTiempo,
+                        onCheckedChange = { viewModel.cambiarLimitarTiempo(it) },
                         enabled = !cargando
                     )
                 }
