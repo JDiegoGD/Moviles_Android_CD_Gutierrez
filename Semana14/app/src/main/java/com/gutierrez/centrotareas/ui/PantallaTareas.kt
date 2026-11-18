@@ -110,13 +110,23 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                 }
                 when (val estado = primos) {
                     PrimosUi.Inicial -> Text("Listo para contar")
-                    PrimosUi.Calculando -> {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    is PrimosUi.Calculando -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                            Text("Calculando...")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Calculando...")
+                                Text("${(estado.progreso * 100).toInt()} %", style = MaterialTheme.typography.bodyMedium)
+                            }
+                            LinearProgressIndicator(
+                                progress = { estado.progreso },
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                     is PrimosUi.Listo -> Surface(
@@ -133,7 +143,16 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             Text("Tiempo: ${estado.milisegundos} ms")
                         }
                     }
-                    PrimosUi.Cancelado -> Text("Cálculo cancelado")
+                    is PrimosUi.Cancelado -> Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text("Cálculo cancelado (${(estado.progreso * 100).toInt()} %)")
+                        LinearProgressIndicator(
+                            progress = { estado.progreso },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 

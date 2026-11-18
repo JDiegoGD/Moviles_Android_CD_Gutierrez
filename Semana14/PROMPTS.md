@@ -126,3 +126,82 @@ Restricciones:
 | Prompt que escribí                                                                                                                                                             | Qué respondió Gemini                                                                                                                                                 | Qué cambié o descarté                                                                       | Por qué                                                                                                                                                                         |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Solicité mover la tarea con progreso al Repository mediante Flow<Float>, utilizando flowOn(Dispatchers.Default) y conservando el diseño, los estados y la cancelación con Job. | Agregó observarProgreso() al contrato y su implementación con emisiones de 0 a 100 %. Reemplazó el ciclo del ViewModel por collect. | No he realizado correcciones adicionales. La captura muestra la tarea finalizada al 100 %.  | La propuesta separa la generación del progreso de la administración del estado de pantalla. El Repository produce los valores y el ViewModel los recolecta y coordina la tarea. |
+
+## PROMPT N°3
+```
+Actúa como desarrollador Android especializado en Kotlin, Flow, corrutinas y arquitectura MVVM + Repository.
+
+La aplicación ya tiene:
+- Diseño Material 3 con paleta índigo y resultados lavanda.
+- Tarea con progreso producido desde el Repository mediante Flow.
+- Conteo de primos en Dispatchers.Default con cancelación cooperativa.
+- Cargas secuenciales y paralelas con manejo de errores y reintento.
+
+Objetivo:
+Agregar progreso real al cálculo de primos, conservando el resultado,
+la medición de tiempo, la cancelación y el diseño existente.
+
+1. Revisa el Repository, el ViewModel, los modelos y la tarjeta de primos antes de modificar sus contratos.
+2. Adapta contarPrimos para devolver un Flow con el avance del cálculo.
+   Crea un modelo de datos independiente de la UI que incluya:
+   - Progreso como Float entre 0f y 1f.
+   - Cantidad acumulada de primos.
+3. Mantén una sola implementación del algoritmo. Actualiza todos los
+   consumidores afectados por el cambio de contrato.
+4. Produce el flujo con flow y flowOn(Dispatchers.Default).
+   Conserva ensureActive() dentro del recorrido y la comprobación de
+   divisores hasta la raíz cuadrada, evitando desbordamientos.
+5. Calcula el avance según los candidatos revisados desde 2 hasta N:
+   candidatos revisados / total de candidatos.
+   Contempla correctamente N = 2.
+   No utilices la cantidad de primos como porcentaje de avance.
+6. Emite un estado inicial con progreso 0f.
+   Limita las emisiones intermedias a cambios de porcentaje entero
+   y garantiza una emisión final con progreso 1f y el conteo completo.
+   No agregues delay ni otras esperas artificiales.
+7. En el ViewModel:
+   - Recolecta el Flow mediante viewModelScope.
+   - Expón el progreso como StateFlow de solo lectura.
+   - Conserva el Job independiente del cálculo.
+   - Evita iniciar dos cálculos simultáneos.
+   - Reinicia el avance al comenzar.
+   - Publica el resultado final únicamente al completar normalmente
+     la recolección.
+   - Conserva la medición de tiempo.
+   - Al cancelar, muestra el estado Cancelado y relanza
+     CancellationException si la capturas.
+   - Conserva el porcentaje alcanzado al cancelar.
+
+8. En la tarjeta de primos:
+   - Muestra LinearProgressIndicator y el porcentaje durante el cálculo.
+   - Conserva el avance visible al cancelar.
+   - Mantén el campo numérico, su validación, Contar y Cancelar.
+   - Conserva el resultado final con cantidad y milisegundos.
+   - Mantén los colores, bordes, espaciados y estilo actuales.
+
+Restricciones:
+- Modifica únicamente archivos de Semana14.
+- No cambies la tarea de progreso ya implementada ni las cargas.
+- Conserva el nombre ficticio personalizado.
+- El Repository no debe depender de PrimosUi ni de Composables.
+- No uses GlobalScope, runBlocking ni Thread.sleep.
+- No agregues dependencias innecesarias.
+- No realices commits ni cambies de rama.
+
+1. Resume la solución.
+2. Implementa los cambios.
+3. Enumera los archivos modificados.
+4. Explica cómo calcular el porcentaje y limitar las emisiones.
+5. Explica cómo se conserva la cancelación cooperativa.
+6. Indica qué pruebas ejecutaste y cuáles quedan pendientes.
+
+Resultados de preferencia:
+N = 2 → 1 primo.
+N = 100 → 25 primos.
+N = 1000 → 168 primos.
+N = 10000 → 1229 primos.
+N = 500000 → 41538 primos.
+```
+| Prompt que escribí                                                                                                                                         | Qué respondió Gemini                                                                                                                                                                             | Qué cambié o descarté                                                                                                         | Por qué                                                                                                                                                                                                 |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Solicité agregar progreso real al conteo de primos mediante Flow, calculado según los candidatos revisados, conservando la cancelación y el diseño actual. | Incorporó PrimosProgreso, adaptó el Repository para emitir avances y actualizó el ViewModel y la pantalla. Limitó las emisiones a cambios de porcentaje entero. | No he realizado correcciones adicionales. La propuesta guarda el porcentaje en los estados de primos.| El estado reúne la información necesaria para dibujar la pantalla. Limitar las emisiones reduce actualizaciones innecesarias y conservar el porcentaje permite identificar dónde se canceló el cálculo. |

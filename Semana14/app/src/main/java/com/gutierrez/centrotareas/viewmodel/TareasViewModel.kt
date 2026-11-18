@@ -60,16 +60,21 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun contar(hasta: Int) {
         if (hasta < 2 || _primos.value is PrimosUi.Calculando) return
-        _primos.value = PrimosUi.Calculando
+        _primos.value = PrimosUi.Calculando(0f, 0)
 
         trabajoPrimos = viewModelScope.launch {
+            val inicio = System.currentTimeMillis()
+            var ultimoProgreso = 0f
             try {
-                val inicio = System.currentTimeMillis()
-                val cantidad = repo.contarPrimos(hasta)
+                repo.contarPrimos(hasta).collect { dto ->
+                    ultimoProgreso = dto.progreso
+                    _primos.value = PrimosUi.Calculando(dto.progreso, dto.cantidad)
+                }
                 val milisegundos = System.currentTimeMillis() - inicio
-                _primos.value = PrimosUi.Listo(cantidad, milisegundos)
+                val cantidadFinal = (_primos.value as? PrimosUi.Calculando)?.cantidad ?: 0
+                _primos.value = PrimosUi.Listo(cantidadFinal, milisegundos)
             } catch (e: CancellationException) {
-                _primos.value = PrimosUi.Cancelado
+                _primos.value = PrimosUi.Cancelado(ultimoProgreso)
                 throw e
             }
         }
