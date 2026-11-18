@@ -1,7 +1,7 @@
 package com.gutierrez.clinicasalud.datos
 
 import androidx.compose.runtime.mutableStateListOf
-
+import java.text.Normalizer
 
 //Modelo de Medico
 data class Medico(
@@ -67,4 +67,24 @@ object DatosClinica {
     fun agendarCita(medico: Medico, fecha: String, hora: String) {
         citas.add(0, Cita(medico.nombre, fecha, hora, EstadoCita.CONFIRMADA))
     }
+
+    // Normaliza el texto quitando tildes, convirtiendo a minúsculas y eliminando espacios en los extremos
+    private fun normalizar(texto: String): String {
+        val textoSinTildes = Normalizer.normalize(texto, Normalizer.Form.NFD)
+            .replace("\\p{Mn}+".toRegex(), "")
+        return textoSinTildes.lowercase().trim()
+    }
+
+    // Busca médicos filtrando por especialidad y por texto contenido en el nombre o en la especialidad
+    fun buscarMedicos(texto: String, especialidad: String): List<Medico> {
+        val textoNorm = normalizar(texto)
+        return medicos.filter { medico ->
+            val cumpleEspecialidad = especialidad == "Todos" || medico.especialidad == especialidad
+            val cumpleTexto = textoNorm.isEmpty() ||
+                    normalizar(medico.nombre).contains(textoNorm) ||
+                    normalizar(medico.especialidad).contains(textoNorm)
+            cumpleEspecialidad && cumpleTexto
+        }
+    }
+
 }

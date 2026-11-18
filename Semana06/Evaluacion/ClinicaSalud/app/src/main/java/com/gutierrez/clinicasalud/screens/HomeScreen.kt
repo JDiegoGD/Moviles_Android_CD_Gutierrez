@@ -6,9 +6,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.gutierrez.clinicasalud.datos.DatosClinica
@@ -27,11 +34,15 @@ import com.gutierrez.clinicasalud.navigation.Screen
 @Composable
 fun HomeScreen(navController: NavController, onMenuClick: () -> Unit) {
 
-    var especialidadSeleccionada by remember { mutableStateOf("Todos") }
+    // Manager para controlar el foco del teclado
+    val focusManager = LocalFocusManager.current
 
-    val medicosFiltrados = DatosClinica.medicos.filter {
-        especialidadSeleccionada == "Todos" || it.especialidad == especialidadSeleccionada
-    }
+    // Estado para la especialidad seleccionada y el texto de búsqueda
+    var especialidadSeleccionada by remember { mutableStateOf("Todos") }
+    var textoBusqueda by remember { mutableStateOf("") }
+
+    // Obtener los médicos filtrados combinando texto y especialidad
+    val medicosFiltrados = DatosClinica.buscarMedicos(textoBusqueda, especialidadSeleccionada)
 
     Scaffold(
         topBar = {
@@ -61,6 +72,38 @@ fun HomeScreen(navController: NavController, onMenuClick: () -> Unit) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            // Campo de texto para la búsqueda de médicos o especialidad
+            OutlinedTextField(
+                value = textoBusqueda,
+                onValueChange = { textoBusqueda = it },
+                placeholder = { Text("Buscar médico o especialidad") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Buscar"
+                    )
+                },
+                trailingIcon = {
+                    // Botón para limpiar el texto de búsqueda, visible solo si hay contenido
+                    if (textoBusqueda.isNotEmpty()) {
+                        IconButton(onClick = { textoBusqueda = "" }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Limpiar búsqueda"
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp)
+            )
+
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -78,26 +121,78 @@ fun HomeScreen(navController: NavController, onMenuClick: () -> Unit) {
                 }
             }
 
-            Text(
-                text = "Médicos disponibles",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            // Lista principal de médicos
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            // Contador de resultados y título
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(medicosFiltrados) { medico ->
-                    MedicoCard(
-                        medico = medico,
-                        onClick = {
-                            // Navega al perfil enviando el id del médico elegido
-                            navController.navigate(Screen.Detail.createRoute(medico.id))
-                        }
+                Text(
+                    text = "Médicos disponibles",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${medicosFiltrados.size} encontrados",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (medicosFiltrados.isEmpty()) {
+                // Estado sin resultados
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "No se encontraron médicos",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Intenta con otro nombre o especialidad",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TextButton(
+                        onClick = {
+                            textoBusqueda = ""
+                            especialidadSeleccionada = "Todos"
+                        }
+                    ) {
+                        Text("Limpiar filtros")
+                    }
+                }
+            } else {
+                // Lista principal de médicos
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(medicosFiltrados) { medico ->
+                        MedicoCard(
+                            medico = medico,
+                            onClick = {
+                                // Navega al perfil enviando el id del médico elegido
+                                navController.navigate(Screen.Detail.createRoute(medico.id))
+                            }
+                        )
+                    }
                 }
             }
         }
