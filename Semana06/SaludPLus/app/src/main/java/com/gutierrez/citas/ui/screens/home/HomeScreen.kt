@@ -18,9 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -47,7 +48,7 @@ import com.gutierrez.citas.ui.components.TarjetaBase
 import com.gutierrez.citas.ui.theme.AzulNoche
 import com.gutierrez.citas.ui.theme.GrisMedio
 
-// Colores de los cuatro accesos de arriba: un fondo suave y el tono fuerte para ícono y texto
+// Colores de los accesos principales
 private val FondoAgendar = Color(0xFFE3EDFF)
 private val TonoAgendar = Color(0xFF2563EB)
 private val FondoCitas = Color(0xFFDDF3E6)
@@ -56,15 +57,18 @@ private val FondoDatos = Color(0xFFEBE3FF)
 private val TonoDatos = Color(0xFF7C4DFF)
 private val FondoResultados = Color(0xFFFFEBD6)
 private val TonoResultados = Color(0xFFF28C28)
+private val FondoDoctores = Color(0xFFFFE3EC)
+private val TonoDoctores = Color(0xFFE0457B)
 
-// Pantalla 3 · Inicio: saludo, cuatro accesos en cuadrícula y especialidades destacadas
+// Pantalla 3 · Inicio: saludo, accesos principales en cuadrícula y especialidades destacadas
 @Composable
 fun HomeScreen(
     onNotificaciones: () -> Unit,
-    onAgendar: () -> Unit,
+    onLocal: () -> Unit,
     onMisCitas: () -> Unit,
     onMisDatos: () -> Unit,
     onResultados: () -> Unit,
+    onDoctores: () -> Unit,
     onEspecialidad: (Int) -> Unit,
     onVerEspecialidades: () -> Unit,
     onNavegar: (String) -> Unit
@@ -115,17 +119,17 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Los cuatro accesos principales en dos filas de dos
+            // Accesos principales: fila 1
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 AccesoPrincipal(
-                    icono = Icons.Filled.CalendarMonth,
-                    texto = "Agendar cita",
+                    icono = Icons.Filled.LocationOn,
+                    texto = "Local",
                     fondo = FondoAgendar,
                     tono = TonoAgendar,
-                    onClick = onAgendar,
+                    onClick = onLocal,
                     modifier = Modifier.weight(1f)
                 )
                 AccesoPrincipal(
@@ -138,6 +142,7 @@ fun HomeScreen(
                 )
             }
             Spacer(modifier = Modifier.height(14.dp))
+            // Accesos principales: fila 2
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -157,6 +162,20 @@ fun HomeScreen(
                     tono = TonoResultados,
                     onClick = onResultados,
                     modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            // Accesos principales: fila 3 (Doctores ocupa todo el ancho)
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AccesoPrincipal(
+                    icono = Icons.Filled.MedicalServices,
+                    texto = "Doctores",
+                    fondo = FondoDoctores,
+                    tono = TonoDoctores,
+                    onClick = onDoctores,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 

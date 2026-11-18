@@ -101,3 +101,107 @@ com.gutierrez.citas
 | Notificaciones                                                      | Notificaciones (vacío)                                                            | Términos y condiciones                                                           |
 |---------------------------------------------------------------------|-----------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | <img src="img/Notificaciones.png" width="200" alt="Notificaciones"> | <img src="img/Notificaciones(Vacia).png" width="200" alt="Notificaciones (vacío)"> | <img src="img/TerminosCondiciones.png" width="200" alt="Términos y condiciones"> |
+
+---
+## FASE 2: CON-IA
+Se reemplazó la lista fija de días de la pantalla Fecha y hora por un calendario dinámico con java.time.LocalDate. Muestra los próximos 5 días hábiles, permite cambiar de semana con las flechas (sin ir antes de la semana actual), actualiza el mes y año según la semana, reinicia la hora al cambiar de día y mantiene el bloqueo de horarios ya reservados.
+### Prompt N°1:
+ROL
+Actúa como un desarrollador Android senior experto en Kotlin, Jetpack Compose y el paquete java.time.
+
+CONTEXTO
+Tengo una app llamada Clínica SaludPlus (Kotlin, Jetpack Compose, Material 3, paquete
+com.gutierrez.citas, sin base de datos). Las fechas de las citas se guardan como String con formato
+"yyyy-MM-dd" (por ejemplo "2026-10-12"). Hoy la pantalla Fecha y hora muestra una lista fija de días y
+quiero reemplazarla por un calendario dinámico con java.time.LocalDate. En este primer paso solo
+necesito las funciones de apoyo. El proyecto ya tiene util/FechaTexto.kt, que no debes modificar.
+El minSdk actual es 24.
+
+TAREA
+1. Crea el archivo util/FechasEs.kt con estas funciones:
+    - proximosDiasHabiles(desde: LocalDate, cantidad: Int = 5): List<LocalDate>
+      Devuelve los siguientes `cantidad` días hábiles a partir de `desde` (incluido si es hábil).
+    - nombreMesAnio(fecha: LocalDate): String  ->  "Octubre 2026"
+    - abreviaturaDia(fecha: LocalDate): String ->  "Lun", "Mar", "Mié", "Jue", "Vie"
+    - fechaLargaEs(fechaIso: String): String   ->  "Martes 16 de setiembre 2026"
+2. Sube minSdk de 24 a 26 en el build.gradle.kts del módulo app, porque java.time lo requiere.
+
+RESTRICCIONES
+- Sin librerías externas y sin depender del Locale del sistema: los nombres de meses y días van en
+  listas propias en español.
+- Los sábados y domingos nunca deben aparecer en proximosDiasHabiles.
+- El mes lleva mayúscula inicial en nombreMesAnio; en fechaLargaEs el día de la semana lleva
+  mayúscula inicial, el mes va en minúscula, se escribe "setiembre" (con t) y no hay "de" antes del año.
+- Si fechaLargaEs recibe un texto que no se puede convertir a fecha, lo devuelve tal cual.
+- No cambies ningún otro archivo.
+
+FORMATO DE RESPUESTA
+Aplica los cambios directamente en los archivos del proyecto (crea util/FechasEs.kt y edita
+app/build.gradle.kts); no me pegues el código en el chat. Al terminar, dime en máximo 5 líneas qué
+archivos creaste o modificaste y qué hace cada función.
+
+### Prompt N°2:
+ROL
+Actúa como un desarrollador Android senior experto en Jetpack Compose y manejo de estado.
+
+CONTEXTO
+En la app Clínica SaludPlus (paquete com.gutierrez.citas) la pantalla FechaHoraScreen.kt
+muestra cinco días fijos en una lista (diasFijos), el título "Octubre 2026" escrito a mano y flechas
+< y > deshabilitadas. Debajo hay un LazyVerticalGrid con los horarios que salen de
+Repositorio.horariosDisponibles(medicoId, fecha), que ya descuenta las horas que ese médico tiene
+reservadas en esa fecha. Ya existe util/FechasEs.kt con proximosDiasHabiles, nombreMesAnio y
+abreviaturaDia. Las fechas viajan como String "yyyy-MM-dd".
+
+TAREA
+Convierte FechaHoraScreen.kt en un calendario dinámico:
+1. Estado con rememberSaveable: semanasAdelante (Int, empieza en 0), fechaElegida (String?) y
+   horaElegida (String?).
+2. inicio = LocalDate.now().plusWeeks(semanasAdelante.toLong()). Los cinco chips de días salen de
+   proximosDiasHabiles(inicio, 5); cada chip muestra abreviaturaDia y el número del día.
+3. El título del centro usa nombreMesAnio del primer día mostrado.
+4. Flecha izquierda: resta una semana y queda deshabilitada cuando semanasAdelante == 0 (no se puede
+   retroceder antes de la semana actual). Flecha derecha: suma una semana.
+5. Al cambiar de semana, fechaElegida y horaElegida vuelven a null.
+6. Al tocar un día, se guarda como fechaElegida y horaElegida vuelve a null (la hora se reinicia).
+7. Los horarios disponibles se recalculan solos con Repositorio.horariosDisponibles(medicoId,
+   fechaElegida) cada vez que cambia el día elegido.
+
+RESTRICCIONES
+- Elimina la data class DiaOpcion y la lista diasFijos.
+- No guardes LocalDate dentro de rememberSaveable; usa String o Int.
+- No modifiques Repositorio.kt: el bloqueo de horarios ya reservados debe seguir funcionando igual.
+- Conserva el diseño actual (colores, tamaños, LazyVerticalGrid de 3 columnas) y que el botón
+  Continuar solo se habilite con día y hora elegidos.
+- Solo cambia la lógica del calendario; no cambies textos ni estilos de otras partes de la pantalla.
+
+FORMATO DE RESPUESTA
+Aplica los cambios directamente en ui/screens/agendamiento/FechaHoraScreen.kt (con todos sus imports);
+no me pegues el archivo en el chat. Al terminar, explícame en máximo 6 líneas cómo manejaste las
+semanas y el reinicio de la hora.
+
+### Prompt N°3:
+ROL
+Actúa como un desarrollador Android senior experto en Jetpack Compose.
+
+CONTEXTO
+En la app Clínica SaludPlus (paquete com.gutierrez.citas), ConfirmarCitaScreen.kt recibe la
+fecha como String "yyyy-MM-dd" y la muestra en una fila de resumen con fechaLegible(fecha), por ejemplo
+"12 de octubre de 2026". Ya existe util/FechasEs.kt con la función fechaLargaEs(fechaIso: String).
+
+TAREA
+Haz que la fila de la fecha use fechaLargaEs(fecha) para mostrar, por ejemplo,
+"Lunes 12 de octubre 2026" (día de la semana, día, mes y año en español).
+
+RESTRICCIONES
+- Cambia únicamente esa llamada y el import que corresponda; no toques el resto del archivo.
+- Si fechaLegible deja de usarse en este archivo, quita su import.
+- No modifiques FechasEs.kt ni ningún otro archivo.
+
+FORMATO DE RESPUESTA
+Aplica el cambio directamente en ui/screens/agendamiento/ConfirmarCitaScreen.kt; no me pegues el
+archivo en el chat. Al terminar, dime en 2 líneas qué línea cambiaste.
+
+### Resultado
+| Diciembre 2026                                         | Febrero 2027                                           | Reserva Realizada Febrero 2027                                      | Desaparece El horario disponible reservado anteriormente     |
+|--------------------------------------------------------|--------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------|
+| <img src="img/Diciembre.png" width="200" alt="Splash"> | <img src="img/Febrero.png" width="200" alt="Registro"> | <img src="img/ReservadaFecha.png" width="200" alt="Iniciar sesión"> | <img src="img/DesapareceFecha.png" width="200" alt="Splash"> |

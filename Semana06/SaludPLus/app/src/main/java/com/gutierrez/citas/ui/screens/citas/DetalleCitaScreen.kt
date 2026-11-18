@@ -61,7 +61,7 @@ private val VerdeReservada = Color(0xFF1E9E5A)
 private val FondoCancelar = Color(0xFFFDECEC)
 private val LineaPaso = Color(0xFFD5DEEC)
 
-// Pantalla 12 · Detalle de una cita: médico al centro y los datos como una línea de pasos (reto extra)
+// Pantalla 12 · Detalle de una cita: médico al centro y los datos como una línea de pasos
 @Composable
 fun DetalleCitaScreen(
     citaId: Int,
@@ -73,6 +73,8 @@ fun DetalleCitaScreen(
     val cita = remember(citaId) { Repositorio.obtenerCita(citaId) }
     val medico = cita?.let { Repositorio.obtenerMedico(it.medicoId) }
     val especialidad = cita?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
+    val local = cita?.let { Repositorio.obtenerLocal(it.localId) }
+    val localTexto = if (local != null) "${local.nombre}, ${local.direccion}" else "Sede Los Olivos, Av. Los Olivos 123, Los Olivos"
     var mostrarDialogo by remember { mutableStateOf(false) }
 
     Column(
@@ -147,7 +149,7 @@ fun DetalleCitaScreen(
                         Paso(
                             Icons.Filled.LocationOn,
                             "Sede",
-                            "Clínica SaludPlus, Av. Los Olivos 123, Lima",
+                            localTexto,
                             mostrarLinea = false
                         )
                     }
