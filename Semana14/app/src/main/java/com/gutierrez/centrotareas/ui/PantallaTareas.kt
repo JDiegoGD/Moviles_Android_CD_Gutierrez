@@ -36,8 +36,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
             Button(onClick = { toques++ }) { Text("Tócame: $toques") }
             TarjetaTarea("Tarea con progreso") {
                 Text(mensaje)
-                Button(onClick = {}, enabled = false) { Text("Tarea larga") }
-                // TODO Paso 1: conectar tareaLargaMala() y habilitar el botón.
+                Button(onClick = { viewModel.tareaLargaMala() }) { Text("Tarea larga (MAL)") }
                 // TODO Paso 2: cambiar a tareaLarga().
                 // TODO Pasos 3 y 4: progreso, porcentaje y cancelar.
             }
