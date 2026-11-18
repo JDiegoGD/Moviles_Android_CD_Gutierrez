@@ -16,6 +16,7 @@ import com.gutierrez.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
+    val corriendo by viewModel.corriendo.collectAsState()
     var toques by rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
@@ -37,13 +38,21 @@ fun PantallaTareas(viewModel: TareasViewModel) {
             Button(onClick = { toques++ }) { Text("Tócame: $toques") }
             TarjetaTarea("Tarea con progreso") {
                 Text(mensaje)
-                Button(onClick = { viewModel.tareaLarga() }) { Text("Iniciar") }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = { viewModel.tareaLarga() },
+                        enabled = !corriendo
+                    ) { Text("Iniciar") }
+                    OutlinedButton(
+                        onClick = { viewModel.cancelar() },
+                        enabled = corriendo
+                    ) { Text("Cancelar") }
+                }
                 LinearProgressIndicator(
                     progress = { progreso },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text("${(progreso * 100).toInt()} %")
-                // TODO Paso 4: habilitar botones segun corriendo y agregar Cancelar.
             }
             TarjetaTarea("Contar números primos") {
                 Text("Pendiente de implementar en el paso 5")
