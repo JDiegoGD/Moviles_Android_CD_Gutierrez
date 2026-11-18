@@ -46,3 +46,9 @@ Al pulsar el boton "Tarea larga (MAL)", la pantalla dejó de responder durante c
 | 3. Conteo de primos | ![Tarea con progreso](img/ConteoDePrimos.png)                                                                |
 | 4. Comparación de cargas | ![Tarea con progreso](img/SimularDosCargasJuntas.png)![Tarea con progreso](img/SimularDosCargasSeparadas.png)|
 | 5. Error simulado | ![Tarea con progreso](img/ErrorSimulado.png)                                                                 |
+
+---
+| Evidencia                                |
+|------------------------------------------|
+| ![Tarea con progreso](img/MejoraIA1.png) |
+| ![Tarea con progreso](img/MejoraIA2.png) |
