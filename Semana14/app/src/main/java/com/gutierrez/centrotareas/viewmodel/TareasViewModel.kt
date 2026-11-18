@@ -3,20 +3,17 @@ package com.gutierrez.centrotareas.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gutierrez.centrotareas.data.TareasRepository
+import com.gutierrez.centrotareas.model.data.TareasRepository
 import com.gutierrez.centrotareas.model.CargaUi
 import com.gutierrez.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
@@ -39,12 +36,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 _mensaje.value = "Trabajando..."
                 Log.d("HILO", "Antes: ${Thread.currentThread().name}")
 
-                withContext(Dispatchers.Default) {
-                    Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
-                    for (i in 1..100) {
-                        delay(40)
-                        _progreso.value = i / 100f
-                    }
+                repo.observarProgreso().collect { valor ->
+                    _progreso.value = valor
                 }
 
                 Log.d("HILO", "Despues: ${Thread.currentThread().name}")

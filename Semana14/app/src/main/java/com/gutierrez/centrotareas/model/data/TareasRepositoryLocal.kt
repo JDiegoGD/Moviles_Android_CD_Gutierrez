@@ -1,9 +1,12 @@
-package com.gutierrez.centrotareas.data
+package com.gutierrez.centrotareas.model.data
 
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class TareasRepositoryLocal : TareasRepository {
@@ -26,6 +29,14 @@ class TareasRepositoryLocal : TareasRepository {
         }
         cantidad
     }
+
+    override fun observarProgreso(): Flow<Float> = flow {
+        emit(0f)
+        for (i in 1..100) {
+            delay(40)
+            emit(i / 100f)
+        }
+    }.flowOn(Dispatchers.Default)
 
     private fun esPrimo(n: Int): Boolean {
         if (n < 2) return false
