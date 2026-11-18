@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,6 +25,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simularError by viewModel.simularError.collectAsState()
     var numero by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableStateOf(0) }
 
@@ -113,6 +115,18 @@ fun PantallaTareas(viewModel: TareasViewModel) {
             }
             TarjetaTarea("Dos cargas") {
                 val cargando = carga is CargaUi.Cargando
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Simular error")
+                    Switch(
+                        checked = simularError,
+                        onCheckedChange = { viewModel.cambiarSimularError(it) },
+                        enabled = !cargando
+                    )
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(
                         onClick = { viewModel.cargarUnaPorUna() },
@@ -145,9 +159,23 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             Text("Tiempo: ${estado.milisegundos} ms")
                         }
                     }
-                    is CargaUi.Error -> Text(estado.mensaje)
+                    is CargaUi.Error -> Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(estado.mensaje)
+                            Button(onClick = { viewModel.cargarALaVez() }) {
+                                Text("Reintentar")
+                            }
+                        }
+                    }
                 }
-                // TODO Paso 7: interruptor de error, manejo de excepciones y Reintentar.
             }
         }
     }

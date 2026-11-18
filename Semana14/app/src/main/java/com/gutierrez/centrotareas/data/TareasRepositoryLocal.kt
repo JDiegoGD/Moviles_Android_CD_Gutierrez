@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 class TareasRepositoryLocal : TareasRepository {
     override suspend fun cargarPerfil(): String {
         delay(2000)
-        return "Ana Torres (ficticia)"
+        return "Gutierrez Juan (ficticia)"
     }
 
     override suspend fun cargarPedidos(simularError: Boolean): List<String> {
