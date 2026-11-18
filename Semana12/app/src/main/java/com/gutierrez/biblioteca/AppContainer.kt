@@ -5,6 +5,8 @@ import com.gutierrez.biblioteca.data.auth.AuthRepository
 import com.gutierrez.biblioteca.data.auth.FirebaseAuthRepository
 import com.gutierrez.biblioteca.data.local.AppDatabase
 import com.gutierrez.biblioteca.data.remote.RetrofitClient
+import com.gutierrez.biblioteca.data.repository.CarritoRepository
+import com.gutierrez.biblioteca.data.repository.CarritoRepositoryImpl
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepositoryImpl
 import com.gutierrez.biblioteca.notification.Notificador
@@ -25,5 +27,9 @@ class AppContainer(context: Context) {
 
     val itemRepository: ItemRepository by lazy {
         ItemRepositoryImpl(api = RetrofitClient.api, dao = database.itemDao())
+    }
+
+    val carritoRepository: CarritoRepository by lazy {
+        CarritoRepositoryImpl(dao = database.carritoDao())
     }
 }

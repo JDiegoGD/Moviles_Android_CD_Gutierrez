@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.gutierrez.biblioteca.data.repository.CarritoRepository
 import com.gutierrez.biblioteca.data.repository.ItemRepository
 import com.gutierrez.biblioteca.domain.model.Item
 import com.gutierrez.biblioteca.ui.UiState
@@ -15,9 +16,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** Expone los favoritos guardados en Room; la lista se actualiza sola al marcar o quitar. */
+/** Expone los favoritos guardados en Room y el carrito. */
 class FavoritosViewModel(
-    private val repository: ItemRepository
+    private val repository: ItemRepository,
+    private val carritoRepository: CarritoRepository
 ) : ViewModel() {
 
     val estado: StateFlow<UiState<List<Item>>> = repository.observarFavoritos()
@@ -25,13 +27,21 @@ class FavoritosViewModel(
         .catch { emit(UiState.Error(mensajeDeError(it))) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Cargando)
 
+    val cantidadCarrito: StateFlow<Int> = carritoRepository.observarCarrito()
+        .map { lineas -> lineas.sumOf { it.cantidad } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
+
     fun quitarFavorito(id: Int) {
         viewModelScope.launch { repository.alternarFavorito(id) }
     }
 
     companion object {
-        fun factory(repository: ItemRepository) = viewModelFactory {
-            initializer { FavoritosViewModel(repository) }
+        fun factory(repository: ItemRepository, carritoRepository: CarritoRepository) = viewModelFactory {
+            initializer { FavoritosViewModel(repository, carritoRepository) }
         }
     }
 }
