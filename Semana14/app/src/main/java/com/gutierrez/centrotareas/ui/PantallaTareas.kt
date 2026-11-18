@@ -1,5 +1,6 @@
 package com.gutierrez.centrotareas.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
@@ -9,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import com.gutierrez.centrotareas.model.CargaUi
 import com.gutierrez.centrotareas.model.PrimosUi
@@ -32,22 +32,38 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("CentroTareas") },
+                title = { Text("CentroTareas", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding)
-                .verticalScroll(rememberScrollState()).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = { toques++ }) { Text("Tócame: $toques") }
+            // Botón Tócame centrado debajo de la barra superior
+            Button(
+                onClick = { toques++ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Text("Tócame: $toques")
+            }
+
+            // Tarjeta 1: Tarea con progreso y cancelación
             TarjetaTarea("Tarea con progreso") {
-                Text(mensaje)
+                Text(mensaje, style = MaterialTheme.typography.bodyLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(
                         onClick = { viewModel.tareaLarga() },
@@ -62,8 +78,10 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     progress = { progreso },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text("${(progreso * 100).toInt()} %")
+                Text("${(progreso * 100).toInt()} %", style = MaterialTheme.typography.bodyMedium)
             }
+
+            // Tarjeta 2: Conteo de números primos con cancelación
             TarjetaTarea("Contar números primos") {
                 val calculando = primos is PrimosUi.Calculando
                 val limite = numero.toIntOrNull()?.takeIf { it >= 2 }
@@ -93,12 +111,17 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                 when (val estado = primos) {
                     PrimosUi.Inicial -> Text("Listo para contar")
                     PrimosUi.Calculando -> {
-                        CircularProgressIndicator()
-                        Text("Calculando...")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            Text("Calculando...")
+                        }
                     }
                     is PrimosUi.Listo -> Surface(
-                        color = Color(0xFFDDF3E4),
-                        contentColor = Color(0xFF164B2B),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         shape = MaterialTheme.shapes.medium,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -106,13 +129,15 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             modifier = Modifier.padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text("Primos encontrados: ${estado.cantidad}")
+                            Text("Primos encontrados: ${estado.cantidad}", fontWeight = FontWeight.Medium)
                             Text("Tiempo: ${estado.milisegundos} ms")
                         }
                     }
                     PrimosUi.Cancelado -> Text("Cálculo cancelado")
                 }
             }
+
+            // Tarjeta 3: Cargas simuladas secuenciales y paralelas
             TarjetaTarea("Dos cargas") {
                 val cargando = carga is CargaUi.Cargando
                 Row(
@@ -120,7 +145,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Simular error")
+                    Text("Simular error", fontWeight = FontWeight.Medium)
                     Switch(
                         checked = simularError,
                         onCheckedChange = { viewModel.cambiarSimularError(it) },
@@ -140,12 +165,17 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                 when (val estado = carga) {
                     CargaUi.Inicial -> Text("Elige cómo cargar los datos ficticios")
                     CargaUi.Cargando -> {
-                        CircularProgressIndicator()
-                        Text("Cargando...")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            Text("Cargando...")
+                        }
                     }
                     is CargaUi.Exito -> Surface(
-                        color = Color(0xFFDDF3E4),
-                        contentColor = Color(0xFF164B2B),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         shape = MaterialTheme.shapes.medium,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -153,7 +183,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             modifier = Modifier.padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text("Modo: ${estado.modo}")
+                            Text("Modo: ${estado.modo}", fontWeight = FontWeight.Medium)
                             Text("Perfil: ${estado.perfil}")
                             Text("Pedidos: ${estado.pedidos}")
                             Text("Tiempo: ${estado.milisegundos} ms")
@@ -169,8 +199,14 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             modifier = Modifier.padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(estado.mensaje)
-                            Button(onClick = { viewModel.cargarALaVez() }) {
+                            Text(estado.mensaje, fontWeight = FontWeight.Medium)
+                            Button(
+                                onClick = { viewModel.cargarALaVez() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                )
+                            ) {
                                 Text("Reintentar")
                             }
                         }
@@ -183,13 +219,25 @@ fun PantallaTareas(viewModel: TareasViewModel) {
 
 @Composable
 private fun TarjetaTarea(titulo: String, contenido: @Composable ColumnScope.() -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.large
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(titulo, style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+            Text(
+                titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
             contenido()
         }
     }
