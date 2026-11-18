@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import com.gutierrez.centrotareas.model.CargaUi
 import com.gutierrez.centrotareas.model.PrimosUi
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
     var numero by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableStateOf(0) }
 
@@ -110,9 +112,42 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                 }
             }
             TarjetaTarea("Dos cargas") {
-                Text("Pendiente de implementar en los pasos 6 y 7")
-                // TODO Paso 6: botones Una por una y A la vez, carga y resultado.
-                // TODO Paso 7: interruptor de error y Reintentar.
+                val cargando = carga is CargaUi.Cargando
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        onClick = { viewModel.cargarUnaPorUna() },
+                        enabled = !cargando
+                    ) { Text("Una por una") }
+                    Button(
+                        onClick = { viewModel.cargarALaVez() },
+                        enabled = !cargando
+                    ) { Text("A la vez") }
+                }
+                when (val estado = carga) {
+                    CargaUi.Inicial -> Text("Elige cómo cargar los datos ficticios")
+                    CargaUi.Cargando -> {
+                        CircularProgressIndicator()
+                        Text("Cargando...")
+                    }
+                    is CargaUi.Exito -> Surface(
+                        color = Color(0xFFDDF3E4),
+                        contentColor = Color(0xFF164B2B),
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Modo: ${estado.modo}")
+                            Text("Perfil: ${estado.perfil}")
+                            Text("Pedidos: ${estado.pedidos}")
+                            Text("Tiempo: ${estado.milisegundos} ms")
+                        }
+                    }
+                    is CargaUi.Error -> Text(estado.mensaje)
+                }
+                // TODO Paso 7: interruptor de error, manejo de excepciones y Reintentar.
             }
         }
     }
