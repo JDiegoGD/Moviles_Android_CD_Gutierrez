@@ -1,5 +1,15 @@
 package com.gutierrez.huellitasvet.ui.veterinario
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.gutierrez.huellitasvet.R
+
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.AccountCircle
@@ -56,24 +66,46 @@ fun PanelScreen(
         Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("Panel de la clínica", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Box(Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(22.dp))) {
+            Image(
+                painter = painterResource(R.drawable.banner_panel),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.CenterStart
+            )
+            Column(
+                Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.4f).padding(end = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    "Panel de la clínica",
+                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1F2A44)
+                )
                 Text(
                     "Hoy - ${Formato.fechaCorta(hoy.toString())}",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF4A5568)
                 )
             }
-            if (onCerrarSesion != null) {
-                IconButton(onClick = onCerrarSesion) {
-                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+            Row(Modifier.align(Alignment.TopEnd).padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (onCerrarSesion != null) {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión", tint = Color(0xFF1F2A44))
+                    }
                 }
+                Image(
+                    painter = painterResource(R.drawable.avatar_vet),
+                    contentDescription = "Veterinario",
+                    modifier = Modifier.size(32.dp).clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Icon(
+                    Icons.Filled.Notifications, contentDescription = null, tint = Color(0xFF1F2A44),
+                    modifier = Modifier.padding(start = 10.dp, end = 8.dp).size(28.dp)
+                )
             }
-            Icon(Icons.Filled.AccountCircle, contentDescription = null, modifier = Modifier.size(30.dp))
-            Icon(
-                Icons.Filled.Notifications, contentDescription = null,
-                modifier = Modifier.padding(start = 14.dp).size(28.dp)
-            )
         }
 
         // 3 contadores de color

@@ -43,7 +43,7 @@ class SesionViewModel(
         }
     }
 
-    /** Regla de negocio: valida campos, credenciales y que el rol coincida con la pestaña. */
+    /** Regla de negocio: valida campos, credenciales y que el rol de la cuenta coincida con el rol elegido. */
     fun login(correo: String, clave: String, rolSeleccionado: Rol, onExito: (Rol) -> Unit) {
         if (correo.isBlank() || clave.isBlank()) {
             _error.value = "Completa todos los campos"
@@ -53,9 +53,7 @@ class SesionViewModel(
             val usuario = repo.login(correo.trim(), clave)
             when {
                 usuario == null -> _error.value = "Correo o contraseña incorrectos"
-                usuario.rol != rolSeleccionado.name -> _error.value =
-                    if (rolSeleccionado == Rol.CLIENTE) "Esta cuenta no es de dueño"
-                    else "Esta cuenta no es de veterinario"
+                usuario.rol != rolSeleccionado.name -> _error.value = "Esa cuenta no corresponde a este perfil"
                 else -> {
                     prefs.guardarSesion(usuario.rol, usuario.id)
                     _usuarioActual.value = usuario
@@ -68,21 +66,42 @@ class SesionViewModel(
 
     /** Regla de negocio del registro: valida los campos, crea la cuenta y abre la sesion. */
     fun registrar(
-        nombre: String, correo: String, clave: String, confirmar: String,
-        rol: Rol, onExito: (Rol) -> Unit
+        nombre: String, apellido: String, correo: String, clave: String, confirmar: String,
+        codigoAdmin: String, rol: Rol, onExito: (Rol) -> Unit
     ) {
+        val nom = nombre.trim()
+        val ape = apellido.trim()
         val mail = correo.trim()
+        val cod = codigoAdmin.trim()
+
         when {
-            nombre.isBlank() || mail.isBlank() || clave.isBlank() || confirmar.isBlank() ->
+            nom.isBlank() || ape.isBlank() || mail.isBlank() || clave.isBlank() || confirmar.isBlank() ->
                 _error.value = "Completa todos los campos"
+            rol == Rol.ADMINISTRADOR && (cod.isBlank() || cod.length < 4 || cod.contains(" ")) ->
+                _error.value = "El código de administrador debe tener al menos 4 caracteres y sin espacios"
             !mail.contains("@") || !mail.contains(".") -> _error.value = "Ingresa un correo válido"
             clave.length < 4 -> _error.value = "La contraseña debe tener al menos 4 caracteres"
             clave != confirmar -> _error.value = "Las contraseñas no coinciden"
             else -> viewModelScope.launch {
-                val nuevo = Usuario(nombre = nombre.trim(), correo = mail, clave = clave, rol = rol.name)
+                if (repo.existeCorreo(mail) > 0) {
+                    _error.value = "Ese correo ya está registrado"
+                    return@launch
+                }
+                if (rol == Rol.ADMINISTRADOR && repo.existeCodigoAdmin(cod) > 0) {
+                    _error.value = "Ese código de administrador ya existe"
+                    return@launch
+                }
+                val nuevo = Usuario(
+                    nombre = nom,
+                    apellido = ape,
+                    correo = mail,
+                    clave = clave,
+                    rol = rol.name,
+                    codigoAdmin = if (rol == Rol.ADMINISTRADOR) cod else null
+                )
                 val id = repo.registrarUsuario(nuevo)
                 if (id < 0) {
-                    _error.value = "Ese correo ya está registrado"
+                    _error.value = "No se pudo registrar el usuario"
                 } else {
                     val creado = nuevo.copy(id = id.toInt())
                     prefs.guardarSesion(creado.rol, creado.id)
@@ -105,27 +124,6 @@ class SesionViewModel(
             _usuarioActual.value = null
             _error.value = null
             onListo()
-        }
-    }
-
-    /**
-     * Modo practica: guarda el OTRO perfil (dueño <-> veterinario) y avisa para
-     * navegar a su grafo. Usa las cuentas de prueba de los datos iniciales.
-     */
-    fun cambiarPerfil(onListo: (Rol) -> Unit) {
-        val actual = _usuarioActual.value ?: return
-        val (correo, clave) =
-            if (actual.rol == Rol.CLIENTE.name) "vet@huellitas.test" to "admin"
-            else "ana@correo.test" to "1234"
-        viewModelScope.launch {
-            val otro = repo.login(correo, clave)
-            if (otro == null) {
-                _error.value = "No se encontró el otro perfil"
-                return@launch
-            }
-            prefs.guardarSesion(otro.rol, otro.id)
-            _usuarioActual.value = otro
-            onListo(Rol.valueOf(otro.rol))
         }
     }
 

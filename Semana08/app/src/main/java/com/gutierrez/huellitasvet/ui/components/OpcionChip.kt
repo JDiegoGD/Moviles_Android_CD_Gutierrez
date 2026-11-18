@@ -1,18 +1,18 @@
 package com.gutierrez.huellitasvet.ui.components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 
-/** Chip de seleccion simple (especie, sexo, duracion, filtros...). */
+/** Chip de seleccion (especie, sexo, duracion, filtros...) con el FilterChip de Material 3. */
 @Composable
 fun OpcionChip(
     texto: String,
@@ -21,20 +21,21 @@ fun OpcionChip(
     modifier: Modifier = Modifier
 ) {
     val colores = MaterialTheme.colorScheme
-    Surface(
+    FilterChip(
+        selected = seleccionada,
         onClick = onClick,
+        label = { Text(texto) },
         modifier = modifier,
         shape = RoundedCornerShape(50),
-        color = if (seleccionada) colores.primary else colores.surface,
-        border = if (seleccionada) null else BorderStroke(1.dp, colores.outline)
-    ) {
-        Text(
-            texto,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.SemiBold,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (seleccionada) colores.onPrimary else colores.onSurface
+        leadingIcon = if (seleccionada) {
+            { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+        } else null,
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = colores.surface,
+            labelColor = colores.onSurface,
+            selectedContainerColor = colores.primary,
+            selectedLabelColor = colores.onPrimary,
+            selectedLeadingIconColor = colores.onPrimary
         )
-    }
+    )
 }

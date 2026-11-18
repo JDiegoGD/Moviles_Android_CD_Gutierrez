@@ -22,13 +22,15 @@ fun FechaChip(
     seleccionada: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    compacto: Boolean = false
+    compacto: Boolean = false,
+    habilitada: Boolean = true // false = dia sin atencion
 ) {
     val primario = MaterialTheme.colorScheme.primary
     if (compacto) {
         val etiqueta = if (fecha == LocalDate.now()) "Hoy" else Formato.diaSemana(fecha)
         Surface(
             onClick = onClick,
+            enabled = habilitada,
             modifier = modifier,
             shape = RoundedCornerShape(50),
             color = if (seleccionada) primario else MaterialTheme.colorScheme.surface,
@@ -45,9 +47,10 @@ fun FechaChip(
     }
     Surface(
         onClick = onClick,
+        enabled = habilitada,
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
-        color = if (seleccionada) primario else MaterialTheme.colorScheme.surface,
+        color = if (seleccionada) primario else if (habilitada) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
         border = if (seleccionada) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -55,7 +58,8 @@ fun FechaChip(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val texto = if (seleccionada) MaterialTheme.colorScheme.onPrimary
-            else MaterialTheme.colorScheme.onSurface
+            else if (habilitada) MaterialTheme.colorScheme.onSurface
+            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             Text(Formato.diaSemana(fecha), style = MaterialTheme.typography.labelSmall, color = texto)
             Text(
                 fecha.dayOfMonth.toString(), fontWeight = FontWeight.Bold,

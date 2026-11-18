@@ -1,5 +1,14 @@
 package com.gutierrez.huellitasvet.ui.dueno
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.gutierrez.huellitasvet.R
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Color
 
@@ -55,31 +64,46 @@ fun InicioScreen(
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
+    val control by vm.proximoControl.collectAsState()
 
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
+        Box(Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(22.dp))) {
+            Image(
+                painter = painterResource(R.drawable.banner_inicio),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.CenterStart
+            )
+            Column(
+                Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.42f).padding(end = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
                     "Hola, ${nombre.substringBefore(' ')}",
-                    style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3B2A1A)
                 )
                 Text(
                     "¿Cómo están tus mascotas hoy?",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF6B5442)
                 )
             }
-            if (onCerrarSesion != null) {
-                IconButton(onClick = onCerrarSesion) {
-                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+            Row(Modifier.align(Alignment.TopEnd).padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (onCerrarSesion != null) {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión", tint = Color(0xFF3B2A1A))
+                    }
                 }
+                Icon(
+                    Icons.Filled.Notifications, contentDescription = "Notificaciones",
+                    tint = Color(0xFF3B2A1A), modifier = Modifier.padding(end = 8.dp).size(28.dp)
+                )
             }
-            Icon(
-                Icons.Filled.Notifications, contentDescription = "Notificaciones",
-                modifier = Modifier.size(28.dp)
-            )
         }
 
         TarjetaProximaCita(proxima)
@@ -100,7 +124,7 @@ fun InicioScreen(
                 onClick = onAgregar,
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 modifier = Modifier.width(100.dp)
             ) {
                 Column(
@@ -121,16 +145,31 @@ fun InicioScreen(
             AccesoRapido("Baño", "scissors", Modifier.weight(1f), onPedirCita)
         }
 
-        proxima?.let { prox ->
+        if (control != null) {
             Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFFEF3C7), modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Icon(Icons.Filled.Notifications, null, tint = Color(0xFFB45309))
                     Column {
                         Text("Recordatorio", fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
                         Text(
-                            "${prox.mascota.mascota.nombre}: ${prox.servicio.nombre.lowercase()} el ${Formato.fechaCorta(prox.cita.fecha)}",
+                            "Control de ${control!!.mascota.mascota.nombre}: ${Formato.fechaCorta(control!!.cita.fechaControl!!)}",
                             style = MaterialTheme.typography.bodySmall, color = Color(0xFF78350F)
                         )
+                    }
+                }
+            }
+        } else {
+            proxima?.let { prox ->
+                Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFFEF3C7), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Icon(Icons.Filled.Notifications, null, tint = Color(0xFFB45309))
+                        Column {
+                            Text("Recordatorio", fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
+                            Text(
+                                "${prox.mascota.mascota.nombre}: ${prox.servicio.nombre.lowercase()} el ${Formato.fechaCorta(prox.cita.fecha)}",
+                                style = MaterialTheme.typography.bodySmall, color = Color(0xFF78350F)
+                            )
+                        }
                     }
                 }
             }

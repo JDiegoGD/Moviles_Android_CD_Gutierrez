@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 /** Datos de la pantalla de inicio del dueño: sus mascotas y su proxima cita. */
@@ -36,6 +37,22 @@ class InicioViewModel(
                         !Formato.fechaHoraDe(it.cita.fecha, it.cita.hora).isBefore(ahora)
                 }
                 .minByOrNull { Formato.fechaHoraDe(it.cita.fecha, it.cita.hora) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /**
+     * Proximo control = el control futuro más cercano de las citas ATENDIDAS de las mascotas del dueño.
+     */
+    val proximoControl: StateFlow<CitaConDetalle?> = repo.observarCitasDeDueno(duenoId)
+        .map { citas ->
+            val hoy = LocalDate.now()
+            citas
+                .filter {
+                    it.cita.estado == EstadoCita.ATENDIDA.name &&
+                        it.cita.fechaControl != null &&
+                        !LocalDate.parse(it.cita.fechaControl).isBefore(hoy)
+                }
+                .minByOrNull { LocalDate.parse(it.cita.fechaControl!!) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 }

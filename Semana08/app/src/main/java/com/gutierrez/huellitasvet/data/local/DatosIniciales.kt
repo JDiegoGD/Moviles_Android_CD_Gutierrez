@@ -1,5 +1,6 @@
 package com.gutierrez.huellitasvet.data.local
 
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import com.gutierrez.huellitasvet.data.local.entity.Cita
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
@@ -11,7 +12,6 @@ import com.gutierrez.huellitasvet.model.Sexo
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
-/** Datos ficticios (Ley 29733) que se cargan solo la primera vez. */
 object DatosIniciales {
 
     fun servicios(): List<Servicio> = listOf(
@@ -36,7 +36,17 @@ object DatosIniciales {
     /** Fecha relativa a hoy: n = 0 hoy, -10 hace 10 dias, 2 pasado mañana... */
     private fun dia(n: Long): String = LocalDate.now().plusDays(n).toString()
 
+    /** Lunes a viernes 09:00-17:00 (descanso 13:00-14:00), sabado 09:00-13:00, domingo cerrado. */
+    private fun horarioInicial(): List<HorarioAtencion> = (1..7).map { dia ->
+        when (dia) {
+            in 1..5 -> HorarioAtencion(dia, true, "09:00", "17:00", "13:00", "14:00")
+            6 -> HorarioAtencion(dia, true, "09:00", "13:00", "13:00", "13:00")
+            else -> HorarioAtencion(dia, false, "09:00", "17:00", "13:00", "14:00")
+        }
+    }
+
     suspend fun sembrar(db: VetDatabase) {
+        if (db.horarioDao().contar() == 0) db.horarioDao().insertarTodos(horarioInicial())
         if (db.usuarioDao().contar() != 0) return
 
         // Servicios
@@ -48,12 +58,13 @@ object DatosIniciales {
         val vacuna = guardados.first { it.nombre == "Vacunación" }
         val bano = guardados.first { it.nombre == "Baño y corte" }
 
-        // Usuarios: 2 dueños y 1 veterinario
+        // Usuarios: Dueños, Veterinario y Administrador
         db.usuarioDao().insertarTodos(
             listOf(
-                Usuario(nombre = "Ana García", correo = "ana@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
-                Usuario(nombre = "Luis Rojas", correo = "luis@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
-                Usuario(nombre = "Dra. Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name)
+                Usuario(nombre = "Ana", apellido = "García", correo = "ana@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
+                Usuario(nombre = "Luis", apellido = "Rojas", correo = "luis@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
+                Usuario(nombre = "Dra.", apellido = "Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name),
+                Usuario(nombre = "Juan", apellido = "Gutierrez", correo = "admin@huellitas.test", clave = "admin123", rol = Rol.ADMINISTRADOR.name, codigoAdmin = "ADM-001")
             )
         )
         val ana = db.usuarioDao().login("ana@correo.test", "1234")!!

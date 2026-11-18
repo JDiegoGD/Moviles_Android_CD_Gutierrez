@@ -3,13 +3,16 @@ package com.gutierrez.huellitasvet.data.repository
 import androidx.room.withTransaction
 import com.gutierrez.huellitasvet.data.local.VetDatabase
 import com.gutierrez.huellitasvet.data.local.entity.Cita
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.local.entity.Usuario
+import com.gutierrez.huellitasvet.data.local.entity.Vacuna
 import com.gutierrez.huellitasvet.data.local.relation.CitaConDetalle
 import com.gutierrez.huellitasvet.data.local.relation.MascotaConDueno
 import com.gutierrez.huellitasvet.model.ConteoServicio
 import com.gutierrez.huellitasvet.model.EstadoCita
+import com.gutierrez.huellitasvet.model.Rol
 import kotlinx.coroutines.flow.Flow
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -20,9 +23,34 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override suspend fun obtenerUsuario(id: Int): Usuario? = db.usuarioDao().obtener(id)
 
-    override suspend fun registrarUsuario(usuario: Usuario): Long =
-        if (db.usuarioDao().existeCorreo(usuario.correo) > 0) -1L
-        else db.usuarioDao().insertar(usuario)
+    override suspend fun registrarUsuario(usuario: Usuario): Long {
+        if (db.usuarioDao().existeCorreo(usuario.correo) > 0) return -1L
+        if (usuario.rol == Rol.ADMINISTRADOR.name && !usuario.codigoAdmin.isNullOrBlank()) {
+            if (db.usuarioDao().existeCodigoAdmin(usuario.codigoAdmin) > 0) return -1L
+        }
+        return db.usuarioDao().insertar(usuario)
+    }
+
+    override fun observarUsuarios(): Flow<List<Usuario>> = db.usuarioDao().observarTodos()
+
+    override suspend fun eliminarUsuario(id: Int) {
+        db.withTransaction {
+            val dao = db.usuarioDao()
+            dao.eliminarVacunasDeDueno(id)
+            dao.eliminarCitasDeDueno(id)
+            dao.eliminarMascotasDeDueno(id)
+            dao.eliminarUsuario(id)
+        }
+    }
+
+    override fun observarCantidadUsuariosPorRol(rol: String): Flow<Int> =
+        db.usuarioDao().observarCantidadPorRol(rol)
+
+    override suspend fun existeCorreo(correo: String): Int =
+        db.usuarioDao().existeCorreo(correo)
+
+    override suspend fun existeCodigoAdmin(codigo: String): Int =
+        db.usuarioDao().existeCodigoAdmin(codigo)
 
     // ---------- Servicios ----------
     override fun observarServicios(): Flow<List<Servicio>> = db.servicioDao().observarTodos()
@@ -60,15 +88,37 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     }
 
     override suspend fun eliminarMascota(m: Mascota) {
-        db.mascotaDao().eliminar(m)
+        db.withTransaction {
+            db.vacunaDao().eliminarPorMascota(m.id)
+            db.mascotaDao().eliminar(m)
+        }
     }
 
     override suspend fun mascotaTieneCitas(id: Int): Boolean =
         db.mascotaDao().contarCitas(id) > 0
 
+    // ---------- Vacunas ----------
+    override fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>> =
+        db.vacunaDao().observarPorMascota(mascotaId)
+
+    override suspend fun guardarVacuna(v: Vacuna) {
+        if (v.id == 0) db.vacunaDao().insertar(v) else db.vacunaDao().actualizar(v)
+    }
+
+    override suspend fun eliminarVacuna(v: Vacuna) {
+        db.vacunaDao().eliminar(v)
+    }
+
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
         db.citaDao().observarHorasOcupadas(fecha)
+
+    override fun observarHorario(): Flow<List<HorarioAtencion>> = db.horarioDao().observarTodos()
+
+    override suspend fun guardarHorario(horario: HorarioAtencion) = db.horarioDao().guardar(horario)
+
+    override fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>> =
+        db.citaDao().observarDiasConCitas(inicio, fin)
 
     override suspend fun crearCita(
         mascotaId: Int, servicioId: Int, fecha: String, hora: String, nota: String
@@ -106,14 +156,22 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     }
 
     override suspend fun registrarAtencion(
-        citaId: Int, diagnostico: String, tratamiento: String, peso: Double
+        citaId: Int, diagnostico: String, tratamiento: String, peso: Double, fechaControl: String?
     ) {
         // Una sola transaccion: si algo falla, no queda nada a medias
         db.withTransaction {
             val cita = db.citaDao().obtener(citaId) ?: return@withTransaction
-            db.citaDao().registrarAtencion(citaId, diagnostico, tratamiento, peso)
+            db.citaDao().registrarAtencion(citaId, diagnostico, tratamiento, peso, fechaControl)
             db.mascotaDao().actualizarPeso(cita.mascotaId, peso)
         }
+    }
+
+    override suspend fun reprogramarCita(id: Int, fecha: String, hora: String): Boolean {
+        val cita = db.citaDao().obtener(id) ?: return false
+        if (cita.fecha == fecha && cita.hora == hora) return true
+        if (db.citaDao().contarOcupadas(fecha, hora) > 0) return false
+        db.citaDao().reprogramar(id, fecha, hora)
+        return true
     }
 
     // ---------- Panel ----------

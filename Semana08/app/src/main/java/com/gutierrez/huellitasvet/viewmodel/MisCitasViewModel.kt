@@ -56,6 +56,14 @@ class MisCitasViewModel(
         return estadoValido && faltan > Duration.ofHours(2)
     }
 
+    /** Misma regla que cancelar: solo PENDIENTE o CONFIRMADA y faltan MAS de 2 horas. */
+    fun puedeReprogramar(cita: Cita): Boolean {
+        val estadoValido = cita.estado == EstadoCita.PENDIENTE.name ||
+            cita.estado == EstadoCita.CONFIRMADA.name
+        val faltan = Duration.between(LocalDateTime.now(), Formato.fechaHoraDe(cita.fecha, cita.hora))
+        return estadoValido && faltan > Duration.ofHours(2)
+    }
+
     fun cancelar(cita: Cita) {
         if (!puedeCancelar(cita)) {
             _mensaje.value = "Ya no puedes cancelar esta cita"

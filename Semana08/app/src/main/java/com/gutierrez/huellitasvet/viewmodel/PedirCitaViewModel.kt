@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.gutierrez.huellitasvet.data.local.entity.Mascota
 import com.gutierrez.huellitasvet.data.local.entity.Servicio
 import com.gutierrez.huellitasvet.data.prefs.PreferenciasStore
+import com.gutierrez.huellitasvet.data.local.entity.HorarioAtencion
 import com.gutierrez.huellitasvet.data.repository.VetRepository
+import com.gutierrez.huellitasvet.model.Horarios
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,6 +64,15 @@ class PedirCitaViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** El boton "Confirmar cita" se habilita solo cuando todo esta elegido. */
+    /** Horario de atencion que configuro el veterinario. */
+    val horario: StateFlow<List<HorarioAtencion>> = repo.observarHorario()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Horas que se pueden reservar en la fecha elegida (segun el horario de atencion). */
+    val horasDelDia: StateFlow<List<String>> = combine(_fecha, horario) { f, lista ->
+        Horarios.horasDe(Horarios.delDia(lista, f))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val puedeConfirmar: StateFlow<Boolean> = combine(_mascotaId, _servicioId, _hora, aceptaCitas) { m, s, h, ok ->
         m != null && s != null && h != null && ok
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
@@ -96,6 +107,11 @@ class PedirCitaViewModel(
             }
             if (horaPasada(fecha, hora)) {
                 _mensaje.value = "Esa hora ya pasó. Elige otra."
+                _hora.value = null
+                return@launch
+            }
+            if (hora !in horasDelDia.value) {
+                _mensaje.value = "Esa hora está fuera del horario de atención."
                 _hora.value = null
                 return@launch
             }

@@ -19,12 +19,21 @@ interface CitaDao {
     @Query("UPDATE citas SET estado = :estado WHERE id = :id")
     suspend fun actualizarEstado(id: Int, estado: String)
 
-    /** Pone estado ATENDIDA y guarda diagnostico, tratamiento y peso. */
+    /** Pone estado ATENDIDA y guarda diagnostico, tratamiento, peso y fechaControl. */
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +
-            "tratamiento = :tratamiento, pesoRegistrado = :peso WHERE id = :id"
+            "tratamiento = :tratamiento, pesoRegistrado = :peso, fechaControl = :fechaControl WHERE id = :id"
     )
-    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double)
+    suspend fun registrarAtencion(
+        id: Int,
+        diagnostico: String,
+        tratamiento: String,
+        peso: Double,
+        fechaControl: String?
+    )
+
+    @Query("UPDATE citas SET fecha = :fecha, hora = :hora WHERE id = :id")
+    suspend fun reprogramar(id: Int, fecha: String, hora: String)
 
     @Query("SELECT * FROM citas WHERE id = :id")
     suspend fun obtener(id: Int): Cita?
@@ -36,6 +45,9 @@ interface CitaDao {
 
     @Query("SELECT hora FROM citas WHERE fecha = :fecha AND estado != 'CANCELADA'")
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>
+
+    @Query("SELECT DISTINCT fecha FROM citas WHERE estado != 'CANCELADA' AND fecha BETWEEN :inicio AND :fin")
+    fun observarDiasConCitas(inicio: String, fin: String): Flow<List<String>>
 
     // ---------- Lectura (Flow de CitaConDetalle) ----------
     @Transaction
