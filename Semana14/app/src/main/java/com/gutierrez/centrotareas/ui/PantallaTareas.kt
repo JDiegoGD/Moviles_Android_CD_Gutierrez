@@ -36,8 +36,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
             Button(onClick = { toques++ }) { Text("Tócame: $toques") }
             TarjetaTarea("Tarea con progreso") {
                 Text(mensaje)
-                Button(onClick = { viewModel.tareaLargaMala() }) { Text("Tarea larga (MAL)") }
-                // TODO Paso 2: cambiar a tareaLarga().
+                Button(onClick = { viewModel.tareaLarga() }) { Text("Tarea larga") }
                 // TODO Pasos 3 y 4: progreso, porcentaje y cancelar.
             }
             TarjetaTarea("Contar números primos") {
