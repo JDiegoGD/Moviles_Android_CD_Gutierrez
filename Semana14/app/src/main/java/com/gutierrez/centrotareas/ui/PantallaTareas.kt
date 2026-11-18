@@ -15,6 +15,7 @@ import com.gutierrez.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
+    val progreso by viewModel.progreso.collectAsState()
     var toques by rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
@@ -36,8 +37,13 @@ fun PantallaTareas(viewModel: TareasViewModel) {
             Button(onClick = { toques++ }) { Text("Tócame: $toques") }
             TarjetaTarea("Tarea con progreso") {
                 Text(mensaje)
-                Button(onClick = { viewModel.tareaLarga() }) { Text("Tarea larga") }
-                // TODO Pasos 3 y 4: progreso, porcentaje y cancelar.
+                Button(onClick = { viewModel.tareaLarga() }) { Text("Iniciar") }
+                LinearProgressIndicator(
+                    progress = { progreso },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("${(progreso * 100).toInt()} %")
+                // TODO Paso 4: habilitar botones segun corriendo y agregar Cancelar.
             }
             TarjetaTarea("Contar números primos") {
                 Text("Pendiente de implementar en el paso 5")
