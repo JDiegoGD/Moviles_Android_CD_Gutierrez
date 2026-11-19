@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.layout.height
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,6 +124,15 @@ fun PantallaMapa(vm: MapaViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+            )
+
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { id -> vm.seleccionar(id) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
             )
         }
     }

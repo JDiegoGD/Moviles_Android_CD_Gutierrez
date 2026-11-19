@@ -50,6 +50,24 @@ fun MapaUbicacion(
         }
     }
 
+    val lugarSeleccionado = lugares
+        .firstOrNull { it.lugar.id == seleccionado }
+        ?.lugar
+
+    LaunchedEffect(lugarSeleccionado, mapaCargado) {
+        val lugar = lugarSeleccionado
+
+        if (mapaCargado && lugar != null) {
+            camara.animate(
+                update = CameraUpdateFactory.newLatLngZoom(
+                    LatLng(lugar.latitud, lugar.longitud),
+                    17f
+                ),
+                durationMs = 1_000
+            )
+        }
+    }
+
     GoogleMap(
         modifier = modifier,
         cameraPositionState = camara,
@@ -71,19 +89,26 @@ fun MapaUbicacion(
             val lugar = lugarConDistancia.lugar
 
             key(lugar.id) {
+                val marcador = rememberUpdatedMarkerState(
+                    position = LatLng(lugar.latitud, lugar.longitud)
+                )
+
                 Marker(
-                    state = rememberUpdatedMarkerState(
-                        position = LatLng(
-                            lugar.latitud,
-                            lugar.longitud
-                        )
-                    ),
+                    state = marcador,
                     title = lugar.nombre,
                     snippet = lugar.categoria,
                     icon = BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_AZURE
                     )
                 )
+
+                LaunchedEffect(seleccionado, mapaCargado) {
+                    if (mapaCargado && seleccionado == lugar.id) {
+                        marcador.showInfoWindow()
+                    } else {
+                        marcador.hideInfoWindow()
+                    }
+                }
             }
         }
         // TODO Paso 6: mover la cámara al lugar seleccionado.

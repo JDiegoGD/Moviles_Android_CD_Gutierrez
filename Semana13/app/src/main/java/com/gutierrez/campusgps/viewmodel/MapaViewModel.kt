@@ -64,7 +64,9 @@ class MapaViewModel(
         )
     }
 
-    // TODO Paso 6: fun seleccionar(id: Int?) para actualizar _seleccionado.
+    fun seleccionar(id: Int?) {
+        _seleccionado.value = id
+    }
     // TODO Paso 7: val masCercano: StateFlow<Lugar?>, derivado de lugares.
     // TODO Paso 8: distinguir tipos de error y comprobar Google Play Services.
 
