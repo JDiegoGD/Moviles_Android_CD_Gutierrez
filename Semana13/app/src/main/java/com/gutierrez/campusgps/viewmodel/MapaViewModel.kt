@@ -16,6 +16,8 @@ import com.gutierrez.campusgps.model.Lugar
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import com.gutierrez.campusgps.data.UbicacionNoDisponibleException
+import com.gutierrez.campusgps.model.TipoError
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
     private val lugaresRepo: LugaresRepository
@@ -41,6 +43,17 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    init {
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = errorPlayServices()
+        }
+    }
+
+    private fun errorPlayServices() = UbicacionUi.Error(
+        mensaje = "Google Play Services no está disponible en este dispositivo",
+        tipo = TipoError.SIN_PLAY_SERVICES
+    )
+
     private fun actualizarDistancias(posicion: Posicion) {
         _lugares.value = lugaresRepo.obtenerLugares()
             .map { lugar ->
@@ -53,38 +66,51 @@ class MapaViewModel(
     }
     fun buscar() {
         if (_estado.value == UbicacionUi.Buscando) return
+
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = errorPlayServices()
+            return
+        }
+
         _estado.value = UbicacionUi.Buscando
+
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
                 .onSuccess { posicion ->
                     actualizarDistancias(posicion)
-                    _lugares.value.forEach { item ->
-                        android.util.Log.d(
-                            "CampusGPS",
-                            "${item.lugar.nombre}: ${item.metros} m"
-                        )
-                    }
                     _estado.value = UbicacionUi.Lista(posicion)
                 }
                 .onFailure { error ->
-                    _estado.value = UbicacionUi.Error(mensajeDe(error))
+                    _estado.value = errorDe(error)
                 }
         }
     }
-
     fun permisoDenegado() {
         _estado.value = UbicacionUi.Error(
-            "Sin permiso de ubicación no puedo mostrar dónde estás"
+            mensaje = "Sin permiso de ubicación no puedo mostrar dónde estás",
+            tipo = TipoError.SIN_PERMISO
         )
     }
-
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
     }
-    // TODO Paso 8: distinguir tipos de error y comprobar Google Play Services.
 
-    private fun mensajeDe(error: Throwable): String = when (error) {
-        is SecurityException -> "Falta el permiso de ubicación"
-        else -> error.message ?: "No se pudo obtener la ubicación"
+    private fun errorDe(error: Throwable): UbicacionUi.Error {
+        return when (error) {
+            is SecurityException -> UbicacionUi.Error(
+                mensaje = "Falta el permiso de ubicación",
+                tipo = TipoError.SIN_PERMISO
+            )
+
+            is UbicacionNoDisponibleException -> UbicacionUi.Error(
+                mensaje = "Activa el GPS e intenta de nuevo",
+                tipo = TipoError.GPS_APAGADO
+            )
+
+            else -> UbicacionUi.Error(
+                mensaje = "No se pudo obtener la ubicación. Intenta de nuevo",
+                tipo = TipoError.OTRO
+            )
+        }
     }
 }

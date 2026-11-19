@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.OutlinedButton
 import com.gutierrez.campusgps.util.formatearDistancia
+import com.gutierrez.campusgps.model.TipoError
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,9 +79,6 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     }
 
-    // Si hay permiso: vm.buscar(); si se deniega: vm.permisoDenegado().
-    // TODO Pasos 3 a 7: observar lugares, seleccionado y masCercano, e integrar mapa/lista.
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,17 +93,30 @@ fun PantallaMapa(vm: MapaViewModel) {
         Column(
             modifier = Modifier.fillMaxSize().padding(espacio).padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercanoId = masCercano?.id,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
+            val sinPlayServices =
+                (estado as? UbicacionUi.Error)?.tipo ==
+                        TipoError.SIN_PLAY_SERVICES
+
+            if (sinPlayServices) {
+                Text(
+                    text = "El mapa requiere Google Play Services",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+            } else {
+                MapaUbicacion(
+                    estado = estado,
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    masCercanoId = masCercano?.id,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+            }
 
 
 
@@ -123,12 +134,15 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Text("Buscando ubicación…")
                 }
                 is UbicacionUi.Lista -> {
-                    Text("Latitud: ${actual.posicion.latitud}")
-                    Text("Longitud: ${actual.posicion.longitud}")
+                    Text(
+                        text = "Lat: ${actual.posicion.latitud} · " +
+                                "Lon: ${actual.posicion.longitud}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-                is UbicacionUi.Error -> Text(
-                    text = actual.mensaje,
-                    color = MaterialTheme.colorScheme.error
+                is UbicacionUi.Error -> MensajeError(
+                    error = actual,
+                    onReintentar = alPulsarUbicacion
                 )
             }
 
@@ -162,7 +176,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 onClick = { id -> vm.seleccionar(id) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(180.dp)
             )
         }
     }

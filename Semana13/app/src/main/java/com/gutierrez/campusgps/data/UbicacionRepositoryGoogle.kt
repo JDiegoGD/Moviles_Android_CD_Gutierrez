@@ -11,11 +11,21 @@ import com.gutierrez.campusgps.data.UbicacionRepository
 import com.gutierrez.campusgps.model.Posicion
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import android.location.LocationManager
+import androidx.core.location.LocationManagerCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 
 class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
     // Se conserva el contexto de la aplicación, nunca el de una Activity.
     private val appContext = context.applicationContext
     private val cliente by lazy { LocationServices.getFusedLocationProviderClient(appContext) }
+
+    override fun playServicesDisponible(): Boolean {
+        return GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(appContext) ==
+                ConnectionResult.SUCCESS
+    }
 
     override suspend fun obtenerPosicion(): Result<Posicion> {
         val permisoPreciso = tienePermiso(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -23,6 +33,13 @@ class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
 
         if (!permisoPreciso && !permisoAproximado) {
             return Result.failure(SecurityException("Falta el permiso de ubicación"))
+        }
+
+        val administradorUbicacion = appContext
+            .getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        if (!LocationManagerCompat.isLocationEnabled(administradorUbicacion)) {
+            return Result.failure(UbicacionNoDisponibleException())
         }
 
         val cancelacion = CancellationTokenSource()
@@ -34,9 +51,11 @@ class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
             }
             val ubicacion = cliente.getCurrentLocation(prioridad, cancelacion.token).await()
             if (ubicacion == null) {
-                Result.failure(IllegalStateException("No se pudo obtener la ubicación. Activa la ubicación e intenta de nuevo"))
+                Result.failure(UbicacionNoDisponibleException())
             } else {
-                Result.success(Posicion(ubicacion.latitude, ubicacion.longitude))
+                Result.success(
+                    Posicion(ubicacion.latitude, ubicacion.longitude)
+                )
             }
         } catch (e: CancellationException) {
             // Cancelar una corrutina no es un error que deba mostrarse al usuario.
