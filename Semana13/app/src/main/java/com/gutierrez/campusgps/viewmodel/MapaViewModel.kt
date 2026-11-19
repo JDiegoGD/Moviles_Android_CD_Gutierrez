@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
+import com.gutierrez.campusgps.model.Posicion
+import com.gutierrez.campusgps.util.distanciaMetros
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
     private val lugaresRepo: LugaresRepository
@@ -26,13 +27,29 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    private fun actualizarDistancias(posicion: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { lugar ->
+                LugarConDistancia(
+                    lugar = lugar,
+                    metros = distanciaMetros(posicion, lugar)
+                )
+            }
+            .sortedBy { it.metros }
+    }
     fun buscar() {
         if (_estado.value == UbicacionUi.Buscando) return
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
                 .onSuccess { posicion ->
-                    // TODO Paso 5: actualizarDistancias(posicion).
+                    actualizarDistancias(posicion)
+                    _lugares.value.forEach { item ->
+                        android.util.Log.d(
+                            "CampusGPS",
+                            "${item.lugar.nombre}: ${item.metros} m"
+                        )
+                    }
                     _estado.value = UbicacionUi.Lista(posicion)
                 }
                 .onFailure { error ->
