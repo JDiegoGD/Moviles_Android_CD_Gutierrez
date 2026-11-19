@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import com.gutierrez.campusgps.data.UbicacionNoDisponibleException
 import com.gutierrez.campusgps.model.TipoError
+import kotlinx.coroutines.flow.combine
+import com.gutierrez.campusgps.util.normalizarTexto
+
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
     private val lugaresRepo: LugaresRepository
@@ -30,7 +33,35 @@ class MapaViewModel(
     )
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
 
-    val masCercano: StateFlow<Lugar?> = lugares
+    private val _consulta = MutableStateFlow("")
+    val consulta: StateFlow<String> = _consulta.asStateFlow()
+
+    private val _categoriaSeleccionada = MutableStateFlow<String?>("Todas")
+    val categoriaSeleccionada: StateFlow<String?> = _categoriaSeleccionada.asStateFlow()
+
+    val categorias: StateFlow<List<String>> = MutableStateFlow(
+        listOf("Todas") + lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
+    ).asStateFlow()
+
+    val lugaresFiltrados: StateFlow<List<LugarConDistancia>> = combine(
+        _lugares,
+        _consulta,
+        _categoriaSeleccionada
+    ) { lista, consultaTexto, categoria ->
+        val queryNorm = normalizarTexto(consultaTexto)
+        lista.filter { item ->
+            val lugar = item.lugar
+            val coincideNombre = queryNorm.isEmpty() || normalizarTexto(lugar.nombre).contains(queryNorm)
+            val coincideCategoria = categoria == null || categoria == "Todas" || lugar.categoria.equals(categoria, ignoreCase = true)
+            coincideNombre && coincideCategoria
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
+    )
+
+    val masCercano: StateFlow<Lugar?> = lugaresFiltrados
         .map { lista ->
             lista.firstOrNull { it.metros != null }?.lugar
         }
@@ -46,6 +77,14 @@ class MapaViewModel(
     init {
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = errorPlayServices()
+        }
+        viewModelScope.launch {
+            lugaresFiltrados.collect { filtrados ->
+                val sel = _seleccionado.value
+                if (sel != null && filtrados.none { it.lugar.id == sel }) {
+                    _seleccionado.value = null
+                }
+            }
         }
     }
 
@@ -93,6 +132,14 @@ class MapaViewModel(
     }
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    fun actualizarConsulta(nuevaConsulta: String) {
+        _consulta.value = nuevaConsulta
+    }
+
+    fun seleccionarCategoria(nuevaCategoria: String?) {
+        _categoriaSeleccionada.value = nuevaCategoria
     }
 
     private fun errorDe(error: Throwable): UbicacionUi.Error {

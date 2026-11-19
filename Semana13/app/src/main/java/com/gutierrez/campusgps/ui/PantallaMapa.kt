@@ -31,12 +31,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.OutlinedButton
 import com.gutierrez.campusgps.util.formatearDistancia
 import com.gutierrez.campusgps.model.TipoError
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Box
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val consulta by vm.consulta.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val categorias by vm.categorias.collectAsState()
+    val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
 
@@ -95,6 +104,38 @@ fun PantallaMapa(vm: MapaViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            OutlinedTextField(
+                value = consulta,
+                onValueChange = { vm.actualizarConsulta(it) },
+                label = { Text("Buscar lugar") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    if (consulta.isNotEmpty()) {
+                        IconButton(onClick = { vm.actualizarConsulta("") }) {
+                            Text("✕")
+                        }
+                    }
+                }
+            )
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(categorias) { cat ->
+                    val seleccionada = (cat == "Todas" && (categoriaSeleccionada == null || categoriaSeleccionada == "Todas")) ||
+                            (cat == categoriaSeleccionada)
+                    FilterChip(
+                        selected = seleccionada,
+                        onClick = {
+                            vm.seleccionarCategoria(if (cat == "Todas") null else cat)
+                        },
+                        label = { Text(cat) }
+                    )
+                }
+            }
+
             val sinPlayServices =
                 (estado as? UbicacionUi.Error)?.tipo ==
                         TipoError.SIN_PLAY_SERVICES
@@ -109,7 +150,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             } else {
                 MapaUbicacion(
                     estado = estado,
-                    lugares = lugares,
+                    lugares = lugaresFiltrados,
                     seleccionado = seleccionado,
                     masCercanoId = masCercano?.id,
                     modifier = Modifier
@@ -158,7 +199,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             }
 
             masCercano?.let { lugar ->
-                val metros = lugares
+                val metros = lugaresFiltrados
                     .firstOrNull { it.lugar.id == lugar.id }
                     ?.metros
 
@@ -170,14 +211,29 @@ fun PantallaMapa(vm: MapaViewModel) {
                 }
             }
 
-            ListaLugares(
-                lugares = lugares,
-                seleccionado = seleccionado,
-                onClick = { id -> vm.seleccionar(id) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
+            if (lugaresFiltrados.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No se encontraron lugares",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                ListaLugares(
+                    lugares = lugaresFiltrados,
+                    seleccionado = seleccionado,
+                    onClick = { id -> vm.seleccionar(id) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                )
+            }
         }
     }
 }
