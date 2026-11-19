@@ -2,6 +2,7 @@ package com.gutierrez.campusgps.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gutierrez.campusgps.data.FavoritosRepository
 import com.gutierrez.campusgps.data.LugaresRepository
 import com.gutierrez.campusgps.data.UbicacionRepository
 import com.gutierrez.campusgps.model.LugarConDistancia
@@ -20,10 +21,12 @@ import com.gutierrez.campusgps.data.UbicacionNoDisponibleException
 import com.gutierrez.campusgps.model.TipoError
 import kotlinx.coroutines.flow.combine
 import com.gutierrez.campusgps.util.normalizarTexto
+import kotlin.coroutines.cancellation.CancellationException
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    private val lugaresRepo: LugaresRepository
+    private val lugaresRepo: LugaresRepository,
+    private val favoritosRepo: FavoritosRepository
 ) : ViewModel() {
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
@@ -39,6 +42,19 @@ class MapaViewModel(
     private val _categoriaSeleccionada = MutableStateFlow<String?>("Todas")
     val categoriaSeleccionada: StateFlow<String?> = _categoriaSeleccionada.asStateFlow()
 
+    private val _soloFavoritos = MutableStateFlow(false)
+    val soloFavoritos: StateFlow<Boolean> = _soloFavoritos.asStateFlow()
+
+    val favoritos: StateFlow<Set<Int>> = favoritosRepo.favoritos
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptySet()
+        )
+
+    private val _errorEscrituraFavoritos = MutableStateFlow<String?>(null)
+    val errorEscrituraFavoritos: StateFlow<String?> = _errorEscrituraFavoritos.asStateFlow()
+
     val categorias: StateFlow<List<String>> = MutableStateFlow(
         listOf("Todas") + lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
     ).asStateFlow()
@@ -46,14 +62,17 @@ class MapaViewModel(
     val lugaresFiltrados: StateFlow<List<LugarConDistancia>> = combine(
         _lugares,
         _consulta,
-        _categoriaSeleccionada
-    ) { lista, consultaTexto, categoria ->
+        _categoriaSeleccionada,
+        _soloFavoritos,
+        favoritos
+    ) { lista, consultaTexto, categoria, soloFav, favs ->
         val queryNorm = normalizarTexto(consultaTexto)
         lista.filter { item ->
             val lugar = item.lugar
             val coincideNombre = queryNorm.isEmpty() || normalizarTexto(lugar.nombre).contains(queryNorm)
             val coincideCategoria = categoria == null || categoria == "Todas" || lugar.categoria.equals(categoria, ignoreCase = true)
-            coincideNombre && coincideCategoria
+            val coincideFavorito = !soloFav || favs.contains(lugar.id)
+            coincideNombre && coincideCategoria && coincideFavorito
         }
     }.stateIn(
         scope = viewModelScope,
@@ -140,6 +159,22 @@ class MapaViewModel(
 
     fun seleccionarCategoria(nuevaCategoria: String?) {
         _categoriaSeleccionada.value = nuevaCategoria
+    }
+
+    fun alternarFavorito(id: Int) {
+        viewModelScope.launch {
+            try {
+                _errorEscrituraFavoritos.value = null
+                favoritosRepo.alternarFavorito(id)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _errorEscrituraFavoritos.value = "No se pudo actualizar el favorito. Intenta de nuevo."
+            }
+        }
+    }
+
+    fun alternarSoloFavoritos() {
+        _soloFavoritos.value = !_soloFavoritos.value
     }
 
     private fun errorDe(error: Throwable): UbicacionUi.Error {

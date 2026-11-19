@@ -2,6 +2,7 @@ package com.gutierrez.campusgps.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.campusgps.model.LugarConDistancia
@@ -29,7 +33,9 @@ import com.gutierrez.campusgps.util.formatearDistancia
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    favoritos: Set<Int>,
     onClick: (Int) -> Unit,
+    onToggleFavorito: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -42,9 +48,9 @@ fun ListaLugares(
         ) { item ->
             val lugar = item.lugar
             val estaSeleccionado = lugar.id == seleccionado
+            val esFavorito = favoritos.contains(lugar.id)
 
             Card(
-                onClick = { onClick(lugar.id) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = if (estaSeleccionado) {
@@ -72,25 +78,45 @@ fun ListaLugares(
                             .background(Color(0xFF0099FF), CircleShape)
                     )
 
-                    Column(
-                        modifier = Modifier.weight(1f)
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onClick(lugar.id) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = lugar.nombre,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = lugar.categoria,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
                         Text(
-                            text = lugar.nombre,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = lugar.categoria,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = item.metros?.let { formatearDistancia(it) }
+                                ?: "Sin calcular",
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
 
-                    Text(
-                        text = item.metros?.let { formatearDistancia(it) }
-                            ?: "Sin calcular",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    IconToggleButton(
+                        checked = esFavorito,
+                        onCheckedChange = { onToggleFavorito(lugar.id) }
+                    ) {
+                        Text(
+                            text = if (esFavorito) "★" else "☆",
+                            modifier = Modifier.semantics {
+                                contentDescription = if (esFavorito) "Quitar de favoritos" else "Marcar como favorito"
+                            }
+                        )
+                    }
                 }
             }
         }

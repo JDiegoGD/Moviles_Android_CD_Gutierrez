@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +49,9 @@ fun PantallaMapa(vm: MapaViewModel) {
     val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val favoritos by vm.favoritos.collectAsState()
+    val soloFavoritos by vm.soloFavoritos.collectAsState()
+    val errorEscrituraFavoritos by vm.errorEscrituraFavoritos.collectAsState()
 
     val contexto = LocalContext.current
 
@@ -119,6 +123,18 @@ fun PantallaMapa(vm: MapaViewModel) {
                 }
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilterChip(
+                    selected = soloFavoritos,
+                    onClick = { vm.alternarSoloFavoritos() },
+                    label = { Text("Solo favoritos") }
+                )
+            }
+
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -134,6 +150,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                         label = { Text(cat) }
                     )
                 }
+            }
+
+            errorEscrituraFavoritos?.let { mensajeError ->
+                Text(
+                    text = mensajeError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
             val sinPlayServices =
@@ -218,8 +242,13 @@ fun PantallaMapa(vm: MapaViewModel) {
                         .height(180.dp),
                     contentAlignment = Alignment.Center
                 ) {
+                    val mensajeVacio = if (soloFavoritos && favoritos.isEmpty()) {
+                        "No hay favoritos marcados"
+                    } else {
+                        "No se encontraron lugares"
+                    }
                     Text(
-                        text = "No se encontraron lugares",
+                        text = mensajeVacio,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -228,7 +257,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                 ListaLugares(
                     lugares = lugaresFiltrados,
                     seleccionado = seleccionado,
+                    favoritos = favoritos,
                     onClick = { id -> vm.seleccionar(id) },
+                    onToggleFavorito = { id -> vm.alternarFavorito(id) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)

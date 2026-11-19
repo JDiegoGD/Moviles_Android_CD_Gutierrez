@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gutierrez.campusgps.data.FavoritosRepositoryPreferences
 import com.gutierrez.campusgps.data.LugaresRepositoryLocal
 import com.gutierrez.campusgps.data.UbicacionRepositoryGoogle
 import com.gutierrez.campusgps.ui.PantallaMapa
@@ -22,7 +23,8 @@ class MainActivity : ComponentActivity() {
 
         val factory = CampusViewModelFactory(
             ubicacionRepo = UbicacionRepositoryGoogle(applicationContext),
-            lugaresRepo = LugaresRepositoryLocal()
+            lugaresRepo = LugaresRepositoryLocal(),
+            favoritosRepo = FavoritosRepositoryPreferences(applicationContext)
         )
 
         setContent {
