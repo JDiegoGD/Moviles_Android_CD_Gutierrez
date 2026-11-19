@@ -12,6 +12,7 @@ import com.gutierrez.campusgps.model.Posicion
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import android.location.LocationManager
+import androidx.annotation.RequiresPermission
 import androidx.core.location.LocationManagerCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -27,6 +28,7 @@ class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
                 ConnectionResult.SUCCESS
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override suspend fun obtenerPosicion(): Result<Posicion> {
         val permisoPreciso = tienePermiso(Manifest.permission.ACCESS_FINE_LOCATION)
         val permisoAproximado = tienePermiso(Manifest.permission.ACCESS_COARSE_LOCATION)
