@@ -16,6 +16,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.gutierrez.campusgps.model.LugarConDistancia
 import com.gutierrez.campusgps.model.UbicacionUi
+import androidx.compose.runtime.key
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -65,7 +67,25 @@ fun MapaUbicacion(
             )
         }
 
-        // TODO Paso 4: dibujar los marcadores azules de los lugares.
+        lugares.forEach { lugarConDistancia ->
+            val lugar = lugarConDistancia.lugar
+
+            key(lugar.id) {
+                Marker(
+                    state = rememberUpdatedMarkerState(
+                        position = LatLng(
+                            lugar.latitud,
+                            lugar.longitud
+                        )
+                    ),
+                    title = lugar.nombre,
+                    snippet = lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_AZURE
+                    )
+                )
+            }
+        }
         // TODO Paso 6: mover la cámara al lugar seleccionado.
         // TODO Paso 7: representar en verde el lugar más cercano.
     }
