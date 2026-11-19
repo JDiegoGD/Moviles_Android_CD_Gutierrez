@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.OutlinedButton
+import com.gutierrez.campusgps.util.formatearDistancia
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +37,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
 
     val contexto = LocalContext.current
 
@@ -94,6 +97,18 @@ fun PantallaMapa(vm: MapaViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                masCercanoId = masCercano?.id,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+
+
+
             Button(
                 onClick = alPulsarUbicacion, // Se sustituye por el flujo de permisos en el paso 2.
                 enabled = estado != UbicacionUi.Buscando
@@ -117,14 +132,29 @@ fun PantallaMapa(vm: MapaViewModel) {
                 )
             }
 
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
+            OutlinedButton(
+                onClick = {
+                    masCercano?.let { lugar ->
+                        vm.seleccionar(lugar.id)
+                    }
+                },
+                enabled = masCercano != null
+            ) {
+                Text("Ir al más cercano")
+            }
+
+            masCercano?.let { lugar ->
+                val metros = lugares
+                    .firstOrNull { it.lugar.id == lugar.id }
+                    ?.metros
+
+                if (metros != null) {
+                    Text(
+                        text = "Más cercano: ${lugar.nombre} " +
+                                "(${formatearDistancia(metros)})"
+                    )
+                }
+            }
 
             ListaLugares(
                 lugares = lugares,

@@ -12,6 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.gutierrez.campusgps.model.Posicion
 import com.gutierrez.campusgps.util.distanciaMetros
+import com.gutierrez.campusgps.model.Lugar
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
     private val lugaresRepo: LugaresRepository
@@ -23,6 +27,16 @@ class MapaViewModel(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
     )
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
+
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista ->
+            lista.firstOrNull { it.metros != null }?.lugar
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
@@ -67,7 +81,6 @@ class MapaViewModel(
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
     }
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>, derivado de lugares.
     // TODO Paso 8: distinguir tipos de error y comprobar Google Play Services.
 
     private fun mensajeDe(error: Throwable): String = when (error) {
