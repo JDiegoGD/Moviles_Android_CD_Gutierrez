@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconToggleButton
@@ -27,6 +28,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gutierrez.campusgps.model.LugarConDistancia
+import com.gutierrez.campusgps.ui.theme.BorderGray
+import com.gutierrez.campusgps.ui.theme.CyanContainer
+import com.gutierrez.campusgps.ui.theme.CyanPrimary
+import com.gutierrez.campusgps.ui.theme.NavyBlue
+import com.gutierrez.campusgps.ui.theme.SurfaceWhite
 import com.gutierrez.campusgps.util.formatearDistancia
 
 @Composable
@@ -40,7 +46,7 @@ fun ListaLugares(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         items(
             items = lugares,
@@ -52,30 +58,30 @@ fun ListaLugares(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (estaSeleccionado) {
-                        MaterialTheme.colorScheme.primaryContainer
+                        CyanContainer
                     } else {
-                        MaterialTheme.colorScheme.surfaceVariant
+                        SurfaceWhite
                     }
                 ),
-                border = if (estaSeleccionado) {
-                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-                } else {
-                    null
-                }
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (estaSeleccionado) CyanPrimary else BorderGray
+                )
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp),
+                        .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(10.dp)
-                            .background(Color(0xFF0099FF), CircleShape)
+                            .size(8.dp)
+                            .background(CyanPrimary, CircleShape)
                     )
 
                     Row(
@@ -83,14 +89,16 @@ fun ListaLugares(
                             .weight(1f)
                             .clickable { onClick(lugar.id) },
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Column(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 text = lugar.nombre,
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = NavyBlue
                             )
                             Text(
                                 text = lugar.categoria,
@@ -102,7 +110,9 @@ fun ListaLugares(
                         Text(
                             text = item.metros?.let { formatearDistancia(it) }
                                 ?: "Sin calcular",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = NavyBlue
                         )
                     }
 
@@ -112,6 +122,7 @@ fun ListaLugares(
                     ) {
                         Text(
                             text = if (esFavorito) "★" else "☆",
+                            color = if (esFavorito) Color(0xFFFFB300) else Color.Gray,
                             modifier = Modifier.semantics {
                                 contentDescription = if (esFavorito) "Quitar de favoritos" else "Marcar como favorito"
                             }
