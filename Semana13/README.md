@@ -92,3 +92,8 @@ flowchart TD
 |------------------------------------------|--------------------------------------------------|---------------------------------------------|------------------------------------------------|----------------------------------------|
 | ![This is an alt text.](img/Permiso.png) | ![This is an alt text.](img/MapaMiUbicacion.png) | ![This is an alt text.](img/Marcadores.png) | ![This is an alt text.](img/ListaOrdenada.png) | ![This is an alt text.](img/Error.png) |
 
+---
+### Capturas Mejora-ia
+| Favoritos                                  | Categoria                                  | Busqueda                                  |
+|--------------------------------------------|--------------------------------------------|-------------------------------------------|
+| ![This is an alt text.](img/Favoritos.png) | ![This is an alt text.](img/Categoria.png) | ![This is an alt text.](img/Busqueda.png) |
