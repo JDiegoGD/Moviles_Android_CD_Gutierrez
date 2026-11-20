@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.Row
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val ultimaPosicion by vm.ultimaPosicion.collectAsState()
     val consulta by vm.consulta.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
     val categorias by vm.categorias.collectAsState()
@@ -174,6 +175,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             } else {
                 MapaUbicacion(
                     estado = estado,
+                    ultimaPosicion = ultimaPosicion,
                     lugares = lugaresFiltrados,
                     seleccionado = seleccionado,
                     masCercanoId = masCercano?.id,
@@ -183,13 +185,26 @@ fun PantallaMapa(vm: MapaViewModel) {
                 )
             }
 
-
-
-            Button(
-                onClick = alPulsarUbicacion, // Se sustituye por el flujo de permisos en el paso 2.
-                enabled = estado != UbicacionUi.Buscando
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Obtener mi ubicación")
+                Button(
+                    onClick = alPulsarUbicacion,
+                    enabled = estado !is UbicacionUi.Buscando,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Obtener mi ubicación")
+                }
+
+                OutlinedButton(
+                    onClick = { vm.cancelarBusqueda() },
+                    enabled = estado is UbicacionUi.Buscando,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancelar búsqueda")
+                }
             }
 
             when (val actual = estado) {
@@ -204,6 +219,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                                 "Lon: ${actual.posicion.longitud}",
                         style = MaterialTheme.typography.bodySmall
                     )
+                }
+                UbicacionUi.Cancelada -> {
+                    Text("Búsqueda cancelada")
                 }
                 is UbicacionUi.Error -> MensajeError(
                     error = actual,

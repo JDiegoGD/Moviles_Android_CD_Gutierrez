@@ -21,6 +21,10 @@ import com.gutierrez.campusgps.data.UbicacionNoDisponibleException
 import com.gutierrez.campusgps.model.TipoError
 import kotlinx.coroutines.flow.combine
 import com.gutierrez.campusgps.util.normalizarTexto
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.isActive
 import kotlin.coroutines.cancellation.CancellationException
 
 class MapaViewModel(
@@ -30,6 +34,11 @@ class MapaViewModel(
 ) : ViewModel() {
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
+
+    private val _ultimaPosicion = MutableStateFlow<Posicion?>(null)
+    val ultimaPosicion: StateFlow<Posicion?> = _ultimaPosicion.asStateFlow()
+
+    private var busquedaJob: Job? = null
 
     private val _lugares = MutableStateFlow(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
@@ -123,7 +132,7 @@ class MapaViewModel(
             .sortedBy { it.metros }
     }
     fun buscar() {
-        if (_estado.value == UbicacionUi.Buscando) return
+        if (busquedaJob?.isActive == true || _estado.value == UbicacionUi.Buscando) return
 
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = errorPlayServices()
@@ -132,17 +141,43 @@ class MapaViewModel(
 
         _estado.value = UbicacionUi.Buscando
 
-        viewModelScope.launch {
-            ubicacionRepo.obtenerPosicion()
-                .onSuccess { posicion ->
+        busquedaJob = viewModelScope.launch {
+            try {
+                val resultado = withTimeout(15_000L) {
+                    ubicacionRepo.obtenerPosicion()
+                }
+                resultado.onSuccess { posicion ->
+                    _ultimaPosicion.value = posicion
                     actualizarDistancias(posicion)
                     _estado.value = UbicacionUi.Lista(posicion)
-                }
-                .onFailure { error ->
+                }.onFailure { error ->
                     _estado.value = errorDe(error)
                 }
+            } catch (e: TimeoutCancellationException) {
+                if (coroutineContext.isActive) {
+                    _estado.value = UbicacionUi.Error(
+                        mensaje = "La búsqueda tardó demasiado. Intenta de nuevo",
+                        tipo = TipoError.OTRO
+                    )
+                } else {
+                    throw e
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _estado.value = errorDe(e)
+            } finally {
+                busquedaJob = null
+            }
         }
     }
+
+    fun cancelarBusqueda() {
+        busquedaJob?.cancel()
+        busquedaJob = null
+        _estado.value = UbicacionUi.Cancelada
+    }
+
     fun permisoDenegado() {
         _estado.value = UbicacionUi.Error(
             mensaje = "Sin permiso de ubicación no puedo mostrar dónde estás",

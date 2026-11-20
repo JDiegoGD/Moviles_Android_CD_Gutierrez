@@ -18,11 +18,13 @@ import com.gutierrez.campusgps.model.LugarConDistancia
 import com.gutierrez.campusgps.model.UbicacionUi
 import androidx.compose.runtime.key
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.gutierrez.campusgps.model.Posicion
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun MapaUbicacion(
     estado: UbicacionUi,
+    ultimaPosicion: Posicion?,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercanoId: Int?,
@@ -74,14 +76,16 @@ fun MapaUbicacion(
         cameraPositionState = camara,
         onMapLoaded = { mapaCargado = true }
     ) {
-        if (estado is UbicacionUi.Lista) {
-            val posicion = LatLng(
-                estado.posicion.latitud,
-                estado.posicion.longitud
-            )
+        val posicionActiva = when (estado) {
+            is UbicacionUi.Lista -> estado.posicion
+            else -> ultimaPosicion
+        }
+
+        posicionActiva?.let { pos ->
+            val latLng = LatLng(pos.latitud, pos.longitud)
 
             Marker(
-                state = rememberUpdatedMarkerState(position = posicion),
+                state = rememberUpdatedMarkerState(position = latLng),
                 title = "Estás aquí"
             )
         }
